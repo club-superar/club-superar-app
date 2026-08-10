@@ -1,5 +1,5 @@
--- Club SUPER.AR â€” FASE 1
--- Esquema inicial de sorteos, fidelizaciÃ³n y auditorÃ­a.
+-- Club SUPER.AR — FASE 1
+-- Esquema inicial de sorteos, fidelización y auditoría.
 
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
@@ -368,9 +368,9 @@ create table private.app_settings (
 
 insert into public.badge_definitions (badge_key, name, description, icon, repeatable)
 values
-  ('winner', 'Ganador', 'Se obtiene cada vez que gana un sorteo.', 'ðŸ†', true),
-  ('loyal', 'Fiel', 'Reconoce una racha de participaciÃ³n destacada.', 'ðŸ”¥', false),
-  ('legend', 'Leyenda SUPER.AR', 'Reconoce una cantidad importante de SUPER Puntos.', 'ðŸ’Ž', false);
+  ('winner', 'Ganador', 'Se obtiene cada vez que gana un sorteo.', '🏆', true),
+  ('loyal', 'Fiel', 'Reconoce una racha de participación destacada.', '🔥', false),
+  ('legend', 'Leyenda SUPER.AR', 'Reconoce una cantidad importante de SUPER Puntos.', '💎', false);
 
 insert into private.app_settings (setting_key, setting_value)
 values (
@@ -399,7 +399,7 @@ alter table private.admin_roles enable row level security;
 alter table private.audit_log enable row level security;
 alter table private.app_settings enable row level security;
 
--- Revocar permisos amplios y conceder sÃ³lo las lecturas/escrituras necesarias.
+-- Revocar permisos amplios y conceder sólo las lecturas/escrituras necesarias.
 revoke all on all tables in schema public from anon, authenticated;
 revoke all on all sequences in schema public from anon, authenticated;
 
@@ -479,5 +479,5 @@ create policy winners_public_read
 on public.winners for select to anon, authenticated
 using (true);
 
--- Tablas sin polÃ­ticas pÃºblicas permanecen inaccesibles para clientes.
--- Todas las escrituras sensibles se realizarÃ¡n desde lÃ³gica de servidor auditada.
+-- Tablas sin políticas públicas permanecen inaccesibles para clientes.
+-- Todas las escrituras sensibles se realizarán desde lógica de servidor auditada.

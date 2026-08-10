@@ -1,21 +1,21 @@
 # Club SUPER.AR
 
-AplicaciÃ³n oficial mobile-first de sorteos y fidelizaciÃ³n de SUPER.AR.
+Aplicación oficial mobile-first de sorteos y fidelización de SUPER.AR.
 
 ## Estado
 
-FASE 1 en desarrollo. El repositorio es privado y todavÃ­a no existe un despliegue pÃºblico.
+FASE 1 en desarrollo. El repositorio es privado y todavía no existe un despliegue público.
 
-## TecnologÃ­as
+## Tecnologías
 
 - Next.js con App Router y TypeScript
 - Supabase (Auth, Postgres, RLS y funciones de servidor)
 - Netlify para despliegue
 
-## ConfiguraciÃ³n local
+## Configuración local
 
 1. Copiar `.env.example` como `.env.local`.
-2. Completar Ãºnicamente las variables del proyecto institucional de Supabase.
+2. Completar únicamente las variables del proyecto institucional de Supabase.
 3. Instalar dependencias con `pnpm install`.
 4. Iniciar con `pnpm dev`.
 

@@ -1,8 +1,8 @@
 const requirements = [
   { label: "Seguir a SUPER.AR", detail: "Cuenta oficial de Instagram", done: true },
-  { label: "Grupo de WhatsApp", detail: "ConfirmÃ¡ que seguÃ­s dentro", done: true },
-  { label: "Comentar y etiquetar", detail: "UsÃ¡ tu cÃ³digo SUPER-A7K4", done: true },
-  { label: "Compartir en tu historia", detail: "MencionÃ¡ a @SUPER.AR", done: false },
+  { label: "Grupo de WhatsApp", detail: "Confirmá que seguís dentro", done: true },
+  { label: "Comentar y etiquetar", detail: "Usá tu código SUPER-A7K4", done: true },
+  { label: "Compartir en tu historia", detail: "Mencioná a @SUPER.AR", done: false },
 ];
 
 export default function Home() {
@@ -13,19 +13,23 @@ export default function Home() {
           <span className="brand-super">SUPER</span><span className="brand-dot">.</span><span className="brand-ar">AR</span>
           <small>CLUB</small>
         </a>
-        <button className="avatar" type="button" aria-label="Abrir perfil">GA</button>
+        <a className="avatar" href="/perfil" aria-label="Abrir perfil">GA</a>
       </header>
 
       <section className="hero" id="inicio">
-        <p className="eyebrow">HOLA, @GONZA ðŸ‘‹</p>
+        <p className="eyebrow">HOLA, @GONZA 👋</p>
         <h1>Tu lugar en el<br /><span>Club SUPER.AR</span></h1>
-        <p className="hero-copy">ParticipÃ¡, sumÃ¡ puntos y ganÃ¡ con nosotros.</p>
+        <p className="hero-copy">Participá, sumá puntos y ganá con nosotros.</p>
+        <div className="hero-actions">
+          <a className="button primary" href="/registro">Quiero participar</a>
+          <a className="button secondary" href="/ingresar">Ya tengo cuenta</a>
+        </div>
       </section>
 
       <section className="stats" aria-label="Tu progreso">
-        <article><span>â­</span><strong>10</strong><small>SUPER Puntos</small></article>
-        <article><span>ðŸ”¥</span><strong>3</strong><small>Racha</small></article>
-        <article><span>ðŸŽŸï¸</span><strong>4</strong><small>Chances</small></article>
+        <article><span>⭐</span><strong>10</strong><small>SUPER Puntos</small></article>
+        <article><span>🔥</span><strong>3</strong><small>Racha</small></article>
+        <article><span>🎟️</span><strong>4</strong><small>Chances</small></article>
       </section>
 
       <section className="draw-card">
@@ -36,8 +40,8 @@ export default function Home() {
           </div>
           <strong className="prize">$50.000</strong>
         </div>
-        <div className="countdown" aria-label="Faltan 3 dÃ­as, 12 horas y 48 minutos">
-          <div><strong>03</strong><small>DÃAS</small></div><i>:</i>
+        <div className="countdown" aria-label="Faltan 3 días, 12 horas y 48 minutos">
+          <div><strong>03</strong><small>DÍAS</small></div><i>:</i>
           <div><strong>12</strong><small>HORAS</small></div><i>:</i>
           <div><strong>48</strong><small>MIN</small></div>
         </div>
@@ -45,7 +49,7 @@ export default function Home() {
 
       <section className="checklist">
         <div className="section-title">
-          <div><p className="eyebrow">TU PARTICIPACIÃ“N</p><h2>Te falta 1 paso</h2></div>
+          <div><p className="eyebrow">TU PARTICIPACIÓN</p><h2>Te falta 1 paso</h2></div>
           <span>3/4</span>
         </div>
         <div className="progress"><span /></div>
@@ -53,7 +57,7 @@ export default function Home() {
         <div className="requirement-list">
           {requirements.map((item) => (
             <article className={item.done ? "requirement done" : "requirement"} key={item.label}>
-              <span className="check" aria-hidden="true">{item.done ? "âœ“" : ""}</span>
+              <span className="check" aria-hidden="true">{item.done ? "✓" : ""}</span>
               <div><strong>{item.label}</strong><small>{item.detail}</small></div>
               {!item.done && <button type="button">Completar</button>}
             </article>
@@ -62,16 +66,16 @@ export default function Home() {
       </section>
 
       <aside className="bonus">
-        <span>âš¡</span>
-        <div><strong>SumÃ¡ hasta 2 chances extra</strong><small>EtiquetÃ¡ mÃ¡s personas o compartÃ­ otra publicaciÃ³n.</small></div>
-        <button type="button" aria-label="Ver chances extra">â†’</button>
+        <span>⚡</span>
+        <div><strong>Sumá hasta 2 chances extra</strong><small>Etiquetá más personas o compartí otra publicación.</small></div>
+        <button type="button" aria-label="Ver chances extra">→</button>
       </aside>
 
-      <nav className="bottom-nav" aria-label="NavegaciÃ³n principal">
-        <a className="active" href="#inicio"><span>âŒ‚</span>Inicio</a>
-        <a href="#sorteos"><span>â—‡</span>Sorteos</a>
-        <a href="#ganadores"><span>â™•</span>Ganadores</a>
-        <a href="#perfil"><span>â—‹</span>Mi perfil</a>
+      <nav className="bottom-nav" aria-label="Navegación principal">
+        <a className="active" href="#inicio"><span>⌂</span>Inicio</a>
+        <a href="#sorteos"><span>◇</span>Sorteos</a>
+        <a href="#ganadores"><span>♕</span>Ganadores</a>
+        <a href="#perfil"><span>○</span>Mi perfil</a>
       </nav>
     </main>
   );
