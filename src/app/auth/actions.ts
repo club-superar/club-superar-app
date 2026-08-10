@@ -38,19 +38,13 @@ export async function registerParticipant(_: AuthState, formData: FormData): Pro
   if (createError || !created.user) return { error: "No pudimos crear la cuenta. Intentá nuevamente." };
 
   const userId = created.user.id;
-  const { error: profileError } = await admin.from("profiles").insert({
-    id: userId,
-    instagram_username: username,
-    instagram_username_normalized: username,
+  const { error: profileError } = await admin.rpc("create_participant_profile", {
+    p_user_id: userId,
+    p_instagram_username: username,
+    p_recovery_code_hash: hashRecoveryCode(recoveryCode),
   });
-  const { error: secretError } = profileError
-    ? { error: profileError }
-    : await admin.schema("private").from("profile_secrets").insert({
-        profile_id: userId,
-        recovery_code_hash: hashRecoveryCode(recoveryCode),
-      });
 
-  if (profileError || secretError) {
+  if (profileError) {
     await admin.auth.admin.deleteUser(userId);
     return { error: profileError?.code === "23505" ? "Ese usuario ya está registrado." : "No pudimos terminar el registro." };
   }
