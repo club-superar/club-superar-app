@@ -114,3 +114,27 @@ export async function openDraw(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/admin");
 }
+
+export async function reviewRequirement(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const completionId = Number(formData.get("completionId"));
+  const drawId = Number(formData.get("drawId"));
+  const decision = String(formData.get("decision") ?? "");
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!Number.isSafeInteger(completionId) || completionId <= 0) return;
+  if (!Number.isSafeInteger(drawId) || drawId <= 0) return;
+  if (!new Set(["verified", "rejected"]).has(decision)) return;
+  if (decision === "rejected" && reason.length < 3) throw new Error("Escribi el motivo del rechazo.");
+
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_review_requirement", {
+    p_actor_id: actorId,
+    p_completion_id: completionId,
+    p_decision: decision,
+    p_reason: reason || null,
+  });
+  if (error) throw new Error("No pudimos guardar la revision.");
+  revalidatePath(`/admin/sorteos/${drawId}`);
+  revalidatePath("/");
+  revalidatePath("/perfil");
+}

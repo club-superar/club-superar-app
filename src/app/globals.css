@@ -175,3 +175,9 @@ button { cursor: pointer; }
 .review-rejected { color: #ff6475; }
 .review-not_started { color: var(--muted); }
 @media (max-width: 430px) { .admin-participant-head { flex-direction: column; } .admin-participant-head > div:last-child { justify-items: start; text-align: left; } }
+.review-actions { display: grid; gap: 5px; margin-top: 4px; }
+.review-actions form { display: grid; gap: 4px; }
+.review-actions input { min-width: 0; width: 100%; padding: 6px 7px; border: 1px solid var(--line); border-radius: 6px; background: #070a0b; color: var(--text); font-size: 10px; }
+.review-actions button { border: 0; border-radius: 6px; padding: 6px 7px; font-size: 9px; font-weight: 900; }
+.review-actions .verify { background: var(--cyan); color: #001014; }
+.review-actions .reject { background: #3b151b; color: #ff9aa5; }
