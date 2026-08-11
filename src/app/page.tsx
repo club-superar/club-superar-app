@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
-import { declareRequirement, startParticipation } from "@/app/participation/actions";
+import { declareExtraAction, declareRequirement, startParticipation } from "@/app/participation/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -44,6 +44,13 @@ type Participation = {
   requirement_completions: Completion[];
 };
 
+type SocialAction = {
+  id: number;
+  action_type: "additional_tag" | "extra_post_share";
+  target_instagram_username_normalized: string | null;
+  publication_id: string | null;
+};
+
 const completedStates = new Set(["declared", "detected", "verified"]);
 
 function formatPrize(draw: Draw) {
@@ -83,6 +90,7 @@ export default async function Home() {
   const draw = rawDraw as Draw | null;
 
   let participation: Participation | null = null;
+  let socialActions: SocialAction[] = [];
   if (draw && userId) {
     const { data } = await supabase
       .from("participations")
@@ -91,6 +99,15 @@ export default async function Home() {
       .eq("profile_id", userId)
       .maybeSingle();
     participation = data as unknown as Participation | null;
+    if (participation) {
+      const { data: actionRows } = await supabase
+        .from("social_actions")
+        .select("id, action_type, target_instagram_username_normalized, publication_id")
+        .eq("participation_id", participation.id)
+        .in("action_type", ["additional_tag", "extra_post_share"])
+        .order("created_at", { ascending: true });
+      socialActions = (actionRows ?? []) as SocialAction[];
+    }
   }
 
   const points = (pointRows ?? []).reduce((total, row) => total + Number(row.amount), 0);
@@ -205,9 +222,37 @@ export default async function Home() {
       )}
 
       {participation && (
-        <aside className="bonus">
+        <aside className="bonus extra-actions">
           <span aria-hidden="true">⚡</span>
-          <div><strong>Suma hasta 2 chances extra</strong><small>Las etiquetas y publicaciones adicionales se habilitaran en el siguiente bloque de esta misma fase.</small></div>
+          <div className="extra-actions-content">
+            <strong>Chances extra: {participation.extra_chances}/2</strong>
+            <small>Usa siempre {participation.participant_code}. Cada accion diferente suma 1 chance, hasta un maximo de 2.</small>
+            {socialActions.length > 0 && (
+              <ul className="extra-action-list">
+                {socialActions.map((action) => (
+                  <li key={action.id}>✓ {action.action_type === "additional_tag" ? `Etiqueta a @${action.target_instagram_username_normalized}` : `Publicacion ${action.publication_id}`}</li>
+                ))}
+              </ul>
+            )}
+            {participation.extra_chances < 2 && (
+              <div className="extra-action-forms">
+                <form action={declareExtraAction}>
+                  <input type="hidden" name="participationId" value={participation.id} />
+                  <input type="hidden" name="actionType" value="additional_tag" />
+                  <label htmlFor="extra-tag">Etiquete a otra persona</label>
+                  <input id="extra-tag" name="value" placeholder="@usuario" pattern="@?[A-Za-z0-9._]{1,30}" required />
+                  <button type="submit">Sumar etiqueta</button>
+                </form>
+                <form action={declareExtraAction}>
+                  <input type="hidden" name="participationId" value={participation.id} />
+                  <input type="hidden" name="actionType" value="extra_post_share" />
+                  <label htmlFor="extra-post">Comparti otra publicacion de SUPER.AR</label>
+                  <input id="extra-post" name="value" type="url" placeholder="https://instagram.com/p/..." required />
+                  <button type="submit">Sumar publicacion</button>
+                </form>
+              </div>
+            )}
+          </div>
         </aside>
       )}
 
