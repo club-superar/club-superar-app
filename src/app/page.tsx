@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
 import { declareRequirement, startParticipation } from "@/app/participation/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
@@ -104,6 +105,7 @@ export default async function Home() {
 
   return (
     <main className="app-shell">
+      <AdminInviteRedirect />
       <header className="topbar">
         <Link className="brand" href="/" aria-label="Club SUPER.AR, inicio">
           <span>SUPER</span><span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small>
@@ -124,9 +126,9 @@ export default async function Home() {
       </section>
 
       <section className="stats" aria-label="Tu progreso">
-        <article><span aria-hidden="true">&#9733;</span><strong>{points}</strong><small>SUPER Puntos</small></article>
-        <article><span aria-hidden="true">&#128293;</span><strong>{participation?.streak_number ?? profile?.current_streak ?? 0}</strong><small>Racha</small></article>
-        <article><span aria-hidden="true">&#127915;</span><strong>{participation?.final_chances ?? 0}</strong><small>Chances</small></article>
+        <article><span aria-hidden="true">★</span><strong>{points}</strong><small>SUPER Puntos</small></article>
+        <article><span aria-hidden="true">🔥</span><strong>{participation?.streak_number ?? profile?.current_streak ?? 0}</strong><small>Racha</small></article>
+        <article><span aria-hidden="true">🎟</span><strong>{participation?.final_chances ?? 0}</strong><small>Chances</small></article>
       </section>
 
       {draw ? (
@@ -168,7 +170,7 @@ export default async function Home() {
       {participation && (
         <section className="checklist">
           <div className="section-title">
-            <div><p className="eyebrow">TU PARTICIPACION</p><h2>{missingCount === 0 ? "Estas participando" : `Te ${missingCount === 1 ? "falta" : "faltan"} ${missingCount} ${missingCount === 1 ? "paso" : "pasos"}`}</h2></div>
+            <div><p className="eyebrow">TU PARTICIPACION</p><h2>{missingCount === 0 ? "¡Estas participando!" : `Te ${missingCount === 1 ? "falta" : "faltan"} ${missingCount} ${missingCount === 1 ? "paso" : "pasos"}`}</h2></div>
             <span>{completedCount}/{requiredCount}</span>
           </div>
           <div className="participant-code"><small>TU CODIGO DE ESTA EDICION</small><strong>{participation.participant_code}</strong><span>Usa siempre este mismo codigo en tus comentarios.</span></div>
@@ -183,7 +185,7 @@ export default async function Home() {
                 : requirement.instructions;
               return (
                 <article className={done ? "requirement done" : "requirement"} key={item.id}>
-                  <span className="check" aria-hidden="true">{done ? "\u2713" : ""}</span>
+                  <span className="check" aria-hidden="true">{done ? "✓" : ""}</span>
                   <div><strong>{requirement.title}</strong><small>{detail}</small></div>
                   {!done && (
                     <div className="requirement-actions">
@@ -204,16 +206,16 @@ export default async function Home() {
 
       {participation && (
         <aside className="bonus">
-          <span aria-hidden="true">&#9889;</span>
+          <span aria-hidden="true">⚡</span>
           <div><strong>Suma hasta 2 chances extra</strong><small>Las etiquetas y publicaciones adicionales se habilitaran en el siguiente bloque de esta misma fase.</small></div>
         </aside>
       )}
 
       <nav className="bottom-nav" aria-label="Navegacion principal">
-        <Link className="active" href="/"><span>&#8962;</span>Inicio</Link>
-        <Link href="/#sorteos"><span>&#9671;</span>Sorteos</Link>
-        <Link href="/#ganadores"><span>&#9813;</span>Ganadores</Link>
-        <Link href={username ? "/perfil" : "/ingresar"}><span>&#9675;</span>Mi perfil</Link>
+        <Link className="active" href="/"><span>⌂</span>Inicio</Link>
+        <Link href="/#sorteos"><span>◇</span>Sorteos</Link>
+        <Link href="/#ganadores"><span>♕</span>Ganadores</Link>
+        <Link href={username ? "/perfil" : "/ingresar"}><span>○</span>Mi perfil</Link>
       </nav>
     </main>
   );
