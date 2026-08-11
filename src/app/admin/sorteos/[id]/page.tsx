@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { reviewRequirement } from "@/app/admin/actions";
+import { reviewRequirement, selectProvisionalWinner } from "@/app/admin/actions";
+import { DrawReveal } from "@/app/admin/sorteos/[id]/draw-reveal";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 type AdminDrawPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ q?: string }>;
+  searchParams: Promise<{ q?: string; reveal?: string }>;
 };
 
 type Completion = {
@@ -42,9 +43,11 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
   const drawId = Number((await params).id);
   if (!Number.isSafeInteger(drawId) || drawId <= 0) notFound();
 
-  const query = String((await searchParams).q ?? "").trim().toLowerCase().replace(/^@/, "");
+  const resolvedSearchParams = await searchParams;
+  const query = String(resolvedSearchParams.q ?? "").trim().toLowerCase().replace(/^@/, "");
+  const revealAttemptId = Number(resolvedSearchParams.reveal);
   const admin = createAdminSupabaseClient();
-  const [{ data: draw }, { data: rawParticipations }, { data: snapshot }] = await Promise.all([
+  const [{ data: draw }, { data: rawParticipations }, { data: snapshot }, { data: attempts }, { data: snapshotEntries }] = await Promise.all([
     admin.from("draws").select("id, edition_number, title, prize_name, status").eq("id", drawId).maybeSingle(),
     admin
       .from("participations")
@@ -52,6 +55,8 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
       .eq("draw_id", drawId)
       .order("created_at", { ascending: false }),
     admin.from("draw_snapshots").select("participant_count, total_chances, snapshot_hash, created_at").eq("draw_id", drawId).order("version", { ascending: false }).limit(1).maybeSingle(),
+    admin.from("draw_attempts").select("id, attempt_number, status, created_at, draw_snapshot_entries!inner(instagram_username, participation_id)").eq("draw_id", drawId).order("attempt_number", { ascending: false }).limit(1),
+    admin.from("draw_snapshot_entries").select("instagram_username, draw_snapshots!inner(draw_id)").eq("draw_snapshots.draw_id", drawId).order("id", { ascending: true }),
   ]);
   if (!draw) notFound();
 
@@ -60,6 +65,13 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
     ? participations.filter((item) => item.profiles.instagram_username.toLowerCase().includes(query)
       || item.participant_code.toLowerCase().includes(query))
     : participations;
+  const latestAttempt = attempts?.[0] as unknown as {
+    id: number;
+    attempt_number: number;
+    status: string;
+    draw_snapshot_entries: { instagram_username: string; participation_id: number };
+  } | undefined;
+  const candidateNames = (snapshotEntries ?? []).map((entry) => entry.instagram_username);
 
   return (
     <main className="admin-shell">
@@ -87,6 +99,27 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
           <small>Huella SHA-256</small>
           <code>{snapshot.snapshot_hash}</code>
         </section>
+      )}
+
+      {snapshot && draw.status === "frozen" && !latestAttempt && (
+        <section className="admin-draw-control">
+          <p className="eyebrow cyan">LISTA CERRADA</p>
+          <h2>Todo listo para sortear</h2>
+          <p>La eleccion se guarda primero y la animacion solamente revela el resultado.</p>
+          <form action={selectProvisionalWinner}>
+            <input type="hidden" name="drawId" value={draw.id} />
+            <button type="submit">🎲 REALIZAR SORTEO</button>
+          </form>
+        </section>
+      )}
+
+      {latestAttempt && (
+        <DrawReveal
+          animate={revealAttemptId === latestAttempt.id}
+          attemptNumber={latestAttempt.attempt_number}
+          candidates={candidateNames}
+          winner={latestAttempt.draw_snapshot_entries.instagram_username}
+        />
       )}
 
       <section className="admin-panel">

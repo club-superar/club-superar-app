@@ -157,3 +157,25 @@ export async function freezeDraw(formData: FormData) {
   revalidatePath("/admin");
   revalidatePath(`/admin/sorteos/${drawId}`);
 }
+
+export async function selectProvisionalWinner(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const drawId = Number(formData.get("drawId"));
+  if (!Number.isSafeInteger(drawId) || drawId <= 0) return;
+
+  const admin = createAdminSupabaseClient();
+  const { data, error } = await admin.rpc("admin_select_provisional_winner", {
+    p_actor_id: actorId,
+    p_draw_id: drawId,
+  });
+  if (error) {
+    if (error.message.includes("UNRESOLVED_ATTEMPT")) throw new Error("Ya hay un ganador provisional pendiente de revision.");
+    if (error.message.includes("NO_CANDIDATES_LEFT")) throw new Error("No quedan participantes habilitados.");
+    throw new Error("No pudimos realizar el sorteo.");
+  }
+
+  const attempt = data as { id?: number } | null;
+  revalidatePath("/admin");
+  revalidatePath(`/admin/sorteos/${drawId}`);
+  redirect(`/admin/sorteos/${drawId}?reveal=${attempt?.id ?? ""}`);
+}
