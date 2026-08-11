@@ -33,6 +33,27 @@ export async function logoutAdmin() {
   redirect("/admin/ingresar");
 }
 
+export async function setAdminPassword(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const password = String(formData.get("password") ?? "");
+  const repeatPassword = String(formData.get("repeatPassword") ?? "");
+  if (password.length < 12) return { error: "La contrasena debe tener al menos 12 caracteres." };
+  if (password !== repeatPassword) return { error: "Las dos contrasenas no coinciden." };
+
+  const supabase = await createServerSupabaseClient();
+  const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
+  if (claimsError || !claimsData?.claims?.sub) return { error: "El enlace vencio. Solicita uno nuevo." };
+
+  const admin = createAdminSupabaseClient();
+  const { data: allowed } = await admin.rpc("is_phase1_admin", {
+    p_user_id: claimsData.claims.sub,
+  });
+  if (!allowed) return { error: "Esta cuenta no tiene permiso de administracion." };
+
+  const { error } = await supabase.auth.updateUser({ password });
+  if (error) return { error: "No pudimos guardar la contrasena. Proba con otra mas segura." };
+  redirect("/admin");
+}
+
 function argentinaDateTimeToIso(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return null;
   const date = new Date(`${value}:00-03:00`);
