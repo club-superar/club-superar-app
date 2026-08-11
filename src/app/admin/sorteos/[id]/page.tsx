@@ -44,13 +44,14 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
 
   const query = String((await searchParams).q ?? "").trim().toLowerCase().replace(/^@/, "");
   const admin = createAdminSupabaseClient();
-  const [{ data: draw }, { data: rawParticipations }] = await Promise.all([
+  const [{ data: draw }, { data: rawParticipations }, { data: snapshot }] = await Promise.all([
     admin.from("draws").select("id, edition_number, title, prize_name, status").eq("id", drawId).maybeSingle(),
     admin
       .from("participations")
       .select("id, participant_code, status, streak_number, base_chances, extra_chances, final_chances, created_at, profiles!inner(instagram_username, display_name), requirement_completions(id, state, declared_at, draw_requirements(title, requirement_key))")
       .eq("draw_id", drawId)
       .order("created_at", { ascending: false }),
+    admin.from("draw_snapshots").select("participant_count, total_chances, snapshot_hash, created_at").eq("draw_id", drawId).order("version", { ascending: false }).limit(1).maybeSingle(),
   ]);
   if (!draw) notFound();
 
@@ -78,6 +79,15 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
         <article><strong>{participations.filter((item) => item.status === "eligible").length}</strong><small>Completos</small></article>
         <article><strong>{participations.reduce((total, item) => total + item.final_chances, 0)}</strong><small>Chances</small></article>
       </section>
+
+      {snapshot && (
+        <section className="admin-snapshot">
+          <p className="eyebrow cyan">LISTA CONGELADA</p>
+          <strong>{snapshot.participant_count} participantes · {Number(snapshot.total_chances)} chances</strong>
+          <small>Huella SHA-256</small>
+          <code>{snapshot.snapshot_hash}</code>
+        </section>
+      )}
 
       <section className="admin-panel">
         <form className="admin-search">

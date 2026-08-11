@@ -181,3 +181,8 @@ button { cursor: pointer; }
 .review-actions button { border: 0; border-radius: 6px; padding: 6px 7px; font-size: 9px; font-weight: 900; }
 .review-actions .verify { background: var(--cyan); color: #001014; }
 .review-actions .reject { background: #3b151b; color: #ff9aa5; }
+.freeze-button { background: #ef4056 !important; color: #fff !important; }
+.admin-snapshot { display: grid; gap: 6px; margin-top: 12px; padding: 15px; border: 1px solid #197177; border-radius: 14px; background: #071416; }
+.admin-snapshot p { margin: 0; }
+.admin-snapshot small { margin-top: 5px; color: var(--muted); font-size: 9px; text-transform: uppercase; }
+.admin-snapshot code { overflow-wrap: anywhere; color: var(--cyan); font-size: 10px; }

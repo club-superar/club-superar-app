@@ -138,3 +138,22 @@ export async function reviewRequirement(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/perfil");
 }
+
+export async function freezeDraw(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const drawId = Number(formData.get("drawId"));
+  if (!Number.isSafeInteger(drawId) || drawId <= 0) return;
+
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_freeze_draw", {
+    p_actor_id: actorId,
+    p_draw_id: drawId,
+  });
+  if (error) {
+    if (error.message.includes("NO_ELIGIBLE_PARTICIPANTS")) throw new Error("No hay participantes completos para congelar.");
+    throw new Error("No pudimos cerrar este sorteo.");
+  }
+  revalidatePath("/");
+  revalidatePath("/admin");
+  revalidatePath(`/admin/sorteos/${drawId}`);
+}
