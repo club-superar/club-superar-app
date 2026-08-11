@@ -1,12 +1,7 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { AdminPasswordForm } from "@/app/admin/nueva-clave/password-form";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
 
-export default async function NewAdminPasswordPage() {
-  const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase.auth.getClaims();
-  if (error || !data?.claims?.sub) redirect("/admin/ingresar");
+export default function NewAdminPasswordPage() {
   return (
     <main className="auth-shell">
       <Link className="brand auth-brand" href="/"><span>SUPER</span><span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link>
