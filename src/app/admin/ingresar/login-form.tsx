@@ -15,9 +15,10 @@ export function AdminLoginForm() {
         id="admin-email"
         name="email"
         type="email"
-        autoComplete="email"
-        value="suupeer.ar@gmail.com"
-        readOnly
+        autoComplete="username"
+        placeholder="correo@ejemplo.com"
+        autoCapitalize="none"
+        spellCheck={false}
         required
       />
       <label htmlFor="admin-password">Contrasena</label>
@@ -27,3 +28,4 @@ export function AdminLoginForm() {
     </form>
   );
 }
+

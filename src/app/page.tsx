@@ -306,6 +306,10 @@ export default async function Home() {
         )}
       </section>
 
+      <footer className="club-footer">
+        <Link href="/admin/ingresar">Administración</Link>
+      </footer>
+
       <nav className="bottom-nav" aria-label="Navegacion principal">
         <Link className="active" href="/"><span>⌂</span>Inicio</Link>
         <Link href="/#sorteos"><span>◇</span>Sorteos</Link>
@@ -315,3 +319,4 @@ export default async function Home() {
     </main>
   );
 }
+
