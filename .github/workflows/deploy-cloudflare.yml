@@ -29,12 +29,6 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "^4.68.0"
           command: deploy
-          secrets: |
-            NEXT_PUBLIC_SUPABASE_URL
-            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-            SUPABASE_SECRET_KEY
-            PARTICIPANT_EMAIL_DOMAIN
-            RECOVERY_CODE_PEPPER
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
