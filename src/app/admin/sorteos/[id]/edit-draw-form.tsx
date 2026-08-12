@@ -1,0 +1,69 @@
+"use client";
+
+import { useActionState } from "react";
+import { updateDraftDraw, type AdminActionState } from "@/app/admin/actions";
+
+type EditDrawFormProps = {
+  draw: {
+    id: number;
+    title: string;
+    prizeName: string;
+    prizeValue: number | null;
+    opensAt: string;
+    closesAt: string;
+    claimHours: number;
+    winnerPercent: number;
+    maxBaseChances: number;
+    maxExtraChances: number;
+    points: Record<string, number>;
+  };
+  urls: Record<string, string>;
+};
+
+const initialState: AdminActionState = {};
+
+function argentinaInputValue(value: string) {
+  return new Intl.DateTimeFormat("sv-SE", {
+    timeZone: "America/Argentina/Buenos_Aires", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", hour12: false,
+  }).format(new Date(value)).replace(" ", "T");
+}
+
+export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
+  const [state, action, pending] = useActionState(updateDraftDraw, initialState);
+  const points = draw.points;
+  return (
+    <details className="admin-edit-draw">
+      <summary>Editar configuración del borrador</summary>
+      <form action={action} className="draw-admin-form">
+        <input type="hidden" name="drawId" value={draw.id} />
+        <div className="admin-field full"><label htmlFor="editTitle">Nombre visible</label><input id="editTitle" name="title" defaultValue={draw.title} required /></div>
+        <div className="admin-field"><label htmlFor="editPrizeName">Premio</label><input id="editPrizeName" name="prizeName" defaultValue={draw.prizeName} required /></div>
+        <div className="admin-field"><label htmlFor="editPrizeValue">Valor estimado en pesos</label><input id="editPrizeValue" name="prizeValue" type="number" min="0" step="1" defaultValue={draw.prizeValue ?? ""} /></div>
+        <div className="admin-field"><label htmlFor="editOpensAt">Apertura (hora Argentina)</label><input id="editOpensAt" name="opensAt" type="datetime-local" defaultValue={argentinaInputValue(draw.opensAt)} required /></div>
+        <div className="admin-field"><label htmlFor="editClosesAt">Cierre (hora Argentina)</label><input id="editClosesAt" name="closesAt" type="datetime-local" defaultValue={argentinaInputValue(draw.closesAt)} required /></div>
+        <div className="admin-field full"><label htmlFor="editInstagramUrl">Perfil oficial de Instagram</label><input id="editInstagramUrl" name="instagramProfileUrl" type="url" defaultValue={urls.follow_instagram} required /></div>
+        <div className="admin-field full"><label htmlFor="editWhatsappUrl">Grupo de WhatsApp</label><input id="editWhatsappUrl" name="whatsappGroupUrl" type="url" defaultValue={urls.whatsapp_group} required /></div>
+        <div className="admin-field full"><label htmlFor="editPublicationUrl">Publicación principal</label><input id="editPublicationUrl" name="mainPublicationUrl" type="url" defaultValue={urls.comment_and_tag} required /></div>
+        <fieldset className="admin-rules full">
+          <legend>Puntos y límites</legend>
+          <div className="admin-rule-grid">
+            <div className="admin-field"><label htmlFor="editFollowPoints">Seguir Instagram</label><input id="editFollowPoints" name="followPoints" type="number" min="0" max="100" defaultValue={points.follow_instagram ?? 2} required /></div>
+            <div className="admin-field"><label htmlFor="editWhatsappPoints">Grupo WhatsApp</label><input id="editWhatsappPoints" name="whatsappPoints" type="number" min="0" max="100" defaultValue={points.whatsapp_group ?? 2} required /></div>
+            <div className="admin-field"><label htmlFor="editCommentPoints">Comentar y etiquetar</label><input id="editCommentPoints" name="commentPoints" type="number" min="0" max="100" defaultValue={points.comment_and_tag ?? 2} required /></div>
+            <div className="admin-field"><label htmlFor="editStoryPoints">Compartir historia</label><input id="editStoryPoints" name="storyPoints" type="number" min="0" max="100" defaultValue={points.share_story ?? 2} required /></div>
+            <div className="admin-field"><label htmlFor="editCompletionPoints">Bonus por completar</label><input id="editCompletionPoints" name="completionPoints" type="number" min="0" max="100" defaultValue={points.completion_bonus ?? 2} required /></div>
+            <div className="admin-field"><label htmlFor="editExtraPoints">Puntos por extra</label><input id="editExtraPoints" name="extraActionPoints" type="number" min="0" max="100" defaultValue={points.extra_action ?? 3} required /></div>
+            <div className="admin-field"><label htmlFor="editBaseChances">Máximo por racha</label><input id="editBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue={draw.maxBaseChances} required /></div>
+            <div className="admin-field"><label htmlFor="editExtraChances">Máximo de extras</label><input id="editExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue={draw.maxExtraChances} required /></div>
+            <div className="admin-field"><label htmlFor="editWinnerPercent">Chances después de ganar (%)</label><input id="editWinnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue={draw.winnerPercent} required /></div>
+            <div className="admin-field"><label htmlFor="editClaimHours">Horas para reclamar</label><input id="editClaimHours" name="claimHours" type="number" min="1" max="168" defaultValue={draw.claimHours} required /></div>
+          </div>
+        </fieldset>
+        {state.error && <p className="form-error full" role="alert">{state.error}</p>}
+        {state.success && <p className="form-success full" role="status">{state.success}</p>}
+        <button className="button primary full" disabled={pending}>{pending ? "Guardando cambios..." : "Guardar cambios"}</button>
+      </form>
+    </details>
+  );
+}

@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { PwaRegister } from "@/app/pwa-register";
 import "./globals.css";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
@@ -9,6 +10,7 @@ export const metadata: Metadata = {
   title: "Club SUPER.AR",
   description: "Sorteos, beneficios y comunidad de SUPER.AR.",
   applicationName: "Club SUPER.AR",
+  icons: { icon: "/icon.svg", apple: "/icon.svg" },
   manifest: "/manifest.webmanifest",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "Club SUPER.AR" },
 };
@@ -23,7 +25,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${geist.variable} ${geistMono.variable}`}>
-      <body>{children}</body>
+      <body><PwaRegister />{children}</body>
     </html>
   );
 }

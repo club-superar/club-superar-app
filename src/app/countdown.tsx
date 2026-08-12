@@ -28,4 +28,3 @@ export function Countdown({ closesAt }: { closesAt: string }) {
     </div>
   );
 }
-

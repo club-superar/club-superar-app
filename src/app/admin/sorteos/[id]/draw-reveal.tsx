@@ -6,10 +6,11 @@ type DrawRevealProps = {
   animate: boolean;
   attemptNumber: number;
   candidates: string[];
+  official?: boolean;
   winner: string;
 };
 
-export function DrawReveal({ animate, attemptNumber, candidates, winner }: DrawRevealProps) {
+export function DrawReveal({ animate, attemptNumber, candidates, official = false, winner }: DrawRevealProps) {
   const [countdown, setCountdown] = useState(animate ? 3 : 0);
   const [rollingName, setRollingName] = useState(candidates[0] ?? winner);
   const [revealed, setRevealed] = useState(!animate);
@@ -52,9 +53,9 @@ export function DrawReveal({ animate, attemptNumber, candidates, winner }: DrawR
       ) : revealed ? (
         <div className="draw-winner">
           <span>🎉</span>
-          <small>GANADOR PROVISIONAL</small>
+          <small>{official ? "GANADOR OFICIAL" : "GANADOR PROVISIONAL"}</small>
           <strong>@{winner}</strong>
-          <p>Todavia debe verificarse antes de confirmarlo oficialmente.</p>
+          <p>{official ? "Resultado confirmado y guardado en el historial." : "Todavia debe verificarse antes de confirmarlo oficialmente."}</p>
         </div>
       ) : (
         <div className="draw-rolling">

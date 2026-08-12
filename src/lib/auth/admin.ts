@@ -6,8 +6,8 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export async function getAdminUserId() {
   const supabase = await createServerSupabaseClient();
-  const { data, error } = await supabase.auth.getClaims();
-  const userId = data?.claims?.sub;
+  const { data, error } = await supabase.auth.getUser();
+  const userId = data.user?.id;
   if (error || !userId) return null;
 
   const admin = createAdminSupabaseClient();

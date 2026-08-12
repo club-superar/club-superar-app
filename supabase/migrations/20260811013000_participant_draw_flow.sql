@@ -215,4 +215,3 @@ revoke all on function public.start_draw_participation(uuid, bigint) from public
 revoke all on function public.declare_draw_requirement(uuid, bigint) from public, anon, authenticated;
 grant execute on function public.start_draw_participation(uuid, bigint) to service_role;
 grant execute on function public.declare_draw_requirement(uuid, bigint) to service_role;
-

@@ -51,6 +51,19 @@ type SocialAction = {
   publication_id: string | null;
 };
 
+type PublicWinner = {
+  draw_id: number;
+  instagram_username: string;
+  confirmed_at: string;
+  claim_status: string;
+  draws: {
+    edition_number: number;
+    prize_name: string;
+    prize_value: number | null;
+    currency_code: string;
+  };
+};
+
 const completedStates = new Set(["declared", "detected", "verified"]);
 
 function formatPrize(draw: Draw) {
@@ -81,13 +94,24 @@ export default async function Home() {
   const pointsPromise = userId
     ? supabase.from("points_ledger").select("amount").eq("profile_id", userId)
     : Promise.resolve({ data: [] });
+  const winnersPromise = supabase
+    .from("winners")
+    .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code)")
+    .order("confirmed_at", { ascending: false })
+    .limit(20);
 
-  const [{ data: rawDraw }, { data: profile }, { data: pointRows }] = await Promise.all([
+  const [{ data: rawDraw }, { data: profile }, { data: pointRows }, { data: rawWinners }] = await Promise.all([
     drawPromise,
     profilePromise,
     pointsPromise,
+    winnersPromise,
   ]);
   const draw = rawDraw as Draw | null;
+  const winners = (rawWinners ?? []) as unknown as PublicWinner[];
+  const winnerCounts = winners.reduce<Record<string, number>>((counts, winner) => {
+    counts[winner.instagram_username] = (counts[winner.instagram_username] ?? 0) + 1;
+    return counts;
+  }, {});
 
   let participation: Participation | null = null;
   let socialActions: SocialAction[] = [];
@@ -255,6 +279,32 @@ export default async function Home() {
           </div>
         </aside>
       )}
+
+      <section className="public-winners" id="ganadores">
+        <div className="section-title">
+          <div><p className="eyebrow cyan">HISTORIAL PUBLICO</p><h2>Ganadores</h2></div>
+          <span>{winners.length}</span>
+        </div>
+        {winners.length === 0 ? (
+          <p className="winners-empty">Todavia no hay ganadores confirmados. El primero aparecera aca.</p>
+        ) : (
+          <div className="winner-list">
+            {winners.map((winner) => (
+              <Link className="winner-public-link" href={`/miembro/${encodeURIComponent(winner.instagram_username)}`} key={winner.draw_id}>
+                <div className="winner-trophy" aria-hidden="true">♕</div>
+                <div>
+                  <small>SORTEO #{String(winner.draws.edition_number).padStart(3, "0")}</small>
+                  <strong>@{winner.instagram_username}</strong>
+                  <span>{winner.draws.prize_name}</span>
+                </div>
+                <div className="winner-medals" aria-label={`${winnerCounts[winner.instagram_username]} sorteos ganados`}>
+                  {Array.from({ length: Math.min(winnerCounts[winner.instagram_username], 5) }, (_, index) => <span key={index}>🏆</span>)}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
 
       <nav className="bottom-nav" aria-label="Navegacion principal">
         <Link className="active" href="/"><span>⌂</span>Inicio</Link>

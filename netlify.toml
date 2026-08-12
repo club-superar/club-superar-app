@@ -1,0 +1,18 @@
+# Protecciones disponibles en el plan gratuito: dos reglas por proyecto.
+# Se aplican por dominio e IP y Netlify responde 429 cuando se supera el limite.
+
+[[redirects]]
+  from = "/registro"
+  to = "/registro"
+    [redirects.rate_limit]
+    window_limit = 8
+    window_size = 60
+    aggregate_by = ["ip", "domain"]
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/:splat"
+    [redirects.rate_limit]
+    window_limit = 20
+    window_size = 60
+    aggregate_by = ["ip", "domain"]

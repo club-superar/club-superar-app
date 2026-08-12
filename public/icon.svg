@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="112" fill="#050708"/>
+  <path d="M75 85h362v342H75z" fill="none" stroke="#28e6ee" stroke-width="12"/>
+  <path d="M388 43l18 7-61 164-18-7z" fill="#ff3b4f"/>
+  <text x="256" y="246" fill="#f4f8f9" font-family="Arial,sans-serif" font-size="112" font-weight="900" text-anchor="middle">SUPER</text>
+  <text x="256" y="340" fill="#28e6ee" font-family="Arial,sans-serif" font-size="112" font-weight="900" text-anchor="middle">.AR</text>
+  <text x="256" y="385" fill="#8d9ba1" font-family="Arial,sans-serif" font-size="28" font-weight="700" letter-spacing="16" text-anchor="middle">CLUB</text>
+</svg>
