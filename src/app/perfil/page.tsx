@@ -93,7 +93,7 @@ export default async function ProfilePage() {
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
         {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (
-          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badde_definitions.description}</small></div></article>)}</div>
+          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badge_definitions.description}</small></div></article>)}</div>
         )}
       </section>
 
