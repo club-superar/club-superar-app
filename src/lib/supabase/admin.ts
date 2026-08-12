@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.6 seconds
-Output:
 import "server-only";
 import { createClient } from "@supabase/supabase-js";
 import { getServerSupabaseEnv } from "./env";

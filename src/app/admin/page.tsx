@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.6 seconds
-Output:
 import Link from "next/link";
 import { DrawForm } from "@/app/admin/draw-form";
 import { BadgeSettingsForm } from "@/app/admin/badge-settings-form";
