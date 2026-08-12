@@ -1,18 +1,4 @@
-# Protecciones disponibles en el plan gratuito: dos reglas por proyecto.
-# Se aplican por dominio e IP y Netlify responde 429 cuando se supera el limite.
-
-[[redirects]]
-  from = "/registro"
-  to = "/registro"
-    [redirects.rate_limit]
-    window_limit = 8
-    window_size = 60
-    aggregate_by = ["ip", "domain"]
-
-[[redirects]]
-  from = "/admin/*"
-  to = "/admin/:splat"
-    [redirects.rate_limit]
-    window_limit = 20
-    window_size = 60
-    aggregate_by = ["ip", "domain"]
+# Next.js administra estas rutas. No se crean redirecciones hacia la misma URL,
+# porque Netlify las interpreta como un bucle y puede bloquear el registro.
+# La proteccion queda en las validaciones del servidor, RLS de Supabase y los
+# limites propios de Supabase Auth, sin CAPTCHA visible para el participante.
