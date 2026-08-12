@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { MemberProgressControls } from "@/app/admin/miembros/[id]/member-progress-controls";
 
 type AdminMemberPageProps = { params: Promise<{ id: string }> };
 type Participation = { id: number; status: string; streak_number: number; base_chances: number; extra_chances: number; final_chances: number; created_at: string; draws: { id: number; edition_number: number; title: string; status: string } };
-type Badge = { id: number; awarded_at: string; badge_definitions: { name: string; description: string; icon: string } };
+type Badge = { id: number; awarded_at: string; badge_definitions: { badge_key: string; name: string; description: string; icon: string } };
+type BadgeDefinition = { badge_key: string; name: string; description: string; icon: string };
 type Movement = { id: number; amount: number; description: string; created_at: string };
 type Winner = { id: number; draw_id: number; confirmed_at: string; claim_status: string; draws: { edition_number: number; prize_name: string } };
 type Disqualification = { id: number; draw_id: number; reason_key: string; notes: string | null; created_at: string; draws: { edition_number: number } };
@@ -18,14 +20,15 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
   const id = (await params).id;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const admin = createAdminSupabaseClient();
-  const [profileResult, pointsResult, participationResult, badgeResult, movementResult, winnerResult, disqualificationResult] = await Promise.all([
+  const [profileResult, pointsResult, participationResult, badgeResult, movementResult, winnerResult, disqualificationResult, badgeDefinitionsResult] = await Promise.all([
     admin.from("profiles").select("id, instagram_username, display_name, status, current_streak, longest_streak, created_at").eq("id", id).maybeSingle(),
     admin.from("points_ledger").select("amount").eq("profile_id", id),
     admin.from("participations").select("id, status, streak_number, base_chances, extra_chances, final_chances, created_at, draws!inner(id, edition_number, title, status)").eq("profile_id", id).order("created_at", { ascending: false }),
-    admin.from("profile_badges").select("id, awarded_at, badge_definitions!inner(name, description, icon)").eq("profile_id", id).order("awarded_at", { ascending: false }),
+    admin.from("profile_badges").select("id, awarded_at, badge_definitions!inner(badge_key, name, description, icon)").eq("profile_id", id).order("awarded_at", { ascending: false }),
     admin.from("points_ledger").select("id, amount, description, created_at").eq("profile_id", id).order("created_at", { ascending: false }).limit(30),
     admin.from("winners").select("id, draw_id, confirmed_at, claim_status, draws!inner(edition_number, prize_name)").eq("profile_id", id).order("confirmed_at", { ascending: false }),
     admin.from("disqualifications").select("id, draw_id, reason_key, notes, created_at, draws!inner(edition_number), participations!inner(profile_id)").eq("participations.profile_id", id).order("created_at", { ascending: false }),
+    admin.from("badge_definitions").select("badge_key, name, description, icon").in("badge_key", ["loyal", "legend"]).eq("active", true).order("id"),
   ]);
   const profile = profileResult.data;
   if (!profile) notFound();
@@ -34,6 +37,7 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
   const movements = (movementResult.data ?? []) as Movement[];
   const winners = (winnerResult.data ?? []) as unknown as Winner[];
   const disqualifications = (disqualificationResult.data ?? []) as unknown as Disqualification[];
+  const badgeDefinitions = (badgeDefinitionsResult.data ?? []) as BadgeDefinition[];
   const points = (pointsResult.data ?? []).reduce((total, row) => total + Number(row.amount), 0);
 
   return (
@@ -44,6 +48,15 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
       <section className="admin-member-overview">
         <article><strong>{points}</strong><small>SUPER Puntos</small></article><article><strong>{profile.current_streak}</strong><small>Racha actual</small></article><article><strong>{profile.longest_streak}</strong><small>Mejor racha</small></article><article><strong>{participations.length}</strong><small>Participaciones</small></article><article><strong>{badges.length}</strong><small>Insignias</small></article><article><strong>{winners.length}</strong><small>Ganados</small></article>
       </section>
+
+      <MemberProgressControls
+        profileId={profile.id}
+        username={profile.instagram_username}
+        currentStreak={profile.current_streak}
+        longestStreak={profile.longest_streak}
+        badges={badgeDefinitions}
+        awardedBadgeKeys={badges.map((badge) => badge.badge_definitions.badge_key)}
+      />
 
       <div className="admin-member-columns">
         <section className="admin-panel"><div className="admin-panel-title"><h2>Participaciones</h2><small>{participations.length}</small></div>{participations.length === 0 ? <p className="admin-empty">Sin participaciones.</p> : <div className="admin-member-history">{participations.map((item) => <Link href={`/admin/sorteos/${item.draws.id}`} key={item.id}><div><small>SORTEO #{String(item.draws.edition_number).padStart(3, "0")}</small><strong>{item.draws.title}</strong><span>{participationLabels[item.status] ?? item.status}</span></div><b>{item.final_chances}<small> chances</small></b></Link>)}</div>}</section>
@@ -56,3 +69,4 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
     </main>
   );
 }
+

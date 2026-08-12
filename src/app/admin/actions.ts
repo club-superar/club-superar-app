@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { requireAdminUserId } from "@/lib/auth/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createAdminSessionSupabaseClient } from "@/lib/supabase/server";
 
 export type AdminActionState = { error?: string; success?: string };
 
@@ -18,7 +18,7 @@ export async function loginAdmin(_: AdminActionState, formData: FormData): Promi
     return { error: "Revisa el correo y la contrasena." };
   }
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createAdminSessionSupabaseClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
   if (error || !data.user) {
     if (error?.status === 429) return { error: "Supabase bloqueo temporalmente nuevos intentos. Espera unos minutos." };
@@ -37,7 +37,7 @@ export async function loginAdmin(_: AdminActionState, formData: FormData): Promi
 }
 
 export async function logoutAdmin() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createAdminSessionSupabaseClient();
   await supabase.auth.signOut();
   redirect("/admin/ingresar");
 }
@@ -48,7 +48,7 @@ export async function setAdminPassword(_: AdminActionState, formData: FormData):
   if (password.length < 12) return { error: "La contrasena debe tener al menos 12 caracteres." };
   if (password !== repeatPassword) return { error: "Las dos contrasenas no coinciden." };
 
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createAdminSessionSupabaseClient();
   const { data: claimsData, error: claimsError } = await supabase.auth.getClaims();
   if (claimsError || !claimsData?.claims?.sub) return { error: "El enlace vencio. Solicita uno nuevo." };
 
@@ -396,3 +396,78 @@ export async function updateBadgeSettings(_: AdminActionState, formData: FormDat
   revalidatePath("/admin/miembros/[id]", "page");
   return { success: "Límites actualizados y miembros revisados." };
 }
+
+function readMemberId(formData: FormData) {
+  const profileId = String(formData.get("profileId") ?? "");
+  return /^[0-9a-f-]{36}$/i.test(profileId) ? profileId : null;
+}
+
+function revalidateMemberProgress(profileId: string, username?: string) {
+  revalidatePath(`/admin/miembros/${profileId}`);
+  revalidatePath("/admin/miembros");
+  revalidatePath("/admin");
+  revalidatePath("/perfil");
+  if (username) revalidatePath(`/miembro/${username}`);
+}
+
+export async function adjustMemberPoints(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const amount = Number(formData.get("amount"));
+  const reason = String(formData.get("reason") ?? "").trim();
+  const username = String(formData.get("username") ?? "").trim();
+  if (!profileId || !Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000 || reason.length < 3 || reason.length > 200) {
+    return { error: "Revisá la cantidad y escribí un motivo breve." };
+  }
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_adjust_member_points", {
+    p_actor_id: actorId, p_profile_id: profileId, p_amount: amount, p_reason: reason,
+  });
+  if (error?.message.includes("NEGATIVE_POINTS")) return { error: "El ajuste dejaría los puntos por debajo de cero." };
+  if (error) return { error: "No pudimos ajustar los SUPER Puntos." };
+  revalidateMemberProgress(profileId, username);
+  return { success: `${amount > 0 ? "+" : ""}${amount} SUPER Puntos guardados.` };
+}
+
+export async function updateMemberStreak(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const currentStreak = Number(formData.get("currentStreak"));
+  const longestStreak = Number(formData.get("longestStreak"));
+  const reason = String(formData.get("reason") ?? "").trim();
+  const username = String(formData.get("username") ?? "").trim();
+  if (!profileId || !Number.isInteger(currentStreak) || !Number.isInteger(longestStreak)
+    || currentStreak < 0 || longestStreak < currentStreak || longestStreak > 1000
+    || reason.length < 3 || reason.length > 200) {
+    return { error: "La mejor racha debe ser igual o mayor que la actual. Agregá un motivo." };
+  }
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_update_member_streak", {
+    p_actor_id: actorId, p_profile_id: profileId, p_current_streak: currentStreak,
+    p_longest_streak: longestStreak, p_reason: reason,
+  });
+  if (error) return { error: "No pudimos actualizar la racha." };
+  revalidateMemberProgress(profileId, username);
+  return { success: "Racha actualizada." };
+}
+
+export async function setMemberBadge(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const badgeKey = String(formData.get("badgeKey") ?? "");
+  const awarded = String(formData.get("awarded") ?? "") === "true";
+  const reason = String(formData.get("reason") ?? "").trim();
+  const username = String(formData.get("username") ?? "").trim();
+  if (!profileId || !new Set(["loyal", "legend"]).has(badgeKey) || reason.length < 3 || reason.length > 200) {
+    return { error: "Elegí Fiel o Leyenda y escribí un motivo." };
+  }
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_set_member_badge", {
+    p_actor_id: actorId, p_profile_id: profileId, p_badge_key: badgeKey,
+    p_awarded: awarded, p_reason: reason,
+  });
+  if (error) return { error: "No pudimos cambiar la insignia." };
+  revalidateMemberProgress(profileId, username);
+  return { success: awarded ? "Insignia otorgada." : "Insignia quitada." };
+}
+

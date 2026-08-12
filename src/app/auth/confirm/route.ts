@@ -1,6 +1,6 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { type NextRequest, NextResponse } from "next/server";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createAdminSessionSupabaseClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   const tokenHash = request.nextUrl.searchParams.get("token_hash");
@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
   redirectTo.search = "";
 
   if (tokenHash && type) {
-    const supabase = await createServerSupabaseClient();
+    const supabase = await createAdminSessionSupabaseClient();
     const { error } = await supabase.auth.verifyOtp({ type, token_hash: tokenHash });
     if (!error) {
       redirectTo.pathname = next;
@@ -25,3 +25,4 @@ export async function GET(request: NextRequest) {
   redirectTo.searchParams.set("error", "enlace-invalido");
   return NextResponse.redirect(redirectTo);
 }
+

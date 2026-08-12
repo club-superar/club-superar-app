@@ -2,10 +2,10 @@ import "server-only";
 
 import { redirect } from "next/navigation";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
-import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { createAdminSessionSupabaseClient } from "@/lib/supabase/server";
 
 export async function getAdminUserId() {
-  const supabase = await createServerSupabaseClient();
+  const supabase = await createAdminSessionSupabaseClient();
   const { data, error } = await supabase.auth.getUser();
   const userId = data.user?.id;
   if (error || !userId) return null;
@@ -23,3 +23,4 @@ export async function requireAdminUserId() {
   if (!userId) redirect("/admin/ingresar");
   return userId;
 }
+

@@ -210,7 +210,23 @@ button { cursor: pointer; }
 .admin-member-badges small { color: var(--muted); font-size: 8px; }
 .admin-member-results a { justify-content: flex-start; }
 .admin-member-results a > span { font-size: 22px; }
+.admin-help { margin: -8px 0 16px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.member-control-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+.member-control-form, .member-badge-control { display: grid; gap: 9px; padding: 14px; border: 1px solid var(--line); border-radius: 13px; background: #090d0f; }
+.member-control-form h3, .member-badge-controls h3 { margin: 0; font-size: 15px; }
+.member-control-form label, .member-badge-control label { display: grid; gap: 5px; color: var(--muted); font-size: 10px; font-weight: 800; }
+.member-control-form input, .member-badge-control input { min-width: 0; min-height: 42px; padding: 0 11px; border: 1px solid #33454b; border-radius: 10px; outline: 0; background: #070a0b; color: var(--text); font-size: 14px; }
+.member-control-form input:focus, .member-badge-control input:focus { border-color: var(--cyan); }
+.member-control-form > small { color: var(--muted); font-size: 9px; line-height: 1.4; }
+.member-control-form .button, .member-badge-control .button { min-height: 43px; }
+.member-badge-controls { display: grid; gap: 9px; margin-top: 16px; }
+.member-badge-control > div { display: grid; grid-template-columns: 36px 1fr; align-items: center; gap: 9px; }
+.member-badge-control > div > span { font-size: 25px; }
+.member-badge-control > div > div { display: grid; gap: 2px; }
+.member-badge-control > div small { color: var(--muted); font-size: 9px; }
+.danger-soft { min-height: 43px; border: 1px solid #7a3039; border-radius: 11px; background: #210d10; color: #ff9ba5; font-weight: 850; }
 @media (min-width: 620px) { .admin-member-list > a { grid-template-columns: 42px 1fr auto; align-items: center; } .admin-member-mini-stats { grid-column: auto; min-width: 250px; } .admin-member-overview { grid-template-columns: repeat(6, 1fr); } .admin-member-columns { grid-template-columns: 1fr 1fr; gap: 14px; } }
+@media (min-width: 620px) { .member-control-grid { grid-template-columns: 1fr 1fr; } }
 .badge-settings-form { display: grid; grid-template-columns: 1fr; gap: 11px; }
 .badge-settings-form > p:not(.form-error):not(.form-success) { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
 .badge-settings-form button { min-height: 46px; border: 0; border-radius: 11px; background: var(--cyan); color: #001014; font-weight: 900; }

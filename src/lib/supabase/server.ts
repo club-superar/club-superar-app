@@ -1,12 +1,14 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getPublicSupabaseEnv } from "./env";
+import { ADMIN_AUTH_COOKIE } from "./session";
 
-export async function createServerSupabaseClient() {
+async function createCookieSupabaseClient(cookieName?: string) {
   const cookieStore = await cookies();
   const { url, publishableKey } = getPublicSupabaseEnv();
 
   return createServerClient(url, publishableKey, {
+    ...(cookieName ? { cookieOptions: { name: cookieName } } : {}),
     cookies: {
       getAll: () => cookieStore.getAll(),
       setAll: (items) => {
@@ -19,3 +21,12 @@ export async function createServerSupabaseClient() {
     },
   });
 }
+
+export function createServerSupabaseClient() {
+  return createCookieSupabaseClient();
+}
+
+export function createAdminSessionSupabaseClient() {
+  return createCookieSupabaseClient(ADMIN_AUTH_COOKIE);
+}
+
