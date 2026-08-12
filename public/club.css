@@ -1,0 +1,166 @@
+:root {
+  --bg: #050708;
+  --panel: #0d1214;
+  --panel-soft: #11191c;
+  --line: #233036;
+  --text: #f4f8f9;
+  --muted: #8d9ba1;
+  --cyan: #28e6ee;
+  --cyan-soft: #0a3a3e;
+  --red: #ff3b4f;
+}
+
+* { box-sizing: border-box; }
+html { background: var(--bg); scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font-family: var(--font-geist), Arial, sans-serif; }
+button, a { font: inherit; }
+button { cursor: pointer; }
+.app-shell { width: min(100%, 520px); min-height: 100dvh; margin: 0 auto; padding: 0 18px 112px; overflow: hidden; }
+.topbar { height: 76px; display: flex; align-items: center; justify-content: space-between; }
+.brand { position: relative; color: var(--text); text-decoration: none; font-weight: 900; font-size: 22px; letter-spacing: -1.3px; }
+.brand-dot, .brand-ar { color: var(--cyan); }
+.brand small { position: absolute; top: 21px; left: 1px; color: var(--muted); font-size: 8px; letter-spacing: 5px; }
+.avatar { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; border: 1px solid #24575a; background: var(--cyan-soft); color: var(--cyan); text-decoration: none; font-weight: 800; }
+.hero { padding: 28px 0 24px; }
+.eyebrow { margin: 0 0 8px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: 1.7px; }
+.cyan { color: var(--cyan); }
+.hero h1 { margin: 0; font-size: clamp(38px, 12vw, 58px); line-height: .96; letter-spacing: -2.7px; }
+.hero h1 span { color: var(--cyan); }
+.hero-copy { max-width: 330px; color: var(--muted); font-size: 15px; line-height: 1.5; }
+.hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 20px; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.stats article { padding: 14px 8px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(160deg, #101719, #0a0e10); text-align: center; }
+.stats span { display: block; font-size: 18px; }
+.stats strong { display: block; margin: 4px 0 1px; font-size: 24px; }
+.stats small { color: var(--muted); font-size: 10px; }
+.draw-card { position: relative; padding: 20px; border: 1px solid #197177; border-radius: 22px; background: radial-gradient(circle at 90% 0%, #15383a 0, #0b1416 42%, #090c0e 100%); overflow: hidden; }
+.draw-card::after { content: ""; position: absolute; width: 120px; height: 3px; right: -25px; top: 0; background: var(--red); transform: rotate(-24deg); opacity: .7; }
+.draw-head { display: flex; justify-content: space-between; align-items: start; gap: 12px; }
+.draw-head h2 { margin: 0; font-size: 18px; }
+.prize { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 24px; }
+.countdown { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 24px; }
+.countdown div { min-width: 62px; padding: 10px; border: 1px solid var(--line); border-radius: 12px; background: #080b0c; text-align: center; }
+.countdown strong { display: block; font-family: var(--font-geist-mono), monospace; font-size: 24px; }
+.countdown small { color: var(--muted); font-size: 8px; letter-spacing: 1px; }
+.countdown i { color: var(--cyan); font-style: normal; font-weight: 900; }
+.draw-date-pending, .draw-closed, .empty-draw p, .start-card p { color: var(--muted); line-height: 1.5; }
+.draw-date-pending, .draw-closed { margin: 22px 0 0; text-align: center; }
+.empty-draw h2, .start-card h2 { margin: 0; }
+.empty-draw > p:last-child { margin-bottom: 0; }
+.start-card { display: grid; gap: 12px; margin-top: 14px; padding: 20px; border: 1px solid var(--line); border-radius: 20px; background: var(--panel); }
+.start-card p { margin: 0; }
+.start-card form, .start-card .button { width: 100%; }
+.checklist { padding: 30px 0 0; }
+.section-title { display: flex; justify-content: space-between; align-items: end; }
+.section-title h2 { margin: 0; font-size: 24px; }
+.section-title > span { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-weight: 800; }
+.progress { height: 5px; margin: 14px 0 18px; border-radius: 9px; background: #192124; overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--cyan); box-shadow: 0 0 12px var(--cyan); transition: width .25s ease; }
+.participant-code { display: grid; gap: 4px; margin-top: 16px; padding: 14px; border: 1px dashed #197177; border-radius: 14px; background: #071416; text-align: center; }
+.participant-code small { color: var(--muted); font-size: 9px; letter-spacing: 1.2px; }
+.participant-code strong { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 23px; }
+.participant-code span { color: var(--muted); font-size: 10px; }
+.requirement-list { display: grid; gap: 9px; }
+.requirement { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 11px; padding: 13px; border: 1px solid #6b2a31; border-radius: 14px; background: #160d0f; }
+.requirement.done { border-color: var(--line); background: var(--panel); }
+.check { display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid #76404a; border-radius: 50%; color: var(--cyan); }
+.done .check { border-color: #197177; background: var(--cyan-soft); }
+.requirement strong, .requirement small { display: block; }
+.requirement strong { font-size: 14px; }
+.requirement small { margin-top: 2px; color: var(--muted); font-size: 11px; }
+.requirement button { padding: 9px 11px; border: 0; border-radius: 10px; background: var(--red); color: white; font-size: 11px; font-weight: 800; }
+.requirement-actions { display: grid; gap: 5px; justify-items: stretch; }
+.requirement-actions a { padding: 5px; color: var(--cyan); text-align: center; font-size: 10px; font-weight: 800; }
+.eligible-note { margin: 14px 0 0; padding: 13px; border: 1px solid #197177; border-radius: 13px; background: #071416; color: #b9d9db; font-size: 12px; line-height: 1.5; }
+.bonus { display: grid; grid-template-columns: 32px 1fr 34px; align-items: center; gap: 10px; margin-top: 14px; padding: 16px; border: 1px dashed #27595d; border-radius: 16px; background: #091315; }
+.bonus > span { font-size: 23px; }
+.bonus strong, .bonus small { display: block; }
+.bonus strong { font-size: 13px; }
+.bonus small { margin-top: 3px; color: var(--muted); font-size: 10px; line-height: 1.4; }
+.bonus button { border: 0; background: transparent; color: var(--cyan); font-size: 24px; }
+.bottom-nav { position: fixed; z-index: 10; left: 50%; bottom: 0; display: grid; grid-template-columns: repeat(4, 1fr); width: min(100%, 520px); padding: 10px 10px max(10px, env(safe-area-inset-bottom)); border-top: 1px solid var(--line); background: rgba(5, 7, 8, .94); backdrop-filter: blur(16px); transform: translateX(-50%); }
+.bottom-nav a { display: grid; gap: 3px; justify-items: center; color: #718087; text-decoration: none; font-size: 9px; font-weight: 700; }
+.bottom-nav a span { font-size: 20px; }
+.bottom-nav a.active { color: var(--cyan); }
+@media (min-width: 700px) { body { background: radial-gradient(circle at 50% -20%, #11383b 0, var(--bg) 36%); } .app-shell { border-inline: 1px solid #10191c; } }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+.auth-shell { width: min(100%, 520px); min-height: 100dvh; margin: 0 auto; padding: 34px 18px; background: radial-gradient(circle at 50% 0%, #103639 0, var(--bg) 36%); }
+.auth-brand { display: inline-block; margin: 0 0 48px; }
+.auth-card { display: grid; gap: 15px; padding: 24px; border: 1px solid var(--line); border-radius: 24px; background: linear-gradient(160deg, #111a1d, #090c0e); box-shadow: 0 24px 70px #0008; }
+.auth-card h1 { margin: 0; font-size: clamp(34px, 10vw, 48px); letter-spacing: -2px; }
+.auth-card > p:not(.eyebrow):not(.form-error) { margin: -5px 0 9px; color: var(--muted); line-height: 1.5; }
+.auth-card label { color: #dce5e7; font-size: 13px; font-weight: 750; }
+.input-prefix { display: flex; align-items: center; border: 1px solid #33454b; border-radius: 13px; background: #070a0b; overflow: hidden; }
+.input-prefix:focus-within, .text-input:focus { border-color: var(--cyan); box-shadow: 0 0 0 3px #28e6ee18; }
+.input-prefix span { padding-left: 14px; color: var(--cyan); font-weight: 900; }
+.input-prefix input, .text-input { width: 100%; min-height: 50px; border: 0; outline: 0; background: transparent; color: var(--text); font-size: 16px; }
+.input-prefix input { padding: 0 14px 0 3px; }
+.text-input { padding: 0 14px; border: 1px solid #33454b; border-radius: 13px; background: #070a0b; }
+.code-input { font-family: var(--font-geist-mono), monospace; letter-spacing: 1px; text-transform: uppercase; }
+.button { display: grid; place-items: center; min-height: 50px; padding: 0 18px; border: 0; border-radius: 13px; text-decoration: none; font-weight: 850; }
+.button.primary { background: var(--cyan); color: #021012; }
+.button.secondary { border: 1px solid #345057; background: transparent; color: var(--text); }
+.button:disabled { opacity: .55; cursor: wait; }
+.auth-card small { color: var(--muted); text-align: center; line-height: 1.4; }
+.text-link { color: var(--cyan); text-align: center; font-size: 13px; font-weight: 800; }
+.form-error { margin: 0; padding: 11px 13px; border: 1px solid #7a3039; border-radius: 11px; background: #210d10; color: #ff9ba5; font-size: 13px; }
+.recovery-card { text-align: center; }
+.success-mark { display: grid; place-items: center; width: 56px; height: 56px; margin: 0 auto; border-radius: 50%; background: var(--cyan); color: #031012; font-size: 30px; font-weight: 900; }
+.recovery-code { padding: 18px 8px; border: 1px dashed var(--cyan); border-radius: 14px; background: #061416; color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: clamp(18px, 6vw, 25px); letter-spacing: 1.2px; }
+.profile-stat { display: flex; align-items: center; justify-content: space-between; padding: 16px; border: 1px solid var(--line); border-radius: 14px; color: var(--muted); }
+.profile-stat strong { color: var(--cyan); font-size: 24px; }
+
+.profile-shell { width: min(100%, 620px); min-height: 100dvh; margin: 0 auto; padding: 0 18px 60px; }
+.profile-back { color: var(--cyan); font-size: 12px; font-weight: 850; text-decoration: none; }
+.profile-heading { padding: 28px 0 20px; }
+.profile-heading h1 { margin: 0; overflow-wrap: anywhere; font-size: clamp(38px, 11vw, 58px); letter-spacing: -2px; }
+.profile-heading > p:last-child:not(.eyebrow) { margin: 7px 0 0; color: var(--muted); }
+.profile-overview { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.profile-overview article { display: grid; justify-items: center; gap: 3px; padding: 16px 8px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(155deg, #111a1d, #080b0c); text-align: center; }
+.profile-overview article > span { font-size: 19px; }
+.profile-overview strong { color: var(--cyan); font-size: 28px; }
+.profile-overview small { color: var(--muted); font-size: 9px; }
+.profile-panel { margin-top: 13px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; background: var(--panel); }
+.profile-section-title { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
+.profile-section-title h2 { margin: 0; font-size: 20px; }
+.profile-section-title > span { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-weight: 900; }
+.profile-empty { margin: 14px 0 0; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.badge-list, .participation-history, .point-history { display: grid; gap: 8px; margin-top: 14px; }
+.badge-list article { display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 11px; padding: 12px; border-radius: 12px; background: #091012; }
+.badge-list article > span { display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid #24575a; border-radius: 50%; background: var(--cyan-soft); font-size: 21px; }
+.badge-list strong, .badge-list small { display: block; }
+.badge-list small { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.participation-history article, .point-history article { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--line); }
+.participation-history article > div:first-child, .point-history article > div { display: grid; gap: 2px; min-width: 0; }
+.participation-history small, .point-history small { color: var(--muted); font-size: 9px; }
+.participation-history article > div:first-child > small { color: var(--cyan); font-weight: 900; letter-spacing: .8px; }
+.participation-history article > div:first-child > span { color: var(--muted); font-size: 10px; }
+.participation-history article > div:last-child { display: grid; flex: 0 0 auto; justify-items: center; }
+.participation-history article > div:last-child strong { color: var(--cyan); font-size: 20px; }
+.point-history article > span { font-family: var(--font-geist-mono), monospace; font-weight: 900; }
+.point-history .positive { color: var(--cyan); }
+.point-history .negative { color: var(--red); }
+.profile-actions { display: grid; gap: 9px; margin-top: 16px; }
+.profile-actions form, .profile-actions button { width: 100%; }
+@media (min-width: 520px) { .profile-overview { grid-template-columns: repeat(4, 1fr); } }
+
+.admin-form { display: grid; gap: 11px; }
+.admin-shell { width: min(100%, 900px); min-height: 100dvh; margin: 0 auto; padding: 0 18px 70px; }
+.admin-topbar { min-height: 76px; display: flex; align-items: center; justify-content: space-between; }
+.admin-logout { padding: 9px 13px; border: 1px solid var(--line); border-radius: 10px; background: transparent; color: var(--muted); }
+.admin-heading { padding: 30px 0 20px; }
+.admin-heading h1 { margin: 0; font-size: clamp(40px, 10vw, 64px); letter-spacing: -2px; }
+.admin-heading > p:not(.eyebrow) { color: var(--muted); }
+.admin-members-link { display: inline-flex; margin-top: 10px; color: var(--cyan); font-size: 12px; font-weight: 900; text-decoration: none; }
+.admin-dashboard { display: grid; grid-template-columns: repeat(2, 1fr); gap: 9px; }
+.admin-dashboard article { display: grid; gap: 3px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: linear-gradient(145deg, #101719, #080b0c); }
+.admin-dashboard small { color: var(--cyan); font-size: 8px; font-weight: 900; letter-spacing: .7px; }
+.admin-dashboard strong { font-size: 28px; }
+.admin-dashboard span { color: var(--muted); font-size: 9px; }
+.admin-insight-grid { display: grid; grid-template-columns: 1fr; gap: 0; }
+.admin-panel-title { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.admin-panel-title h2 { margin: 0; }
+.admin-panel-title > small { color: var(--cyan); font-size: 8px; font-weight: 900; }
+.admin-ranking, .admin-recent-winners { display: grid; gap: 7px; }
+.admin-ranking article, .admin-recent-winners a { display: grid; grid-template-columns: 32px 1fr auto; align-items: center; gap: 9px; padding: 10px 0; border-top: 1pxÛ­û¶‰žËkºwµçI´ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È€Å™Èìô€¹‘É…Üµ…‘µ¥¸µ™½É´€¹™Õ±°ìÉ¥µ½±Õµ¸è€Ä€¼€´Äìô€¹…‘µ¥¸µ‘É…ÜìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È…ÕÑ¼ì…±¥¸µ¥Ñ•µÌè•¹Ñ•Èìôô((¹•áÑÉ„µ…Ñ¥½¹Ìì…±¥¸µ¥Ñ•µÌè™±•àµÍÑ…ÉÐìô(¹•áÑÉ„µ…Ñ¥½¹Ìµ½¹Ñ•¹Ðì‘¥ÍÁ±…äèÉ¥ì…Àè€¸ÔÕÉ•´ìÝ¥‘Ñ è€ÄÀÀ”ìô(¹•áÑÉ„µ…Ñ¥½¸µ±¥ÍÐì‘¥ÍÁ±…äèÉ¥ì…Àè€¸ÈÕÉ•´ìµ…É¥¸è€¸ÉÉ•´€ÀìÁ…‘‘¥¹œè€Àì±¥ÍÐµÍÑå±”è¹½¹”ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€¸ÜáÉ•´ìô(¹•áÑÉ„µ…Ñ¥½¸µ™½ÉµÌì‘¥ÍÁ±…äèÉ¥ì…Àè€¸ØÕÉ•´ìô(¹•áÑÉ„µ…Ñ¥½¸µ™½ÉµÌ™½É´ì‘¥ÍÁ±…äèÉ¥ì…Àè€¸ÌÕÉ•´ìÁ…‘‘¥¹œµÑ½Àè€¸ÔÕÉ•´ì‰½É‘•ÈµÑ½Àè€ÅÁàÍ½±¥É‰„ ÌÐ°€ÈÄÄ°€ÈÌà°€¸Äà¤ìô(¹•áÑÉ„µ…Ñ¥½¸µ™½ÉµÌ±…‰•°ì™½¹ÐµÍ¥é”è€¸ÜÕÉ•´ì™½¹ÐµÝ•¥¡Ðè€àÀÀìô(¹•áÑÉ„µ…Ñ¥½¸µ™½ÉµÌ¥¹ÁÕÐìÝ¥‘Ñ è€ÄÀÀ”ì‰½É‘•Èè€ÅÁàÍ½±¥É‰„ ÌÐ°€ÈÄÄ°€ÈÌà°€¸Èà¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€¸ØÕÉ•´ì‰…­É½Õ¹è€ŒÀÜÄÀÄÈì½±½ÈèÙ…È ´µÑ•áÐ¤ìÁ…‘‘¥¹œè€¸ÝÉ•´ìô(¹•áÑÉ„µ…Ñ¥½¸µ™½ÉµÌ‰ÕÑÑ½¸ì©ÕÍÑ¥™äµÍ•±˜èÍÑ…ÉÐì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€¸ÙÉ•´ì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐìÁ…‘‘¥¹œè€¸ÔáÉ•´€¸áÉ•´ì™½¹ÐµÝ•¥¡Ðè€äÀÀìô((¹…‘µ¥¸µ‰…¬°€¹…‘µ¥¸µ‘É…Üµ…Ñ¥½¹Ì„ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì™½¹ÐµÝ•¥¡Ðè€àÀÀìÑ•áÐµ‘•½É…Ñ¥½¸è¹½¹”ìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹ÐµÍÕµµ…Éäì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹ÌèÉ•Á•…Ð Ì°€Å™È¤ì…Àè€åÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹ÐµÍÕµµ…Éä…ÉÑ¥±”ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÉÁàìÁ…‘‘¥¹œè€ÄÑÁà€áÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÑÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìÑ•áÐµ…±¥¸è•¹Ñ•Èìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹ÐµÍÕµµ…ÉäÍÑÉ½¹œì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÈÑÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹ÐµÍÕµµ…ÉäÍµ…±°ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€åÁàìÑ•áÐµÑÉ…¹Í™½É´èÕÁÁ•É…Í”ìô(¹…‘µ¥¸µ•‘¥Ðµ‘É…Üìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄÙÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÈÐÔÜÕ„ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÙÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìô(¹…‘µ¥¸µ•‘¥Ðµ‘É…ÜÍÕµµ…ÉäìÕÉÍ½ÈèÁ½¥¹Ñ•Èì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹…‘µ¥¸µ•‘¥Ðµ‘É…Ým½Á•¹tÍÕµµ…Éäìµ…É¥¸µ‰½ÑÑ½´è€ÄáÁàìô(¹…‘µ¥¸µÍ•…É ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÝÁàìô(¹…‘µ¥¸µÍ•…É ±…‰•°ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€àÀÀìô(¹…‘µ¥¸µÍ•…É €ø‘¥Øì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È…ÕÑ¼ì…Àè€áÁàìô(¹…‘µ¥¸µÍ•…É ¥¹ÁÕÐìµ¥¸µÝ¥‘Ñ è€ÀìÁ…‘‘¥¹œè€ÄÅÁà€ÄÉÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì‰…­É½Õ¹è€ŒÀÜÁ„Áˆì½±½ÈèÙ…È ´µÑ•áÐ¤ìô(¹…‘µ¥¸µÍ•…É ‰ÕÑÑ½¸ì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐìÁ…‘‘¥¹œè€À€ÄÑÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹…‘µ¥¸µÉ•ÍÕ±Ðµ½Õ¹Ðì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÅÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ±¥ÍÐì‘¥ÍÁ±…äèÉ¥ì…Àè€ÄÉÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðì‘¥ÍÁ±…äèÉ¥ì…Àè€ÄÍÁàìÁ…‘‘¥¹œè€ÄÑÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÑÁàì‰…­É½Õ¹è€ŒÀäÁÁ˜ìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…ì‘¥ÍÁ±…äè™±•àì…±¥¸µ¥Ñ•µÌè™±•àµÍÑ…ÉÐì©ÕÍÑ¥™äµ½¹Ñ•¹ÐèÍÁ…”µ‰•ÑÝ••¸ì…Àè€ÄÉÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ì…Àè€ÍÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…€ø‘¥Øé±…ÍÐµ¡¥±ì©ÕÍÑ¥™äµ¥Ñ•µÌè•¹ìÑ•áÐµ…±¥¸èÉ¥¡Ðìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…Íµ…±°°€¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…ÍÁ…¸ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…½‘”ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹…‘µ¥¸µ½µÁ±•Ñ¥½¸µÉ¥ì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹ÌèÉ•Á•…Ð È°€Å™È¤ì…Àè€ÝÁàìô(¹…‘µ¥¸µ½µÁ±•Ñ¥½¸µÉ¥€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ì…Àè€ÑÁàìÁ…‘‘¥¹œè€åÁàì‰½É‘•ÈµÉ…‘¥ÕÌè€åÁàì‰…­É½Õ¹è€ŒÁ”ÄÔÄÜìô(¹…‘µ¥¸µ½µÁ±•Ñ¥½¸µÉ¥Íµ…±°ì½±½Èè€Ù”Á”Èì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹É•Ù¥•ÜµÍÑ…Ñ”ì™½¹ÐµÍ¥é”è€áÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìÑ•áÐµÑÉ…¹Í™½É´èÕÁÁ•É…Í”ìô(¹É•Ù¥•Üµ‘•±…É•ì½±½Èè€˜åØÙˆìô(¹É•Ù¥•Üµ‘•Ñ•Ñ•°€¹É•Ù¥•ÜµÙ•É¥™¥•ì½±½ÈèÙ…È ´µå…¸¤ìô(¹É•Ù¥•ÜµÉ•©•Ñ•ì½±½Èè€™˜ØÐÜÔìô(¹É•Ù¥•Üµ¹½Ñ}ÍÑ…ÉÑ•ì½±½ÈèÙ…È ´µµÕÑ•¤ìô)µ•‘¥„€¡µ…àµÝ¥‘Ñ è€ÐÌÁÁà¤ì€¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…ì™±•àµ‘¥É•Ñ¥½¸è½±Õµ¸ìô€¹…‘µ¥¸µÁ…ÉÑ¥¥Á…¹Ðµ¡•…€ø‘¥Øé±…ÍÐµ¡¥±ì©ÕÍÑ¥™äµ¥Ñ•µÌèÍÑ…ÉÐìÑ•áÐµ…±¥¸è±•™Ðìôô(¹É•Ù¥•Üµ…Ñ¥½¹Ìì‘¥ÍÁ±…äèÉ¥ì…Àè€ÕÁàìµ…É¥¸µÑ½Àè€ÑÁàìô(¹É•Ù¥•Üµ…Ñ¥½¹Ì™½É´ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÑÁàìô(¹É•Ù¥•Üµ…Ñ¥½¹Ì¥¹ÁÕÐìµ¥¸µÝ¥‘Ñ è€ÀìÝ¥‘Ñ è€ÄÀÀ”ìÁ…‘‘¥¹œè€ÙÁà€ÝÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÙÁàì‰…­É½Õ¹è€ŒÀÜÁ„Áˆì½±½ÈèÙ…È ´µÑ•áÐ¤ì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹É•Ù¥•Üµ…Ñ¥½¹Ì‰ÕÑÑ½¸ì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÙÁàìÁ…‘‘¥¹œè€ÙÁà€ÝÁàì™½¹ÐµÍ¥é”è€åÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹É•Ù¥•Üµ…Ñ¥½¹Ì€¹Ù•É¥™äì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐìô(¹É•Ù¥•Üµ…Ñ¥½¹Ì€¹É•©•Ðì‰…­É½Õ¹è€ŒÍˆÄÔÅˆì½±½Èè€™˜å…„Ôìô(¹™É••é”µ‰ÕÑÑ½¸ì‰…­É½Õ¹è€•˜ÐÀÔØ€…¥µÁ½ÉÑ…¹Ðì½±½Èè€™™˜€…¥µÁ½ÉÑ…¹Ðìô(¹…‘µ¥¸µÍ¹…ÁÍ¡½Ðì‘¥ÍÁ±…äèÉ¥ì…Àè€ÙÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄÕÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÄäÜÄÜÜì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÑÁàì‰…­É½Õ¹è€ŒÀÜÄÐÄØìô(¹…‘µ¥¸µÍ¹…ÁÍ¡½ÐÀìµ…É¥¸è€Àìô(¹…‘µ¥¸µÍ¹…ÁÍ¡½ÐÍµ…±°ìµ…É¥¸µÑ½Àè€ÕÁàì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€åÁàìÑ•áÐµÑÉ…¹Í™½É´èÕÁÁ•É…Í”ìô(¹…‘µ¥¸µÍ¹…ÁÍ¡½Ð½‘”ì½Ù•É™±½ÜµÝÉ…Àè…¹åÝ¡•É”ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹…‘µ¥¸µ‘É…Üµ½¹ÑÉ½°ì‘¥ÍÁ±…äèÉ¥ì…Àè€åÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÈÁÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒáÉˆÌäì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄáÁàì‰…­É½Õ¹èÉ…‘¥…°µÉ…‘¥•¹Ð¡¥É±”…Ð€ÄÀÀ”€À°€ŒÌÔÄÀÄä°€ŒÄÄÁˆÁ€Ôà”¤ìô(¹…‘µ¥¸µ‘É…Üµ½¹ÑÉ½°À°€¹…‘µ¥¸µ‘É…Üµ½¹ÑÉ½° Èìµ…É¥¸è€Àìô(¹…‘µ¥¸µ‘É…Üµ½¹ÑÉ½°€øÀé±…ÍÐµ½˜µÑåÁ”ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹…‘µ¥¸µ‘É…Üµ½¹ÑÉ½°‰ÕÑÑ½¸ìÝ¥‘Ñ è€ÄÀÀ”ìµ¥¸µ¡•¥¡Ðè€ÔÉÁàìµ…É¥¸µÑ½Àè€ÙÁàì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÉÁàì‰…­É½Õ¹èÙ…È ´µÉ•¤ì½±½Èè€™™˜ì™½¹ÐµÝ•¥¡Ðè€äÔÀì±•ÑÑ•ÈµÍÁ…¥¹œè€¸ÕÁàìô(¹‘É…ÜµÉ•Ù•…°ì‘¥ÍÁ±…äèÉ¥ìµ¥¸µ¡•¥¡Ðè€ÈÜÁÁàìÁ±…”µ¥Ñ•µÌè•¹Ñ•Èì…±¥¸µ½¹Ñ•¹Ðè•¹Ñ•Èì…Àè€ÄÁÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÈÑÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÄäÜÄÜÜì‰½É‘•ÈµÉ…‘¥ÕÌè€ÈÁÁàì‰…­É½Õ¹èÉ…‘¥…°µÉ…‘¥•¹Ð¡¥É±”…Ð€ÔÀ”€ÈÀ”°€ŒÄÈÌàÍŒ°€ŒÀÜÁŒÁ”€ØÔ”¤ìÑ•áÐµ…±¥¸è•¹Ñ•Èì½Ù•É™±½Üè¡¥‘‘•¸ìô(¹‘É…ÜµÉ•Ù•…°€øÀìµ…É¥¸è€Àìô(¹‘É…Üµ½Õ¹Ñ‘½Ý¸ì½±½ÈèÙ…È ´µå…¸¤ì™½¹Ðµ™…µ¥±äèÙ…È ´µ™½¹Ðµ•¥ÍÐµµ½¹¼¤°µ½¹½ÍÁ…”ì™½¹ÐµÍ¥é”è±…µÀ àÑÁà°€ÈáÙÜ°€ÄÔÁÁà¤ì±¥¹”µ¡•¥¡Ðè€ÄìÑ•áÐµÍ¡…‘½Üè€À€À€ÌÕÁà€ŒÈá”Ù•”ØØìô(¹‘É…ÜµÉ½±±¥¹œ°€¹‘É…ÜµÝ¥¹¹•Èì‘¥ÍÁ±…äèÉ¥ì©ÕÍÑ¥™äµ¥Ñ•µÌè•¹Ñ•Èì…Àè€ÄÁÁàìÝ¥‘Ñ è€ÄÀÀ”ìô(¹‘É…ÜµÉ½±±¥¹œÍµ…±°°€¹‘É…ÜµÝ¥¹¹•ÈÍµ…±°ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÁÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀì±•ÑÑ•ÈµÍÁ…¥¹œè€Ä¸ÑÁàìô(¹‘É…ÜµÉ½±±¥¹œÍÑÉ½¹œìÝ¥‘Ñ è€ÄÀÀ”ì½Ù•É™±½Üè¡¥‘‘•¸ì½±½ÈèÙ…È ´µå…¸¤ì™½¹Ðµ™…µ¥±äèÙ…È ´µ™½¹Ðµ•¥ÍÐµµ½¹¼¤°µ½¹½ÍÁ…”ì™½¹ÐµÍ¥é”è±…µÀ ÈÝÁà°€áÙÜ°€ÐÙÁà¤ìÑ•áÐµ½Ù•É™±½Üè•±±¥ÁÍ¥ÌìÝ¡¥Ñ”µÍÁ…”è¹½ÝÉ…Àìô(¹‘É…ÜµÝ¥¹¹•È€øÍÁ…¸ì™½¹ÐµÍ¥é”è€ÌáÁàìô(¹‘É…ÜµÝ¥¹¹•ÈÍÑÉ½¹œìµ…àµÝ¥‘Ñ è€ÄÀÀ”ì½Ù•É™±½ÜµÝÉ…Àè…¹åÝ¡•É”ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è±…µÀ ÌáÁà°€ÄÅÙÜ°€ØÙÁà¤ì±•ÑÑ•ÈµÍÁ…¥¹œè€´ÉÁàìô(¹‘É…ÜµÝ¥¹¹•ÈÀìµ…àµÝ¥‘Ñ è€ÐÌÁÁàìµ…É¥¸è€Àì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹Ý¥¹¹•ÈµÉ•Ù¥•ÜµÁ…¹•°ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÄÉÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÈÁÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄáÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìô(¹Ý¥¹¹•ÈµÉ•Ù¥•ÜµÁ…¹•° È°€¹Ý¥¹¹•ÈµÉ•Ù¥•ÜµÁ…¹•°Àìµ…É¥¸è€Àìô(¹Ý¥¹¹•ÈµÉ•Ù¥•ÜµÁ…¹•°€øÀé¹½Ð ¹•å•‰É½Ü¤ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹Ý¥¹¹•ÈµÉ•Ù¥•Üµ…Ñ¥½¹Ìì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È€Å™Èì…Àè€áÁàìô(¹Ý¥¹¹•ÈµÉ•Ù¥•Üµ…Ñ¥½¹Ì‰ÕÑÑ½¸°€¹‘¥ÍÅÕ…±¥™äµ™½É´‰ÕÑÑ½¸ìÝ¥‘Ñ è€ÄÀÀ”ìµ¥¸µ¡•¥¡Ðè€ÐÙÁàì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹½¹™¥É´µÝ¥¹¹•Èì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐìô(¹¡½±µÝ¥¹¹•Èì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÑŒØÀØØ€…¥µÁ½ÉÑ…¹Ðì‰…­É½Õ¹èÑÉ…¹ÍÁ…É•¹Ðì½±½ÈèÙ…È ´µÑ•áÐ¤ìô(¹‘¥ÍÅÕ…±¥™äµ™½É´ì‘¥ÍÁ±…äèÉ¥ì…Àè€áÁàìÁ…‘‘¥¹œµÑ½Àè€ÄÉÁàì‰½É‘•ÈµÑ½Àè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ìô(¹‘¥ÍÅÕ…±¥™äµ™½É´±…‰•°ì½±½Èè€™™…‰ˆÐì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€àÔÀìô(¹‘¥ÍÅÕ…±¥™äµ™½É´Í•±•Ð°€¹‘¥ÍÅÕ…±¥™äµ™½É´Ñ•áÑ…É•„ìÝ¥‘Ñ è€ÄÀÀ”ìÁ…‘‘¥¹œè€ÄÅÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒØÐÌÄÍ„ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì½ÕÑ±¥¹”è€Àì‰…­É½Õ¹è€ŒÄÀÀäÁˆì½±½ÈèÙ…È ´µÑ•áÐ¤ìô(¹‘¥ÍÅÕ…±¥™äµ™½É´Ñ•áÑ…É•„ìÉ•Í¥é”èÙ•ÉÑ¥…°ìô(¹‘¥ÍÅÕ…±¥™äµ™½É´‰ÕÑÑ½¸ì‰…­É½Õ¹è€ŒÐÈÄÔÅŒì½±½Èè€™˜å…„Øìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½Éäì‘¥ÍÁ±…äèÉ¥ì…Àè€áÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄáÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÙÁàì‰…­É½Õ¹è€ŒÀäÁÁ˜ìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½Éä Èìµ…É¥¸è€À€À€ÑÁàì™½¹ÐµÍ¥é”è€ÄÙÁàìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½Éä€ø‘¥Øì‘¥ÍÁ±…äè™±•àì©ÕÍÑ¥™äµ½¹Ñ•¹ÐèÍÁ…”µ‰•ÑÝ••¸ì…Àè€ÄÁÁàìÁ…‘‘¥¹œè€åÁà€Àì‰½É‘•ÈµÑ½Àè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì™½¹ÐµÍ¥é”è€ÄÅÁàìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½ÉäÍÁ…¸ì½±½ÈèÙ…È ´µµÕÑ•¤ìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½Éä€¹…ÑÑ•µÁÐµ½¹™¥Éµ•ì½±½ÈèÙ…È ´µå…¸¤ìô(¹…‘µ¥¸µ…ÑÑ•µÁÐµ¡¥ÍÑ½Éä€¹…ÑÑ•µÁÐµ‘¥ÍÅÕ…±¥™¥•ì½±½Èè€™˜Ýá„ìô)µ•‘¥„€¡µ…àµÝ¥‘Ñ è€ÐàÁÁà¤ì€¹Ý¥¹¹•ÈµÉ•Ù¥•Üµ…Ñ¥½¹ÌìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™Èìôô((¹ÁÕ‰±¥ŒµÝ¥¹¹•ÉÌìÁ…‘‘¥¹œè€ÌÑÁà€À€ÑÁàìÍÉ½±°µµ…É¥¸µÑ½Àè€ÈÁÁàìô(¹Ý¥¹¹•ÉÌµ•µÁÑäìÁ…‘‘¥¹œè€ÄáÁàì‰½É‘•Èè€ÅÁà‘…Í¡•Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÑÁàì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹Ý¥¹¹•Èµ±¥ÍÐì‘¥ÍÁ±…äèÉ¥ì…Àè€åÁàìµ…É¥¸µÑ½Àè€ÄÙÁàìô(¹Ý¥¹¹•Èµ±¥ÍÐ…ÉÑ¥±”°€¹Ý¥¹¹•ÈµÁÕ‰±¥Œµ±¥¹¬ì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€ÐÉÁà€Å™È…ÕÑ¼ì…±¥¸µ¥Ñ•µÌè•¹Ñ•Èì…Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄÑÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÕÁàì‰…­É½Õ¹è±¥¹•…ÈµÉ…‘¥•¹Ð ÄÐÕ‘•œ°€ŒÄÀÄÜÄä°€ŒÀàÁˆÁŒ¤ìô(¹Ý¥¹¹•ÈµÁÕ‰±¥Œµ±¥¹¬ì½±½Èè¥¹¡•É¥ÐìÑ•áÐµ‘•½É…Ñ¥½¸è¹½¹”ìÑÉ…¹Í¥Ñ¥½¸è‰½É‘•Èµ½±½È€¸ÄáÌ•…Í”°ÑÉ…¹Í™½É´€¸ÄáÌ•…Í”ìô(¹Ý¥¹¹•ÈµÁÕ‰±¥Œµ±¥¹¬é¡½Ù•È°€¹Ý¥¹¹•ÈµÁÕ‰±¥Œµ±¥¹¬é™½ÕÌµÙ¥Í¥‰±”ì‰½É‘•Èµ½±½ÈèÙ…È ´µå…¸¤ìÑÉ…¹Í™½É´èÑÉ…¹Í±…Ñ•d ´ÅÁà¤ìô(¹Ý¥¹¹•ÈµÑÉ½Á¡äì‘¥ÍÁ±…äèÉ¥ìÁ±…”µ¥Ñ•µÌè•¹Ñ•ÈìÝ¥‘Ñ è€ÐÉÁàì¡•¥¡Ðè€ÐÉÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÄäÜÄÜÜì‰½É‘•ÈµÉ…‘¥ÕÌè€ÔÀ”ì‰…­É½Õ¹èÙ…È ´µå…¸µÍ½™Ð¤ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÈÍÁàìô(¹Ý¥¹¹•Èµ±¥ÍÐ…ÉÑ¥±”€ø‘¥Øé¹Ñ µ¡¥± È¤ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÉÁàìµ¥¸µÝ¥‘Ñ è€Àìô(¹Ý¥¹¹•Èµ±¥ÍÐÍµ…±°ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€áÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀì±•ÑÑ•ÈµÍÁ…¥¹œè€ÅÁàìô(¹Ý¥¹¹•Èµ±¥ÍÐÍÑÉ½¹œì½Ù•É™±½Üè¡¥‘‘•¸ì™½¹ÐµÍ¥é”è€ÄÕÁàìÑ•áÐµ½Ù•É™±½Üè•±±¥ÁÍ¥ÌìÝ¡¥Ñ”µÍÁ…”è¹½ÝÉ…Àìô(¹Ý¥¹¹•Èµ±¥ÍÐ…ÉÑ¥±”€ø‘¥Øé¹Ñ µ¡¥± È¤ÍÁ…¸ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹Ý¥¹¹•Èµµ•‘…±Ìì‘¥ÍÁ±…äè™±•àìµ…àµÝ¥‘Ñ è€àÉÁàì™±•àµÝÉ…ÀèÝÉ…Àì©ÕÍÑ¥™äµ½¹Ñ•¹Ðè™±•àµ•¹ì™½¹ÐµÍ¥é”è€ÄÕÁàìô(¹Ý¥¹¹•Èµ…ÍÍ•ÐµÁ…¹•°ì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìèµ¥¹µ…à ÈÈÁÁà°€¸ÜÕ™È¤€Å™Èì…Àè€ÄáÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄáÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÄäÜÄÜÜì‰½É‘•ÈµÉ…‘¥ÕÌè€ÈÁÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•ÜìÁ½Í¥Ñ¥½¸èÉ•±…Ñ¥Ù”ì‘¥ÍÁ±…äèÉ¥ìµ¥¸µ¡•¥¡Ðè€ÈàÁÁàì…±¥¸µ½¹Ñ•¹Ðè•¹Ñ•Èì©ÕÍÑ¥™äµ¥Ñ•µÌè•¹Ñ•Èì…Àè€ÄÑÁàìÁ…‘‘¥¹œè€ÈÑÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µå…¸¤ì‰…­É½Õ¹èÉ…‘¥…°µÉ…‘¥•¹Ð¡¥É±”…Ð€àÀ”€À°€ŒÄØÐÄÐÐ°€ŒÀÔÀÜÀà€ØÔ”¤ìÑ•áÐµ…±¥¸è•¹Ñ•Èì½Ù•É™±½Üè¡¥‘‘•¸ìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•Üèé…™Ñ•Èì½¹Ñ•¹Ðè€ˆˆìÁ½Í¥Ñ¥½¸è…‰Í½±ÕÑ”ìÑ½Àè€´ÐÁÁàìÉ¥¡Ðè€ÌÉÁàìÝ¥‘Ñ è€ÕÁàì¡•¥¡Ðè€ÄäÁÁàì‰…­É½Õ¹èÙ…È ´µÉ•¤ìÑÉ…¹Í™½É´èÉ½Ñ…Ñ” ´ÈÉ‘•œ¤ìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•Ü€øÍÁ…¸ì™½¹ÐµÍ¥é”è€ÈÍÁàì™½¹ÐµÍÑå±”è¹½Éµ…°ì™½¹ÐµÝ•¥¡Ðè€äÔÀìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•Ü•´ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍÑå±”è¹½Éµ…°ìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•ÜÍµ…±°ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€åÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀì±•ÑÑ•ÈµÍÁ…¥¹œè€ÅÁàìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•ÜÍÑÉ½¹œìµ…àµÝ¥‘Ñ è€ÄÀÀ”ì½Ù•É™±½ÜµÝÉ…Àè…¹åÝ¡•É”ì™½¹ÐµÍ¥é”è€ÈåÁàìô(¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•ÜÀìµ…É¥¸è€Àì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÅÁàìô(¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½Áäì‘¥ÍÁ±…äèÉ¥ì…±¥¸µ½¹Ñ•¹Ðè•¹Ñ•Èì…Àè€åÁàìô(¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½Áä È°€¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½ÁäÀìµ…É¥¸è€Àìô(¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½Áä€øÀé¹½Ð ¹•å•‰É½Ü¤ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½Áä€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ì…Àè€áÁàìµ…É¥¸µÑ½Àè€ÙÁàìô(¹Ý¥¹¹•Èµ…ÍÍ•Ðµ½Áä‰ÕÑÑ½¸ìµ¥¸µ¡•¥¡Ðè€ÐÑÁàì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô)µ•‘¥„€¡µ…àµÝ¥‘Ñ è€ØÈÁÁà¤ì€¹Ý¥¹¹•Èµ…ÍÍ•ÐµÁ…¹•°ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™Èìô€¹Ý¥¹¹•Èµ…ÉµÁÉ•Ù¥•Üìµ¥¸µ¡•¥¡Ðè€ÈÔÁÁàìôô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°ì‘¥ÍÁ±…äèÉ¥ì…Àè€åÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄáÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄáÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•° È°€¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°Àìµ…É¥¸è€Àìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°ÁÉ”ìµ…É¥¸è€ÍÁà€ÀìÁ…‘‘¥¹œè€ÄÑÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÈÐÔÜÕ„ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÉÁàì‰…­É½Õ¹è€ŒÀÜÄÈÄÐì½±½Èè€‘”Ý”äì™½¹Ðè€ÄÉÁà¼Ä¸ÔÔÙ…È ´µ™½¹Ðµ•¥ÍÐ¤°É¥…°°Í…¹ÌµÍ•É¥˜ìÝ¡¥Ñ”µÍÁ…”èÁÉ”µÝÉ…Àìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°€øÍµ…±°ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÁÁàìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È€Å™Èì…Àè€áÁàìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°‰ÕÑÑ½¸°€¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°„ì‘¥ÍÁ±…äèÉ¥ìµ¥¸µ¡•¥¡Ðè€ÐÑÁàìÁ±…”µ¥Ñ•µÌè•¹Ñ•Èì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìÑ•áÐµ‘•½É…Ñ¥½¸è¹½¹”ìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°‰ÕÑÑ½¸ì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐìô(¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°„ì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÈÐÔÜÕ„ì½±½ÈèÙ…È ´µå…¸¤ìô)µ•‘¥„€¡µ…àµÝ¥‘Ñ è€ÐÐÁÁà¤ì€¹Ý¥¹¹•ÈµÍ¡…É”µÁ…¹•°€ø‘¥ØìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™Èìôô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°ì‘¥ÍÁ±…äèÉ¥ì…Àè€ÄÁÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ…‘‘¥¹œè€ÄáÁàì‰½É‘•Èè€ÅÁàÍ½±¥€ŒÈÐÔÜÕ„ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄáÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•° È°€¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°Àìµ…É¥¸è€Àìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°€øÀé¹½Ð ¹•å•‰É½Ü¤ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàì±¥¹”µ¡•¥¡Ðè€Ä¸Ôìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™È€Å™Èì…Àè€áÁàìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°™½É´°€¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°‰ÕÑÑ½¸ìÝ¥‘Ñ è€ÄÀÀ”ìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°‰ÕÑÑ½¸ìµ¥¸µ¡•¥¡Ðè€ÐÑÁàì‰½É‘•Èè€Àì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÁÁàì‰…­É½Õ¹èÙ…È ´µå…¸¤ì½±½Èè€ŒÀÀÄÀÄÐì™½¹ÐµÍ¥é”è€ÄÅÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°€¹±…¥´µ•áÁ¥É•ì‰½É‘•Èè€ÅÁàÍ½±¥€ŒØÐÌÄÍ„ì‰…­É½Õ¹è€ŒÐÈÄÔÅŒì½±½Èè€™˜å…„Øìô)µ•‘¥„€¡µ…àµÝ¥‘Ñ è€ÐÐÁÁà¤ì€¹Ý¥¹¹•Èµ±…¥´µÁ…¹•°€ø‘¥ØìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€Å™Èìôô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÍ¡•±°ìÝ¥‘Ñ èµ¥¸ ÄÀÀ”°€ØÈÁÁà¤ìµ¥¸µ¡•¥¡Ðè€ÄÀÁ‘Ù ìµ…É¥¸è€À…ÕÑ¼ìÁ…‘‘¥¹œè€À€ÄáÁà€ØÁÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•Èµ¡•É¼ì‘¥ÍÁ±…äèÉ¥ì©ÕÍÑ¥™äµ¥Ñ•µÌè•¹Ñ•ÈìÁ…‘‘¥¹œè€ÌÁÁà€À€ÈÉÁàìÑ•áÐµ…±¥¸è•¹Ñ•Èìô(¹ÁÕ‰±¥Œµµ•µ‰•Èµ¡•É¼ Äìµ…àµÝ¥‘Ñ è€ÄÀÀ”ìµ…É¥¸è€ÄÁÁà€À€ÑÁàì½Ù•É™±½ÜµÝÉ…Àè…¹åÝ¡•É”ì™½¹ÐµÍ¥é”è±…µÀ ÌÙÁà°€ÄÁÙÜ°€ÔÙÁà¤ì±•ÑÑ•ÈµÍÁ…¥¹œè€´ÉÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•Èµ¡•É¼€øÀé±…ÍÐµ¡¥±ìµ…É¥¸è€Àì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€ÄÉÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•Èµ…Ù…Ñ…Èì‘¥ÍÁ±…äèÉ¥ìÝ¥‘Ñ è€ÜÁÁàì¡•¥¡Ðè€ÜÁÁàìµ…É¥¸µÑ½Àè€ÄÉÁàìÁ±…”µ¥Ñ•µÌè•¹Ñ•Èì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µå…¸¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÔÀ”ì‰…­É½Õ¹èÉ…‘¥…°µÉ…‘¥•¹Ð¡¥É±”…Ð€ÜÀ”€ÈÀ”°€ŒÄäÔÀÔØ°€ŒÀÜÄÀÄÈ€ØÔ”¤ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÌÑÁàì™½¹ÐµÝ•¥¡Ðè€äÔÀìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÍÑ…ÑÌì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹ÌèÉ•Á•…Ð Ì°€Å™È¤ì…Àè€áÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÍÑ…ÑÌ…ÉÑ¥±”ì‘¥ÍÁ±…äèÉ¥ì©ÕÍÑ¥™äµ¥Ñ•µÌè•¹Ñ•Èì…Àè€ÍÁàìÁ…‘‘¥¹œè€ÄÕÁà€ÝÁàì‰½É‘•Èè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ì‰½É‘•ÈµÉ…‘¥ÕÌè€ÄÑÁàì‰…­É½Õ¹èÙ…È ´µÁ…¹•°¤ìÑ•áÐµ…±¥¸è•¹Ñ•Èìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÍÑ…ÑÌÍÑÉ½¹œì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€ÈÕÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÍÑ…ÑÌÍµ…±°ì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€áÁàìÑ•áÐµÑÉ…¹Í™½É´èÕÁÁ•É…Í”ìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÝ¥¹Ìì‘¥ÍÁ±…äèÉ¥ì…Àè€áÁàìµ…É¥¸µÑ½Àè€ÄÑÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÝ¥¹Ì…ÉÑ¥±”ì‘¥ÍÁ±…äèÉ¥ìÉ¥µÑ•µÁ±…Ñ”µ½±Õµ¹Ìè€ÌáÁà€Å™Èì…±¥¸µ¥Ñ•µÌè•¹Ñ•Èì…Àè€ÄÁÁàìÁ…‘‘¥¹œè€ÄÅÁàì‰½É‘•ÈµÑ½Àè€ÅÁàÍ½±¥Ù…È ´µ±¥¹”¤ìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÝ¥¹Ì…ÉÑ¥±”€øÍÁ…¸ì™½¹ÐµÍ¥é”è€ÈÑÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÝ¥¹Ì…ÉÑ¥±”€ø‘¥Øì‘¥ÍÁ±…äèÉ¥ì…Àè€ÉÁàìô(¹ÁÕ‰±¥Œµµ•µ‰•ÈµÝ¥¹ÌÍµ…±°ì½±½ÈèÙ…È ´µå…¸¤ì™½¹ÐµÍ¥é”è€áÁàì™½¹ÐµÝ•¥¡Ðè€äÀÀìô(¹ÁÕ‰±¥ŒµÁÉ¥Ù…äµ¹½Ñ”ìµ…É¥¸è€ÄÙÁà€ÄÁÁà€Àì½±½ÈèÙ…È ´µµÕÑ•¤ì™½¹ÐµÍ¥é”è€åÁàì±¥¹”µ¡•¥¡Ðè€Ä¸ÔìÑ•áÐµ…±¥¸è•¹Ñ•Èìô((
