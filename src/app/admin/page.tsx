@@ -1,9 +1,15 @@
+Exit code: 0
+Wall time: 0.6 seconds
+Output:
 import Link from "next/link";
 import { DrawForm } from "@/app/admin/draw-form";
 import { BadgeSettingsForm } from "@/app/admin/badge-settings-form";
 import { freezeDraw, logoutAdmin, openDraw } from "@/app/admin/actions";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const statusLabels: Record<string, string> = {
   draft: "Borrador", scheduled: "Programado", open: "Abierto", frozen: "Cerrado",
@@ -91,3 +97,4 @@ export default async function AdminPage() {
     </main>
   );
 }
+
