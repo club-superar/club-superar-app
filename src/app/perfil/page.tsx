@@ -18,7 +18,12 @@ type ProfileBadge = {
   badge_definitions: { badge_key: string; name: string; description: string; icon: string };
 };
 
-type PointMovement = { id: number; amount: number; description: string; created_at: string };
+type PointMovement = { id: number; amount: number; reason_key: string; description: string; created_at: string };
+
+function movementLabel(movement: PointMovement) {
+  if (movement.reason_key === "admin_adjustment") return "Ajuste de SUPER Puntos";
+  return movement.description;
+}
 
 const participationLabels: Record<string, string> = {
   started: "En progreso",
@@ -50,7 +55,7 @@ export default async function ProfilePage() {
       .order("awarded_at", { ascending: false }),
     supabase
       .from("points_ledger")
-      .select("id, amount, description, created_at")
+      .select("id, amount, reason_key, description, created_at")
       .eq("profile_id", userId)
       .order("created_at", { ascending: false })
       .limit(6),
@@ -88,7 +93,7 @@ export default async function ProfilePage() {
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
         {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (
-          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badge_definitions.description}</small></div></article>)}</div>
+          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badde_definitions.description}</small></div></article>)}</div>
         )}
       </section>
 
@@ -102,7 +107,7 @@ export default async function ProfilePage() {
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">SUPER PUNTOS</p><h2>Últimos movimientos</h2></div></div>
         {movements.length === 0 ? <p className="profile-empty">Tus puntos aparecerán acá cuando completes acciones.</p> : (
-          <div className="point-history">{movements.map((movement) => <article key={movement.id}><div><strong>{movement.description}</strong><small>{new Intl.DateTimeFormat("es-AR").format(new Date(movement.created_at))}</small></div><span className={movement.amount > 0 ? "positive" : "negative"}>{movement.amount > 0 ? "+" : ""}{movement.amount}</span></article>)}</div>
+          <div className="point-history">{movements.map((movement) => <article key={movement.id}><div><strong>{movementLabel(movement)}</strong><small>{new Intl.DateTimeFormat("es-AR").format(new Date(movement.created_at))}</small></div><span className={movement.amount > 0 ? "positive" : "negative"}>{movement.amount > 0 ? "+" : ""}{movement.amount}</span></article>)}</div>
         )}
       </section>
 
