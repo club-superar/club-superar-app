@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 "use client";
 
 import { useEffect } from "react";
@@ -18,11 +15,10 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
   };
   return (
     <html lang="es"><body className="fatal-error-shell"><main className="fatal-error-card">
-      <p className="eyebrow cyan">CLUB SUPER.AR</p><h1>No pudimos abrir la aplicaciÃ³n</h1>
-      <p>Tu cuenta y tus puntos siguen guardados. ProbÃ¡ recargar; si continÃºa, iniciÃ¡ una recuperaciÃ³n limpia.</p>
-      <button className="button primary" onClick={() => { reset(); reload(); }}>Recargar aplicaciÃ³n</button>
-      <button className="button secondary" onClick={cleanAndReload}>Recuperar aplicaciÃ³n</button>
+      <p className="eyebrow cyan">CLUB SUPER.AR</p><h1>No pudimos abrir la aplicación</h1>
+      <p>Tu cuenta y tus puntos siguen guardados. Probá recargar; si continúa, iniciá una recuperación limpia.</p>
+      <button className="button primary" onClick={() => { reset(); reload(); }}>Recargar aplicación</button>
+      <button className="button secondary" onClick={cleanAndReload}>Recuperar aplicación</button>
     </main></body></html>
   );
 }
-

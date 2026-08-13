@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 "use server";
 
 import { revalidatePath } from "next/cache";
@@ -112,7 +109,7 @@ export async function createDraw(_: AdminActionState, formData: FormData): Promi
     || !Number.isInteger(maxExtraChances) || maxExtraChances < 0 || maxExtraChances > 2
     || !Number.isInteger(winnerPercent) || winnerPercent < 0 || winnerPercent > 100
     || !Number.isInteger(claimHours) || claimHours < 1 || claimHours > 168) {
-    return { error: "RevisÃ¡ las reglas, los puntos y los lÃ­mites del sorteo." };
+    return { error: "Revisá las reglas, los puntos y los límites del sorteo." };
   }
 
   const admin = createAdminSupabaseClient();
@@ -130,7 +127,7 @@ export async function createDraw(_: AdminActionState, formData: FormData): Promi
   if (error) return { error: "No pudimos crear el sorteo. Revisa los datos y las fechas." };
 
   const drawId = (created as { id?: number } | null)?.id;
-  if (!drawId) return { error: "El sorteo se creÃ³, pero no pudimos recuperar su configuraciÃ³n." };
+  if (!drawId) return { error: "El sorteo se creó, pero no pudimos recuperar su configuración." };
   const { error: drawRulesError } = await admin.from("draws").update({
     claim_window_hours: claimHours,
     winner_retained_chance_percent: winnerPercent,
@@ -175,10 +172,10 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
   };
 
   if (!Number.isSafeInteger(drawId) || drawId <= 0 || title.length < 3 || prizeName.length < 3 || !opensAt || !closesAt) {
-    return { error: "RevisÃ¡ el nombre, el premio y las fechas." };
+    return { error: "Revisá el nombre, el premio y las fechas." };
   }
   if (new Date(closesAt) <= new Date(opensAt)) return { error: "El cierre debe ser posterior a la apertura." };
-  if (prizeValue !== null && (!Number.isFinite(prizeValue) || prizeValue < 0)) return { error: "El valor del premio no es vÃ¡lido." };
+  if (prizeValue !== null && (!Number.isFinite(prizeValue) || prizeValue < 0)) return { error: "El valor del premio no es válido." };
   if (![instagramProfileUrl, whatsappGroupUrl, mainPublicationUrl].every((url) => /^https:\/\//.test(url))) {
     return { error: "Los tres enlaces deben comenzar con https://" };
   }
@@ -188,7 +185,7 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
     || !Number.isInteger(values.maxExtraChances) || values.maxExtraChances < 0 || values.maxExtraChances > 2
     || !Number.isInteger(values.winnerPercent) || values.winnerPercent < 0 || values.winnerPercent > 100
     || !Number.isInteger(values.claimHours) || values.claimHours < 1 || values.claimHours > 168) {
-    return { error: "RevisÃ¡ los puntos y los lÃ­mites del sorteo." };
+    return { error: "Revisá los puntos y los límites del sorteo." };
   }
 
   const admin = createAdminSupabaseClient();
@@ -204,8 +201,8 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
     p_claim_hours: values.claimHours,
   });
   if (error) {
-    if (error.message.includes("DRAW_NOT_DRAFT")) return { error: "Este sorteo ya fue abierto y sus reglas estÃ¡n congeladas." };
-    return { error: "No pudimos guardar los cambios. RevisÃ¡ los datos." };
+    if (error.message.includes("DRAW_NOT_DRAFT")) return { error: "Este sorteo ya fue abierto y sus reglas están congeladas." };
+    return { error: "No pudimos guardar los cambios. Revisá los datos." };
   }
   revalidatePath("/admin");
   revalidatePath(`/admin/sorteos/${drawId}`);
@@ -369,7 +366,7 @@ export async function updateWinnerClaimStatus(formData: FormData) {
   });
   if (error) {
     if (error.message.includes("INVALID_CLAIM_TRANSITION")) {
-      throw new Error("Ese cambio no corresponde al estado actual o el plazo todavÃ­a no venciÃ³.");
+      throw new Error("Ese cambio no corresponde al estado actual o el plazo todavía no venció.");
     }
     throw new Error("No pudimos actualizar el estado del premio.");
   }
@@ -384,7 +381,7 @@ export async function updateBadgeSettings(_: AdminActionState, formData: FormDat
   const legendPoints = Number(formData.get("legendPoints"));
   if (!Number.isInteger(loyalStreak) || loyalStreak < 2 || loyalStreak > 50
     || !Number.isInteger(legendPoints) || legendPoints < 10 || legendPoints > 1000000) {
-    return { error: "RevisÃ¡ los lÃ­mites de las insignias." };
+    return { error: "Revisá los límites de las insignias." };
   }
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_update_badge_thresholds", {
@@ -397,7 +394,7 @@ export async function updateBadgeSettings(_: AdminActionState, formData: FormDat
   revalidatePath("/perfil");
   revalidatePath("/miembro/[username]", "page");
   revalidatePath("/admin/miembros/[id]", "page");
-  return { success: "LÃ­mites actualizados y miembros revisados." };
+  return { success: "Límites actualizados y miembros revisados." };
 }
 
 function readMemberId(formData: FormData) {
@@ -420,13 +417,13 @@ export async function adjustMemberPoints(_: AdminActionState, formData: FormData
   const reason = String(formData.get("reason") ?? "").trim();
   const username = String(formData.get("username") ?? "").trim();
   if (!profileId || !Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000 || reason.length < 3 || reason.length > 200) {
-    return { error: "RevisÃ¡ la cantidad y escribÃ­ un motivo breve." };
+    return { error: "Revisá la cantidad y escribí un motivo breve." };
   }
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_adjust_member_points", {
     p_actor_id: actorId, p_profile_id: profileId, p_amount: amount, p_reason: reason,
   });
-  if (error?.message.includes("NEGATIVE_POINTS")) return { error: "El ajuste dejarÃ­a los puntos por debajo de cero." };
+  if (error?.message.includes("NEGATIVE_POINTS")) return { error: "El ajuste dejaría los puntos por debajo de cero." };
   if (error) return { error: "No pudimos ajustar los SUPER Puntos." };
   revalidateMemberProgress(profileId, username);
   return { success: `${amount > 0 ? "+" : ""}${amount} SUPER Puntos guardados.` };
@@ -442,7 +439,7 @@ export async function updateMemberStreak(_: AdminActionState, formData: FormData
   if (!profileId || !Number.isInteger(currentStreak) || !Number.isInteger(longestStreak)
     || currentStreak < 0 || longestStreak < currentStreak || longestStreak > 1000
     || reason.length < 3 || reason.length > 200) {
-    return { error: "La mejor racha debe ser igual o mayor que la actual. AgregÃ¡ un motivo." };
+    return { error: "La mejor racha debe ser igual o mayor que la actual. Agregá un motivo." };
   }
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_update_member_streak", {
@@ -462,7 +459,7 @@ export async function setMemberBadge(_: AdminActionState, formData: FormData): P
   const reason = String(formData.get("reason") ?? "").trim();
   const username = String(formData.get("username") ?? "").trim();
   if (!profileId || !new Set(["loyal", "legend"]).has(badgeKey) || reason.length < 3 || reason.length > 200) {
-    return { error: "ElegÃ­ Fiel o Leyenda y escribÃ­ un motivo." };
+    return { error: "Elegí Fiel o Leyenda y escribí un motivo." };
   }
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_set_member_badge", {
@@ -480,17 +477,17 @@ export async function updateRewardSettings(_: AdminActionState, formData: FormDa
   const arsPerPoint = Number(formData.get("arsPerPoint"));
   const minimum = Number(formData.get("minimum"));
   const expiry = Number(formData.get("expiry"));
-  if (!Number.isFinite(earningPercent) || earningPercent <= 0 || earningPercent > 25 || !Number.isFinite(arsPerPoint) || arsPerPoint <= 0 || !Number.isInteger(minimum) || minimum < 1 || !Number.isInteger(expiry) || expiry < 3 || expiry > 60) return { error: "RevisÃ¡ los valores del sistema." };
+  if (!Number.isFinite(earningPercent) || earningPercent <= 0 || earningPercent > 25 || !Number.isFinite(arsPerPoint) || arsPerPoint <= 0 || !Number.isInteger(minimum) || minimum < 1 || !Number.isInteger(expiry) || expiry < 3 || expiry > 60) return { error: "Revisá los valores del sistema." };
   const { error } = await createAdminSupabaseClient().rpc("admin_update_reward_settings", { p_actor_id: actorId, p_earning_percent: earningPercent, p_ars_per_point: arsPerPoint, p_minimum: minimum, p_expiry: expiry });
-  if (error) return { error: "No pudimos guardar la configuraciÃ³n." };
+  if (error) return { error: "No pudimos guardar la configuración." };
   revalidatePath("/admin/canjes"); revalidatePath("/canjes");
-  return { success: "ConfiguraciÃ³n guardada." };
+  return { success: "Configuración guardada." };
 }
 
 export async function saveReward(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   await requireAdminUserId();
   const name = String(formData.get("name") ?? "").trim(); const description = String(formData.get("description") ?? "").trim(); const pointsCost = Number(formData.get("pointsCost"));
-  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1) return { error: "RevisÃ¡ el nombre y los puntos." };
+  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1) return { error: "Revisá el nombre y los puntos." };
   const { error } = await createAdminSupabaseClient().from("reward_catalog").insert({ name, description, points_cost: pointsCost });
   if (error) return { error: "No pudimos guardar el producto." };
   revalidatePath("/admin/canjes"); revalidatePath("/canjes");
@@ -505,12 +502,11 @@ export async function toggleReward(formData: FormData) {
 
 export async function confirmPointRedemption(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const actorId = await requireAdminUserId(); const code = String(formData.get("code") ?? "").replace(/[^a-f0-9]/gi, "").toUpperCase();
-  if (code.length !== 8) return { error: "El cÃ³digo debe tener 8 caracteres." };
+  if (code.length !== 8) return { error: "El código debe tener 8 caracteres." };
   const { data, error } = await createAdminSupabaseClient().rpc("admin_confirm_point_redemption", { p_actor_id: actorId, p_code: code });
-  if (error?.message.includes("CODE_NOT_FOUND")) return { error: "CÃ³digo inexistente." };
-  if (error?.message.includes("CODE_NOT_PENDING")) return { error: "Este cÃ³digo venciÃ³ o ya fue utilizado." };
+  if (error?.message.includes("CODE_NOT_FOUND")) return { error: "Código inexistente." };
+  if (error?.message.includes("CODE_NOT_PENDING")) return { error: "Este código venció o ya fue utilizado." };
   if (error) return { error: "No pudimos confirmar el canje." };
   revalidatePath("/admin/canjes"); revalidatePath("/perfil");
   return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
 }
-

@@ -1,7 +1,4 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
--- Canjes de SUPER Puntos: catÃ¡logo opcional, canje libre y validaciÃ³n de caja.
+-- Canjes de SUPER Puntos: catálogo opcional, canje libre y validación de caja.
 insert into private.app_settings (setting_key, setting_value)
 values ('rewards', '{"earning_percent":5,"ars_per_point":100,"minimum_redemption_points":10,"redemption_expiry_minutes":10}'::jsonb)
 on conflict (setting_key) do nothing;
@@ -125,4 +122,3 @@ grant execute on function public.create_point_redemption(uuid,bigint,integer) to
 grant execute on function public.admin_confirm_point_redemption(uuid,text) to service_role;
 grant execute on function public.admin_update_reward_settings(uuid,numeric,numeric,integer,integer) to service_role;
 grant execute on function public.get_reward_settings() to authenticated,service_role;
-

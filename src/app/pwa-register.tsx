@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 "use client";
 
 import { useEffect } from "react";
@@ -18,4 +15,3 @@ export function PwaRegister() {
   }, []);
   return null;
 }
-

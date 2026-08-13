@@ -1,6 +1,3 @@
-Exit code: 0
-Wall time: 0.4 seconds
-Output:
 const CACHE_NAME = "club-superar-shell-v2";
 const OFFLINE_URL = "/offline.html";
 
@@ -26,4 +23,3 @@ self.addEventListener("fetch", (event) => {
     }
   })());
 });
-
