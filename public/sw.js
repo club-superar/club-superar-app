@@ -1,4 +1,7 @@
-const CACHE_NAME = "club-superar-shell-v1";
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
+const CACHE_NAME = "club-superar-shell-v2";
 const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
@@ -13,5 +16,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.mode !== "navigate") return;
-  event.respondWith(fetch(event.request).catch(() => caches.match(OFFLINE_URL)));
+  event.respondWith((async () => {
+    try {
+      const response = await fetch(event.request, { cache: "no-store" });
+      if (!response.ok && response.status >= 500) return (await caches.match(OFFLINE_URL)) || response;
+      return response;
+    } catch {
+      return (await caches.match(OFFLINE_URL)) || Response.error();
+    }
+  })());
 });
+

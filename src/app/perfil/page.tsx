@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
@@ -27,7 +30,7 @@ function movementLabel(movement: PointMovement) {
 
 const participationLabels: Record<string, string> = {
   started: "En progreso",
-  eligible: "Participación completa",
+  eligible: "ParticipaciÃ³n completa",
   frozen: "Incluido en el sorteo",
   disqualified: "Descalificado",
   winner_confirmed: "Ganador confirmado",
@@ -74,7 +77,7 @@ export default async function ProfilePage() {
     <main className="profile-shell">
       <header className="topbar">
         <Link className="brand" href="/"><span>SUPER</span><span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link>
-        <Link className="profile-back" href="/">← Inicio</Link>
+        <Link className="profile-back" href="/">â† Inicio</Link>
       </header>
 
       <section className="profile-heading">
@@ -84,34 +87,36 @@ export default async function ProfilePage() {
       </section>
 
       <section className="profile-overview" aria-label="Tu progreso">
-        <article><span>★</span><strong>{points}</strong><small>SUPER Puntos</small></article>
-        <article><span>🔥</span><strong>{currentParticipation?.streak_number ?? profile.current_streak}</strong><small>Racha</small></article>
-        <article><span>🎟</span><strong>{currentParticipation?.final_chances ?? 0}</strong><small>Chances actuales</small></article>
-        <article><span>🏆</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
+        <article><span>â˜…</span><strong>{points}</strong><small>SUPER Puntos</small></article>
+        <article><span>ðŸ”¥</span><strong>{currentParticipation?.streak_number ?? profile.current_streak}</strong><small>Racha</small></article>
+        <article><span>ðŸŽŸ</span><strong>{currentParticipation?.final_chances ?? 0}</strong><small>Chances actuales</small></article>
+        <article><span>ðŸ†</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
       </section>
 
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
-        {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (
+        {badges.length === 0 ? <p className="profile-empty">TodavÃ­a no obtuviste insignias. ParticipÃ¡ y mantenÃ© tu racha para desbloquearlas.</p> : (
           <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badge_definitions.description}</small></div></article>)}</div>
         )}
       </section>
 
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">ACTIVIDAD</p><h2>Mis sorteos</h2></div><span>{participations.length}</span></div>
-        {participations.length === 0 ? <p className="profile-empty">Todavía no participaste en ningún sorteo.</p> : (
+        {participations.length === 0 ? <p className="profile-empty">TodavÃ­a no participaste en ningÃºn sorteo.</p> : (
           <div className="participation-history">{participations.map((item) => <article key={item.id}><div><small>SORTEO #{String(item.draws.edition_number).padStart(3, "0")}</small><strong>{item.draws.title}</strong><span>{participationLabels[item.status] ?? item.status}</span></div><div><strong>{item.final_chances}</strong><small>chances</small></div></article>)}</div>
         )}
       </section>
 
       <section className="profile-panel">
-        <div className="profile-section-title"><div><p className="eyebrow cyan">SUPER PUNTOS</p><h2>Últimos movimientos</h2></div></div>
-        {movements.length === 0 ? <p className="profile-empty">Tus puntos aparecerán acá cuando completes acciones.</p> : (
+        <div className="profile-section-title"><div><p className="eyebrow cyan">SUPER PUNTOS</p><h2>Ãšltimos movimientos</h2></div></div>
+        {movements.length === 0 ? <p className="profile-empty">Tus puntos aparecerÃ¡n acÃ¡ cuando completes acciones.</p> : (
           <div className="point-history">{movements.map((movement) => <article key={movement.id}><div><strong>{movementLabel(movement)}</strong><small>{new Intl.DateTimeFormat("es-AR").format(new Date(movement.created_at))}</small></div><span className={movement.amount > 0 ? "positive" : "negative"}>{movement.amount > 0 ? "+" : ""}{movement.amount}</span></article>)}</div>
         )}
       </section>
 
-      <div className="profile-actions"><Link className="button primary" href="/">Ir al sorteo actual</Link><form action={signOut}><button className="button secondary">Cerrar sesión</button></form></div>
+      <section className="profile-panel redemption-entry"><div><p className="eyebrow cyan">BENEFICIOS</p><h2>Usar mis SUPER Puntos</h2><p>GenerÃ¡ un QR o cÃ³digo y mostralo en caja. Solo se descuentan cuando el canje se confirma.</p></div><Link className="button primary" href="/canjes">Ver canjes</Link></section>
+      <div className="profile-actions"><Link className="button primary" href="/">Ir al sorteo actual</Link><form action={signOut}><button className="button secondary">Cerrar sesiÃ³n</button></form></div>
     </main>
   );
 }
+

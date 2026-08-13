@@ -1,0 +1,12 @@
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
+"use client";
+import { useActionState } from "react";
+import { confirmPointRedemption, saveReward, updateRewardSettings } from "../actions";
+const initial = {};
+function Message({ state }: { state: { error?: string; success?: string } }) { return <>{state.error && <p className="form-error">{state.error}</p>}{state.success && <p className="form-success">{state.success}</p>}</>; }
+export function ConfirmRedemptionForm() { const [state, action, pending] = useActionState(confirmPointRedemption, initial); return <form action={action} className="reward-admin-form"><label>CÃ³digo de 8 caracteres<input name="code" maxLength={8} autoCapitalize="characters" required /></label><button disabled={pending}>{pending ? "Confirmandoâ€¦" : "Confirmar y descontar"}</button><Message state={state} /></form>; }
+export function RewardSettingsForm({ settings }: { settings: Record<string, number> }) { const [state, action, pending] = useActionState(updateRewardSettings, initial); const rate=Number(settings.earning_percent??5), value=Number(settings.ars_per_point??100); return <form action={action} className="reward-admin-form"><label>Beneficio sobre la compra (%)<input name="earningPercent" type="number" step="0.1" min="0.1" max="25" defaultValue={rate} /></label><label>Valor de 1 punto ($)<input name="arsPerPoint" type="number" min="1" defaultValue={value} /></label><label>MÃ­nimo de canje<input name="minimum" type="number" min="1" defaultValue={settings.minimum_redemption_points??10} /></label><label>Vigencia del cÃ³digo (minutos)<input name="expiry" type="number" min="3" max="60" defaultValue={settings.redemption_expiry_minutes??10} /></label><p>Ejemplo actual: una compra de $100.000 genera {Math.floor(100000*rate/100/value)} puntos.</p><button disabled={pending}>Guardar configuraciÃ³n</button><Message state={state} /></form>; }
+export function RewardForm() { const [state, action, pending] = useActionState(saveReward, initial); return <form action={action} className="reward-admin-form"><label>Producto o beneficio<input name="name" required /></label><label>DescripciÃ³n<input name="description" /></label><label>Costo en puntos<input name="pointsCost" type="number" min="1" required /></label><button disabled={pending}>Agregar al catÃ¡logo</button><Message state={state} /></form>; }
+

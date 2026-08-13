@@ -1,3 +1,6 @@
+Exit code: 0
+Wall time: 0.4 seconds
+Output:
 import Link from "next/link";
 import { DrawForm } from "@/app/admin/draw-form";
 import { BadgeSettingsForm } from "@/app/admin/badge-settings-form";
@@ -46,36 +49,37 @@ export default async function AdminPage() {
         <Link className="brand" href="/"><span>SUPER</span><span className="brand-dot">.</span><span className="brand-ar">AR</span><small>ADMIN</small></Link>
         <form action={logoutAdmin}><button className="admin-logout">Salir</button></form>
       </header>
-      <section className="admin-heading"><p className="eyebrow cyan">PANEL PRIVADO</p><h1>Sorteos</h1><p>Crea una edicion, revisala y abrila cuando este lista.</p><Link className="admin-members-link" href="/admin/miembros">Buscar y revisar miembros →</Link></section>
+      <section className="admin-heading"><p className="eyebrow cyan">PANEL PRIVADO</p><h1>Sorteos</h1><p>Crea una edicion, revisala y abrila cuando este lista.</p><Link className="admin-members-link" href="/admin/miembros">Buscar y revisar miembros â†’</Link></section>
 
       <section className="admin-dashboard" aria-label="Resumen general">
         <article><small>MIEMBROS ACTIVOS</small><strong>{memberResult.count ?? 0}</strong><span>Total del Club</span></article>
-        <article><small>EDICIÓN ACTUAL</small><strong>{participations.length}</strong><span>Participantes</span></article>
-        <article><small>NUEVOS</small><strong>{newParticipants}</strong><span>Primera participación</span></article>
-        <article><small>RECURRENTES</small><strong>{recurringParticipants}</strong><span>Ya habían participado</span></article>
+        <article><small>EDICIÃ“N ACTUAL</small><strong>{participations.length}</strong><span>Participantes</span></article>
+        <article><small>NUEVOS</small><strong>{newParticipants}</strong><span>Primera participaciÃ³n</span></article>
+        <article><small>RECURRENTES</small><strong>{recurringParticipants}</strong><span>Ya habÃ­an participado</span></article>
         <article><small>COMPLETOS</small><strong>{eligibleParticipants}</strong><span>Habilitados</span></article>
-        <article><small>CHANCES</small><strong>{totalChances}</strong><span>En la edición</span></article>
-        <article><small>GANADORES</small><strong>{winnerResult.count ?? 0}</strong><span>Histórico</span></article>
-        <article><small>DESCALIFICADOS</small><strong>{disqualificationResult.count ?? 0}</strong><span>Histórico</span></article>
+        <article><small>CHANCES</small><strong>{totalChances}</strong><span>En la ediciÃ³n</span></article>
+        <article><small>GANADORES</small><strong>{winnerResult.count ?? 0}</strong><span>HistÃ³rico</span></article>
+        <article><small>DESCALIFICADOS</small><strong>{disqualificationResult.count ?? 0}</strong><span>HistÃ³rico</span></article>
       </section>
 
       <div className="admin-insight-grid">
         <section className="admin-panel admin-insight">
           <div className="admin-panel-title"><h2>Mejores rachas</h2><small>ACTUALES</small></div>
-          {(streakResult.data ?? []).length === 0 ? <p className="admin-empty">Todavía no hay rachas registradas.</p> : (
-            <div className="admin-ranking">{(streakResult.data ?? []).map((profile, index) => <article key={profile.id}><span>{index + 1}</span><div><strong>@{profile.instagram_username}</strong><small>Máxima histórica: {profile.longest_streak}</small></div><b>🔥 {profile.current_streak}</b></article>)}</div>
+          {(streakResult.data ?? []).length === 0 ? <p className="admin-empty">TodavÃ­a no hay rachas registradas.</p> : (
+            <div className="admin-ranking">{(streakResult.data ?? []).map((profile, index) => <article key={profile.id}><span>{index + 1}</span><div><strong>@{profile.instagram_username}</strong><small>MÃ¡xima histÃ³rica: {profile.longest_streak}</small></div><b>ðŸ”¥ {profile.current_streak}</b></article>)}</div>
           )}
         </section>
 
         <section className="admin-panel admin-insight">
-          <div className="admin-panel-title"><h2>Últimos ganadores</h2><small>SEGUIMIENTO</small></div>
-          {recentWinners.length === 0 ? <p className="admin-empty">Todavía no hay ganadores confirmados.</p> : (
-            <div className="admin-recent-winners">{recentWinners.map((winner) => <Link href={`/admin/sorteos/${winner.draw_id}`} key={winner.id}><span>🏆</span><div><strong>@{winner.instagram_username}</strong><small>Sorteo #{String(winner.draws.edition_number).padStart(3, "0")}</small></div><b className={`claim-${winner.claim_status}`}>{claimLabels[winner.claim_status] ?? winner.claim_status}</b></Link>)}</div>
+          <div className="admin-panel-title"><h2>Ãšltimos ganadores</h2><small>SEGUIMIENTO</small></div>
+          {recentWinners.length === 0 ? <p className="admin-empty">TodavÃ­a no hay ganadores confirmados.</p> : (
+            <div className="admin-recent-winners">{recentWinners.map((winner) => <Link href={`/admin/sorteos/${winner.draw_id}`} key={winner.id}><span>ðŸ†</span><div><strong>@{winner.instagram_username}</strong><small>Sorteo #{String(winner.draws.edition_number).padStart(3, "0")}</small></div><b className={`claim-${winner.claim_status}`}>{claimLabels[winner.claim_status] ?? winner.claim_status}</b></Link>)}</div>
           )}
         </section>
       </div>
 
-      <section className="admin-panel"><h2>Insignias automáticas</h2><BadgeSettingsForm loyalStreak={Number(badgeSettings.loyal_streak ?? 3)} legendPoints={Number(badgeSettings.legend_points ?? 100)} /></section>
+      <section className="admin-panel admin-rewards-entry"><div><h2>SUPER Puntos y canjes</h2><p>ConfigurÃ¡ valores, productos y validÃ¡ los cÃ³digos de caja.</p></div><Link className="button primary" href="/admin/canjes">Administrar canjes</Link></section>
+      <section className="admin-panel"><h2>Insignias automÃ¡ticas</h2><BadgeSettingsForm loyalStreak={Number(badgeSettings.loyal_streak ?? 3)} legendPoints={Number(badgeSettings.legend_points ?? 100)} /></section>
 
       <section className="admin-panel"><h2>Crear nuevo sorteo</h2><DrawForm /></section>
 
