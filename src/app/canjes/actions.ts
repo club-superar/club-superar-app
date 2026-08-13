@@ -19,6 +19,7 @@ export async function createRedemption(_: RedemptionState, formData: FormData): 
   const { data: created, error } = await admin.rpc("create_point_redemption", { p_profile_id: profileId, p_reward_id: rewardId, p_points: points });
   if (error?.message.includes("INSUFFICIENT_POINTS")) return { error: "No tenés suficientes SUPER Puntos disponibles." };
   if (error?.message.includes("MINIMUM_POINTS")) return { error: "La cantidad está por debajo del mínimo permitido." };
+  if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto se agotó o tiene todos sus cupos reservados." };
   if (error) return { error: "No pudimos generar el canje. Intentá nuevamente." };
   return { redemption: created as RedemptionState["redemption"] };
 }

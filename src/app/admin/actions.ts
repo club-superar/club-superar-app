@@ -486,18 +486,27 @@ export async function updateRewardSettings(_: AdminActionState, formData: FormDa
 
 export async function saveReward(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   await requireAdminUserId();
-  const name = String(formData.get("name") ?? "").trim(); const description = String(formData.get("description") ?? "").trim(); const pointsCost = Number(formData.get("pointsCost"));
-  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1) return { error: "Revisá el nombre y los puntos." };
-  const { error } = await createAdminSupabaseClient().from("reward_catalog").insert({ name, description, points_cost: pointsCost });
+  const name = String(formData.get("name") ?? "").trim(); const description = String(formData.get("description") ?? "").trim(); const pointsCost = Number(formData.get("pointsCost")); const stock = Number(formData.get("stock"));
+  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return { error: "Revisá el nombre, los puntos y el cupo." };
+  const { error } = await createAdminSupabaseClient().from("reward_catalog").insert({ name, description, points_cost: pointsCost, stock_remaining: stock });
   if (error) return { error: "No pudimos guardar el producto." };
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes");
+  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
   return { success: "Producto guardado." };
 }
 
 export async function toggleReward(formData: FormData) {
   await requireAdminUserId(); const id = Number(formData.get("id")); const active = String(formData.get("active")) === "true"; if (!Number.isSafeInteger(id) || id <= 0) return;
   await createAdminSupabaseClient().from("reward_catalog").update({ active, updated_at: new Date().toISOString() }).eq("id", id);
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes");
+  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
+}
+
+export async function updateRewardStock(formData: FormData) {
+  await requireAdminUserId();
+  const id = Number(formData.get("id"));
+  const stock = Number(formData.get("stock"));
+  if (!Number.isSafeInteger(id) || id <= 0 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return;
+  await createAdminSupabaseClient().from("reward_catalog").update({ stock_remaining: stock, updated_at: new Date().toISOString() }).eq("id", id);
+  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
 }
 
 export async function confirmPointRedemption(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
@@ -506,6 +515,7 @@ export async function confirmPointRedemption(_: AdminActionState, formData: Form
   const { data, error } = await createAdminSupabaseClient().rpc("admin_confirm_point_redemption", { p_actor_id: actorId, p_code: code });
   if (error?.message.includes("CODE_NOT_FOUND")) return { error: "Código inexistente." };
   if (error?.message.includes("CODE_NOT_PENDING")) return { error: "Este código venció o ya fue utilizado." };
+  if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto está agotado. No se descontaron puntos." };
   if (error) return { error: "No pudimos confirmar el canje." };
   revalidatePath("/admin/canjes"); revalidatePath("/perfil");
   return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
