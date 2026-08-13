@@ -34,7 +34,7 @@ export default async function RedemptionsPage() {
   const admin = createAdminSupabaseClient();
   const [pointsResult, rewardsResult, settingsResult, historyResult, accessResult] = await Promise.all([
     admin.from("points_ledger").select("amount").eq("profile_id", profileId),
-    admin.from("reward_catalog").select("id,name,description,points_cost").eq("active", true).gt("stock_remaining", 0).order("display_order"),
+    admin.from("reward_catalog").select("id,name,description,points_cost,stock_remaining").eq("active", true).order("display_order"),
     admin.rpc("get_reward_settings"),
     admin.from("point_redemptions").select("id,reward_name,points,ars_value,code_suffix,status,expires_at,created_at").eq("profile_id", profileId).order("created_at", { ascending: false }).limit(12),
     admin.rpc("can_profile_redeem_points", { p_profile_id: profileId }),
@@ -59,21 +59,20 @@ export default async function RedemptionsPage() {
       </section>
 
       <section className="profile-panel">
-        {canRedeem ? (
-          <RedemptionForm
-            balance={balance}
-            minimum={Number(settings.minimum_redemption_points ?? 10)}
-            arsPerPoint={Number(settings.ars_per_point ?? 100)}
-            rewards={rewardsResult.data ?? []}
-          />
-        ) : (
-          <div className="redemption-locked" role="status">
-            <span>🔒</span>
-            <h2>Canjes bloqueados</h2>
-            <p>Completá tu participación en el sorteo actual para habilitar las misiones y usar todos tus SUPER Puntos.</p>
-            <Link className="button primary" href="/">Ir al sorteo actual</Link>
+        {!canRedeem && (
+          <div className="redemption-access-note" role="status">
+            <span aria-hidden="true">🔒</span>
+            <div><strong>Catálogo visible</strong><p>Podés ver todos los beneficios. Completá el sorteo actual para poder canjearlos.</p></div>
+            <Link href="/">Participar ahora</Link>
           </div>
         )}
+        <RedemptionForm
+          balance={balance}
+          minimum={Number(settings.minimum_redemption_points ?? 10)}
+          arsPerPoint={Number(settings.ars_per_point ?? 100)}
+          rewards={rewardsResult.data ?? []}
+          canRedeem={canRedeem}
+        />
       </section>
 
       <section className="profile-panel redemption-history">

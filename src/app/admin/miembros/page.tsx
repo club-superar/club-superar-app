@@ -66,13 +66,15 @@ export default async function AdminMembersPage({ searchParams }: AdminMembersPag
       </header>
       <section className="admin-heading"><p className="eyebrow cyan">GESTIÓN DEL CLUB</p><h1>Miembros</h1><p>Buscá una cuenta y consultá toda su actividad.</p></section>
 
-      <form className="admin-member-search" method="get">
-        <label htmlFor="member-query">Usuario de Instagram</label>
-        <div><span>@</span><input id="member-query" name="q" defaultValue={query} autoCapitalize="none" autoCorrect="off" placeholder="usuario" maxLength={30} /><button type="submit">Buscar</button></div>
-      </form>
+      <section className="admin-panel admin-member-directory">
+        <div className="admin-section-heading"><div><p className="eyebrow cyan">BÚSQUEDA</p><h2>Directorio de miembros</h2></div><span>{members.length} resultados</span></div>
+        <form className="admin-member-search" method="get">
+          <label htmlFor="member-query">Usuario de Instagram</label>
+          <div><span>@</span><input id="member-query" name="q" defaultValue={query} autoCapitalize="none" autoCorrect="off" placeholder="usuario" maxLength={30} /><button type="submit">Buscar</button></div>
+        </form>
 
-      <p className="admin-result-count">{members.length} {members.length === 1 ? "miembro encontrado" : "miembros encontrados"}{query ? ` para @${query}` : " recientes"}.</p>
-      <section className="admin-member-list">
+        <p className="admin-result-count">{members.length} {members.length === 1 ? "miembro encontrado" : "miembros encontrados"}{query ? ` para @${query}` : " recientes"}.</p>
+        <div className="admin-member-list">
         {members.length === 0 && <p className="admin-empty">No encontramos ningún miembro con ese usuario.</p>}
         {members.map((member) => (
             <Link href={`/admin/miembros/${member.id}`} key={member.id}>
@@ -81,8 +83,8 @@ export default async function AdminMembersPage({ searchParams }: AdminMembersPag
               <div className="admin-member-mini-stats"><span>🔥 {member.current_streak}</span><span>🎟 {member.participationCount}</span><span>🎖 {member.badgeCount}</span><span>🏆 {member.winnerCount}</span></div>
             </Link>
         ))}
+        </div>
       </section>
     </main>
   );
 }
-
