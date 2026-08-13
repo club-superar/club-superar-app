@@ -29,6 +29,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="es" className={`${geist.variable} ${geistMono.variable}`}>
       <head>
         <link rel="stylesheet" href="/club.css" />
+        <link rel="stylesheet" href="/canjes.css" />
       </head>
       <body><PwaRegister />{children}</body>
     </html>

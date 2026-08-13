@@ -1,0 +1,11 @@
+/* Ajustes aislados del flujo de canjes para la PWA y el panel de caja. */
+.redemption-form .redemption-amount-input{display:block;width:100%;padding:0;border:1px solid #35636a;border-radius:13px;background:#050809;overflow:hidden}
+.redemption-form .redemption-amount-input input{display:block;width:100%!important;min-width:100%!important;box-sizing:border-box;padding:0 16px!important;font-size:22px!important;font-variant-numeric:tabular-nums}
+.redemption-amount-card>small b{color:var(--cyan);font-size:13px}
+.redemption-qr{display:grid;justify-items:center;gap:10px;width:100%}
+.redemption-qr-image{display:grid;width:min(100%,270px);aspect-ratio:1;place-items:center;padding:12px;border-radius:18px;background:#fff}
+.redemption-qr-image svg{display:block;width:100%;height:100%}
+.redemption-qr>p{max-width:300px;margin:0;color:var(--muted);font-size:11px;line-height:1.45}
+.redemption-qr>code{font-size:28px;letter-spacing:5px;color:var(--cyan)}
+.redemption-qr>button{min-height:40px;padding:0 15px;border:1px solid #35636a;border-radius:10px;background:#071214;color:var(--cyan);font-size:11px;font-weight:900}
+.scanner-ready{padding:10px;border:1px solid #197177;border-radius:10px;background:var(--cyan-soft);color:var(--cyan)!important;font-size:11px;line-height:1.45}
