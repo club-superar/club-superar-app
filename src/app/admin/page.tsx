@@ -75,7 +75,7 @@ export default async function AdminPage() {
         </section>
       </div>
 
-      <section className="admin-panel admin-rewards-entry"><div><h2>SUPER Puntos y canjes</h2><p>Configurá valores, productos y validá los códigos de caja.</p></div><Link className="button primary" href="/admin/canjes">Administrar canjes</Link></section>
+      <section className="admin-panel admin-rewards-entry"><div><h2>SUPER Puntos y canjes</h2><p>Configurá valores, productos y validá los códigos de caja.</p></div><Link className="button primary" href="/admin/canjes">Administrar canjes</Link><Link className="button secondary" href="/admin/caja">Configurar encargado de Caja</Link></section>
       <section className="admin-panel"><h2>Insignias automáticas</h2><BadgeSettingsForm loyalStreak={Number(badgeSettings.loyal_streak ?? 3)} legendPoints={Number(badgeSettings.legend_points ?? 100)} /></section>
 
       <section className="admin-panel"><h2>Crear nuevo sorteo</h2><DrawForm /></section>

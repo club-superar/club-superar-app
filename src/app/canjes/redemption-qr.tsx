@@ -10,7 +10,7 @@ export function RedemptionQr({ code }: { code: string }) {
   const svg = useMemo(() => {
     const origin = process.env.NEXT_PUBLIC_SITE_URL || FALLBACK_ORIGIN;
     const qr = qrcode(0, "M");
-    qr.addData(`${origin}/admin/canjes?code=${encodeURIComponent(code)}`);
+    qr.addData(`${origin}/caja?code=${encodeURIComponent(code)}`);
     qr.make();
     return qr.createSvgTag({ cellSize: 8, margin: 16, scalable: true });
   }, [code]);

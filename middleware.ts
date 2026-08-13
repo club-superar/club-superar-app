@@ -1,6 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import { ADMIN_AUTH_COOKIE } from "@/lib/supabase/session";
+import { ADMIN_AUTH_COOKIE, CASHIER_AUTH_COOKIE } from "@/lib/supabase/session";
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -23,6 +23,7 @@ export async function middleware(request: NextRequest) {
   };
   await refreshSession();
   await refreshSession(ADMIN_AUTH_COOKIE);
+  await refreshSession(CASHIER_AUTH_COOKIE);
   response = NextResponse.next({ request });
   pendingCookies.forEach(({ name, value, options }) => response.cookies.set(name, value, options));
   return response;

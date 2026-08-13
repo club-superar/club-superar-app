@@ -1,7 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { getPublicSupabaseEnv } from "./env";
-import { ADMIN_AUTH_COOKIE } from "./session";
+import { ADMIN_AUTH_COOKIE, CASHIER_AUTH_COOKIE } from "./session";
 
 async function createCookieSupabaseClient(cookieName?: string) {
   const cookieStore = await cookies();
@@ -29,4 +29,4 @@ export function createServerSupabaseClient() {
 export function createAdminSessionSupabaseClient() {
   return createCookieSupabaseClient(ADMIN_AUTH_COOKIE);
 }
-
+export function createCashierSessionSupabaseClient() { return createCookieSupabaseClient(CASHIER_AUTH_COOKIE); }

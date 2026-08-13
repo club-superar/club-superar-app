@@ -4,7 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
-export type RedemptionState = { error?: string; redemption?: { code: string; points: number; ars_value: number; reward_name: string; expires_at: string } };
+export type RedemptionState = { error?: string; redemption?: { id: string; code: string; points: number; ars_value: number; reward_name: string; expires_at: string } };
 
 export async function createRedemption(_: RedemptionState, formData: FormData): Promise<RedemptionState> {
   const supabase = await createServerSupabaseClient();

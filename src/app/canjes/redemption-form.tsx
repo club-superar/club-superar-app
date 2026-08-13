@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { createRedemption, type RedemptionState } from "./actions";
-import { RedemptionQr } from "./redemption-qr";
+import { RedemptionStatus } from "./redemption-status";
 
 const initial: RedemptionState = {};
 
@@ -11,7 +11,7 @@ export function RedemptionForm({ balance, minimum, arsPerPoint, rewards }: { bal
   const [mode, setMode] = useState<"free" | "reward">("free");
   const [points, setPoints] = useState(minimum);
 
-  if (state.redemption) return <section className="redemption-ticket"><p className="eyebrow cyan">MOSTRÁ ESTO EN CAJA</p><h2>{state.redemption.reward_name}</h2><RedemptionQr code={state.redemption.code}/><strong>{state.redemption.points} puntos · ${Number(state.redemption.ars_value).toLocaleString("es-AR")}</strong><p>Vence a las {new Intl.DateTimeFormat("es-AR",{hour:"2-digit",minute:"2-digit"}).format(new Date(state.redemption.expires_at))}. Los puntos se descuentan solamente cuando la caja confirma.</p></section>;
+  if (state.redemption) return <RedemptionStatus id={state.redemption.id} code={state.redemption.code} points={state.redemption.points} arsValue={state.redemption.ars_value} rewardName={state.redemption.reward_name} expiresAt={state.redemption.expires_at}/>;
 
   return <form action={action} className="redemption-form">
     <div className="redemption-tabs"><button type="button" className={mode==="free"?"active":""} onClick={()=>setMode("free")}>Elegir monto</button><button type="button" className={mode==="reward"?"active":""} onClick={()=>setMode("reward")}>Productos</button></div>
