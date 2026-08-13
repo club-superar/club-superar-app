@@ -82,12 +82,12 @@ export async function createDraw(_: AdminActionState, formData: FormData): Promi
   const mainPublicationUrl = String(formData.get("mainPublicationUrl") ?? "").trim();
   const readInteger = (name: string) => Number(String(formData.get(name) ?? ""));
   const rules = {
-    follow_instagram: readInteger("followPoints"),
-    whatsapp_group: readInteger("whatsappPoints"),
-    comment_and_tag: readInteger("commentPoints"),
-    share_story: readInteger("storyPoints"),
-    completion_bonus: readInteger("completionPoints"),
-    extra_action: readInteger("extraActionPoints"),
+    follow_instagram: 0,
+    whatsapp_group: 0,
+    comment_and_tag: 0,
+    share_story: 0,
+    completion_bonus: 0,
+    extra_action: 0,
     max_extra_actions: readInteger("maxExtraChances"),
   };
   const maxBaseChances = readInteger("maxBaseChances");
@@ -164,9 +164,9 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
   const mainPublicationUrl = String(formData.get("mainPublicationUrl") ?? "").trim();
   const integer = (name: string) => Number(String(formData.get(name) ?? ""));
   const values = {
-    followPoints: integer("followPoints"), whatsappPoints: integer("whatsappPoints"),
-    commentPoints: integer("commentPoints"), storyPoints: integer("storyPoints"),
-    completionPoints: integer("completionPoints"), extraActionPoints: integer("extraActionPoints"),
+    followPoints: 0, whatsappPoints: 0,
+    commentPoints: 0, storyPoints: 0,
+    completionPoints: 0, extraActionPoints: 0,
     maxBaseChances: integer("maxBaseChances"), maxExtraChances: integer("maxExtraChances"),
     winnerPercent: integer("winnerPercent"), claimHours: integer("claimHours"),
   };
@@ -179,9 +179,7 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
   if (![instagramProfileUrl, whatsappGroupUrl, mainPublicationUrl].every((url) => /^https:\/\//.test(url))) {
     return { error: "Los tres enlaces deben comenzar con https://" };
   }
-  const pointValues = [values.followPoints, values.whatsappPoints, values.commentPoints, values.storyPoints, values.completionPoints, values.extraActionPoints];
-  if (!pointValues.every((value) => Number.isInteger(value) && value >= 0 && value <= 100)
-    || !Number.isInteger(values.maxBaseChances) || values.maxBaseChances < 2 || values.maxBaseChances > 6
+  if (!Number.isInteger(values.maxBaseChances) || values.maxBaseChances < 2 || values.maxBaseChances > 6
     || !Number.isInteger(values.maxExtraChances) || values.maxExtraChances < 0 || values.maxExtraChances > 2
     || !Number.isInteger(values.winnerPercent) || values.winnerPercent < 0 || values.winnerPercent > 100
     || !Number.isInteger(values.claimHours) || values.claimHours < 1 || values.claimHours > 168) {
@@ -309,214 +307,96 @@ export async function markWinnerUnderReview(formData: FormData) {
   });
   if (error) throw new Error("No pudimos dejar al ganador en revision.");
   revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
+  revalidatePath(`/admin/sorteos/${ids.drawuߍ}����k�w��` code_suffix: string;
+  status: "pending" | "confirmed" | "cancelled" | "expired";
+  expires_at: string;
+  created_at: string;
+};
 
-export async function disqualifyWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const reason = String(formData.get("reason") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
-  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "other"]);
-  if (!reasons.has(reason)) throw new Error("Selecciona un motivo valido.");
-  if (reason === "other" && notes.length < 3) throw new Error("Explica el motivo de la descalificacion.");
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_disqualify_attempt", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-    p_reason_key: reason,
-    p_notes: notes || null,
-  });
-  if (error) throw new Error("No pudimos descalificar a este participante.");
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
+const statusLabels = {
+  pending: "Pendiente",
+  confirmed: "Canjeado",
+  cancelled: "Anulado",
+  expired: "Vencido",
+} as const;
 
-export async function confirmWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_confirm_winner", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos confirmar al ganador.");
-  revalidatePath("/");
-  revalidatePath("/perfil");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function updateWinnerClaimStatus(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const drawId = Number(formData.get("drawId"));
-  const winnerId = Number(formData.get("winnerId"));
-  const newStatus = String(formData.get("newStatus") ?? "");
-  if (!Number.isSafeInteger(drawId) || drawId <= 0 || !Number.isSafeInteger(winnerId) || winnerId <= 0) return;
-  if (!new Set(["claimed", "fulfilled", "expired"]).has(newStatus)) return;
+export default async function RedemptionsPage() {
+  const supabase = await createServerSupabaseClient();
+  const { data } = await supabase.auth.getClaims();
+  const profileId = data?.claims?.sub;
+  if (!profileId) redirect("/ingresar");
 
   const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_winner_claim_status", {
-    p_actor_id: actorId,
-    p_winner_id: winnerId,
-    p_new_status: newStatus,
-  });
-  if (error) {
-    if (error.message.includes("INVALID_CLAIM_TRANSITION")) {
-      throw new Error("Ese cambio no corresponde al estado actual o el plazo todavía no venció.");
-    }
-    throw new Error("No pudimos actualizar el estado del premio.");
-  }
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${drawId}`);
-}
+  const [pointsResult, rewardsResult, settingsResult, historyResult, accessResult] = await Promise.all([
+    admin.from("points_ledger").select("amount").eq("profile_id", profileId),
+    admin.from("reward_catalog").select("id,name,description,points_cost").eq("active", true).gt("stock_remaining", 0).order("display_order"),
+    admin.rpc("get_reward_settings"),
+    admin.from("point_redemptions").select("id,reward_name,points,ars_value,code_suffix,status,expires_at,created_at").eq("profile_id", profileId).order("created_at", { ascending: false }).limit(12),
+    admin.rpc("can_profile_redeem_points", { p_profile_id: profileId }),
+  ]);
 
-export async function updateBadgeSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const loyalStreak = Number(formData.get("loyalStreak"));
-  const legendPoints = Number(formData.get("legendPoints"));
-  if (!Number.isInteger(loyalStreak) || loyalStreak < 2 || loyalStreak > 50
-    || !Number.isInteger(legendPoints) || legendPoints < 10 || legendPoints > 1000000) {
-    return { error: "Revisá los límites de las insignias." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_badge_thresholds", {
-    p_actor_id: actorId,
-    p_loyal_streak: loyalStreak,
-    p_legend_points: legendPoints,
-  });
-  if (error) return { error: "No pudimos actualizar las insignias." };
-  revalidatePath("/admin");
-  revalidatePath("/perfil");
-  revalidatePath("/miembro/[username]", "page");
-  revalidatePath("/admin/miembros/[id]", "page");
-  return { success: "Límites actualizados y miembros revisados." };
-}
+  const balance = (pointsResult.data ?? []).reduce((sum, row) => sum + Number(row.amount), 0);
+  const settings = (settingsResult.data ?? {}) as Record<string, number>;
+  const history = (historyResult.data ?? []) as RedemptionHistoryItem[];
+  const canRedeem = accessResult.data === true;
 
-function readMemberId(formData: FormData) {
-  const profileId = String(formData.get("profileId") ?? "");
-  return /^[0-9a-f-]{36}$/i.test(profileId) ? profileId : null;
-}
+  return (
+    <main className="profile-shell">
+      <header className="topbar">
+        <Link className="brand" href="/">SUPER<span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link>
+        <Link className="profile-back" href="/perfil">← Mi perfil</Link>
+      </header>
 
-function revalidateMemberProgress(profileId: string, username?: string) {
-  revalidatePath(`/admin/miembros/${profileId}`);
-  revalidatePath("/admin/miembros");
-  revalidatePath("/admin");
-  revalidatePath("/perfil");
-  if (username) revalidatePath(`/miembro/${username}`);
-}
+      <section className="profile-heading">
+        <p className="eyebrow cyan">BENEFICIOS</p>
+        <h1>Canjear puntos</h1>
+        <p>Tenés <strong>{balance} SUPER Puntos</strong>.</p>
+      </section>
 
-export async function adjustMemberPoints(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const amount = Number(formData.get("amount"));
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000 || reason.length < 3 || reason.length > 200) {
-    return { error: "Revisá la cantidad y escribí un motivo breve." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_adjust_member_points", {
-    p_actor_id: actorId, p_profile_id: profileId, p_amount: amount, p_reason: reason,
-  });
-  if (error?.message.includes("NEGATIVE_POINTS")) return { error: "El ajuste dejaría los puntos por debajo de cero." };
-  if (error) return { error: "No pudimos ajustar los SUPER Puntos." };
-  revalidateMemberProgress(profileId, username);
-  return { success: `${amount > 0 ? "+" : ""}${amount} SUPER Puntos guardados.` };
-}
+      <section className="profile-panel">
+        {canRedeem ? (
+          <RedemptionForm
+            balance={balance}
+            minimum={Number(settings.minimum_redemption_points ?? 10)}
+            arsPerPoint={Number(settings.ars_per_point ?? 100)}
+            rewards={rewardsResult.data ?? []}
+          />
+        ) : (
+          <div className="redemption-locked" role="status">
+            <span>🔒</span>
+            <h2>Canjes bloqueados</h2>
+            <p>Completá tu participación en el sorteo actual para habilitar las misiones y usar todos tus SUPER Puntos.</p>
+            <Link className="button primary" href="/">Ir al sorteo actual</Link>
+          </div>
+        )}
+      </section>
 
-export async function updateMemberStreak(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const currentStreak = Number(formData.get("currentStreak"));
-  const longestStreak = Number(formData.get("longestStreak"));
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !Number.isInteger(currentStreak) || !Number.isInteger(longestStreak)
-    || currentStreak < 0 || longestStreak < currentStreak || longestStreak > 1000
-    || reason.length < 3 || reason.length > 200) {
-    return { error: "La mejor racha debe ser igual o mayor que la actual. Agregá un motivo." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_member_streak", {
-    p_actor_id: actorId, p_profile_id: profileId, p_current_streak: currentStreak,
-    p_longest_streak: longestStreak, p_reason: reason,
-  });
-  if (error) return { error: "No pudimos actualizar la racha." };
-  revalidateMemberProgress(profileId, username);
-  return { success: "Racha actualizada." };
-}
-
-export async function setMemberBadge(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const badgeKey = String(formData.get("badgeKey") ?? "");
-  const awarded = String(formData.get("awarded") ?? "") === "true";
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !new Set(["loyal", "legend"]).has(badgeKey) || reason.length < 3 || reason.length > 200) {
-    return { error: "Elegí Fiel o Leyenda y escribí un motivo." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_set_member_badge", {
-    p_actor_id: actorId, p_profile_id: profileId, p_badge_key: badgeKey,
-    p_awarded: awarded, p_reason: reason,
-  });
-  if (error) return { error: "No pudimos cambiar la insignia." };
-  revalidateMemberProgress(profileId, username);
-  return { success: awarded ? "Insignia otorgada." : "Insignia quitada." };
-}
-
-export async function updateRewardSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const earningPercent = Number(formData.get("earningPercent"));
-  const arsPerPoint = Number(formData.get("arsPerPoint"));
-  const minimum = Number(formData.get("minimum"));
-  const expiry = Number(formData.get("expiry"));
-  if (!Number.isFinite(earningPercent) || earningPercent <= 0 || earningPercent > 25 || !Number.isFinite(arsPerPoint) || arsPerPoint <= 0 || !Number.isInteger(minimum) || minimum < 1 || !Number.isInteger(expiry) || expiry < 3 || expiry > 60) return { error: "Revisá los valores del sistema." };
-  const { error } = await createAdminSupabaseClient().rpc("admin_update_reward_settings", { p_actor_id: actorId, p_earning_percent: earningPercent, p_ars_per_point: arsPerPoint, p_minimum: minimum, p_expiry: expiry });
-  if (error) return { error: "No pudimos guardar la configuración." };
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes");
-  return { success: "Configuración guardada." };
-}
-
-export async function saveReward(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  await requireAdminUserId();
-  const name = String(formData.get("name") ?? "").trim(); const description = String(formData.get("description") ?? "").trim(); const pointsCost = Number(formData.get("pointsCost")); const stock = Number(formData.get("stock"));
-  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return { error: "Revisá el nombre, los puntos y el cupo." };
-  const { error } = await createAdminSupabaseClient().from("reward_catalog").insert({ name, description, points_cost: pointsCost, stock_remaining: stock });
-  if (error) return { error: "No pudimos guardar el producto." };
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-  return { success: "Producto guardado." };
-}
-
-export async function toggleReward(formData: FormData) {
-  await requireAdminUserId(); const id = Number(formData.get("id")); const active = String(formData.get("active")) === "true"; if (!Number.isSafeInteger(id) || id <= 0) return;
-  await createAdminSupabaseClient().from("reward_catalog").update({ active, updated_at: new Date().toISOString() }).eq("id", id);
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-}
-
-export async function updateRewardStock(formData: FormData) {
-  await requireAdminUserId();
-  const id = Number(formData.get("id"));
-  const stock = Number(formData.get("stock"));
-  if (!Number.isSafeInteger(id) || id <= 0 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return;
-  await createAdminSupabaseClient().from("reward_catalog").update({ stock_remaining: stock, updated_at: new Date().toISOString() }).eq("id", id);
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-}
-
-export async function confirmPointRedemption(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId(); const code = String(formData.get("code") ?? "").replace(/[^a-f0-9]/gi, "").toUpperCase();
-  if (code.length !== 8) return { error: "El código debe tener 8 caracteres." };
-  const { data, error } = await createAdminSupabaseClient().rpc("admin_confirm_point_redemption", { p_actor_id: actorId, p_code: code });
-  if (error?.message.includes("CODE_NOT_FOUND")) return { error: "Código inexistente." };
-  if (error?.message.includes("CODE_NOT_PENDING")) return { error: "Este código venció o ya fue utilizado." };
-  if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto está agotado. No se descontaron puntos." };
-  if (error) return { error: "No pudimos confirmar el canje." };
-  revalidatePath("/admin/canjes"); revalidatePath("/perfil");
-  return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
+      <section className="profile-panel redemption-history">
+        <div><p className="eyebrow cyan">MIS MOVIMIENTOS</p><h2>Historial de canjes</h2></div>
+        {history.length === 0 ? (
+          <p className="redemption-history-empty">Todavía no generaste ningún canje.</p>
+        ) : (
+          <div className="redemption-history-list">
+            {history.map((item) => (
+              <article key={item.id}>
+                <div>
+                  <strong>{item.reward_name}</strong>
+                  <small>{item.points} puntos · ${Number(item.ars_value).toLocaleString("es-AR")} · ••••{item.code_suffix}</small>
+                </div>
+                <div className="redemption-history-status">
+                  <b className={`redemption-status ${item.status}`}>{statusLabels[item.status]}</b>
+                  {item.status === "pending" && new Date(item.expires_at) > new Date() ? (
+                    <form action={cancelRedemption}>
+                      <input type="hidden" name="redemptionId" value={item.id} />
+                      <button>Anular</button>
+                    </form>
+                  ) : null}
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
+  );
 }

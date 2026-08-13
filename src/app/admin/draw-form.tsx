@@ -21,12 +21,7 @@ export function DrawForm() {
         <legend>Reglas de esta edición</legend>
         <p>Quedan congeladas en este sorteo. Podés usar otros valores en la próxima edición.</p>
         <div className="admin-rule-grid">
-          <div className="admin-field"><label htmlFor="followPoints">Puntos: seguir Instagram</label><input id="followPoints" name="followPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="whatsappPoints">Puntos: grupo WhatsApp</label><input id="whatsappPoints" name="whatsappPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="commentPoints">Puntos: comentar y etiquetar</label><input id="commentPoints" name="commentPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="storyPoints">Puntos: compartir historia</label><input id="storyPoints" name="storyPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="completionPoints">Bonus por completar todo</label><input id="completionPoints" name="completionPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="extraActionPoints">Puntos por cada extra</label><input id="extraActionPoints" name="extraActionPoints" type="number" min="0" max="100" defaultValue="3" required /></div>
+          <p className="admin-rule-note full">Completar los requisitos habilita las chances. Los SUPER Puntos se configurarán aparte y no se entregan por cada paso.</p>
           <div className="admin-field"><label htmlFor="maxBaseChances">Máximo por racha</label><input id="maxBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue="6" required /></div>
           <div className="admin-field"><label htmlFor="maxExtraChances">Máximo de extras</label><input id="maxExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue="2" required /></div>
           <div className="admin-field"><label htmlFor="winnerPercent">Chances después de ganar (%)</label><input id="winnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue="25" required /></div>

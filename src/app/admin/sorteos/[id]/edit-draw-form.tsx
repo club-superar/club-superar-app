@@ -15,7 +15,6 @@ type EditDrawFormProps = {
     winnerPercent: number;
     maxBaseChances: number;
     maxExtraChances: number;
-    points: Record<string, number>;
   };
   urls: Record<string, string>;
 };
@@ -31,7 +30,6 @@ function argentinaInputValue(value: string) {
 
 export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
   const [state, action, pending] = useActionState(updateDraftDraw, initialState);
-  const points = draw.points;
   return (
     <details className="admin-edit-draw">
       <summary>Editar configuración del borrador</summary>
@@ -46,14 +44,9 @@ export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
         <div className="admin-field full"><label htmlFor="editWhatsappUrl">Grupo de WhatsApp</label><input id="editWhatsappUrl" name="whatsappGroupUrl" type="url" defaultValue={urls.whatsapp_group} required /></div>
         <div className="admin-field full"><label htmlFor="editPublicationUrl">Publicación principal</label><input id="editPublicationUrl" name="mainPublicationUrl" type="url" defaultValue={urls.comment_and_tag} required /></div>
         <fieldset className="admin-rules full">
-          <legend>Puntos y límites</legend>
+          <legend>Chances y límites</legend>
           <div className="admin-rule-grid">
-            <div className="admin-field"><label htmlFor="editFollowPoints">Seguir Instagram</label><input id="editFollowPoints" name="followPoints" type="number" min="0" max="100" defaultValue={points.follow_instagram ?? 2} required /></div>
-            <div className="admin-field"><label htmlFor="editWhatsappPoints">Grupo WhatsApp</label><input id="editWhatsappPoints" name="whatsappPoints" type="number" min="0" max="100" defaultValue={points.whatsapp_group ?? 2} required /></div>
-            <div className="admin-field"><label htmlFor="editCommentPoints">Comentar y etiquetar</label><input id="editCommentPoints" name="commentPoints" type="number" min="0" max="100" defaultValue={points.comment_and_tag ?? 2} required /></div>
-            <div className="admin-field"><label htmlFor="editStoryPoints">Compartir historia</label><input id="editStoryPoints" name="storyPoints" type="number" min="0" max="100" defaultValue={points.share_story ?? 2} required /></div>
-            <div className="admin-field"><label htmlFor="editCompletionPoints">Bonus por completar</label><input id="editCompletionPoints" name="completionPoints" type="number" min="0" max="100" defaultValue={points.completion_bonus ?? 2} required /></div>
-            <div className="admin-field"><label htmlFor="editExtraPoints">Puntos por extra</label><input id="editExtraPoints" name="extraActionPoints" type="number" min="0" max="100" defaultValue={points.extra_action ?? 3} required /></div>
+            <p className="admin-rule-note full">Los requisitos y las acciones extra suman chances, no SUPER Puntos.</p>
             <div className="admin-field"><label htmlFor="editBaseChances">Máximo por racha</label><input id="editBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue={draw.maxBaseChances} required /></div>
             <div className="admin-field"><label htmlFor="editExtraChances">Máximo de extras</label><input id="editExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue={draw.maxExtraChances} required /></div>
             <div className="admin-field"><label htmlFor="editWinnerPercent">Chances después de ganar (%)</label><input id="editWinnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue={draw.winnerPercent} required /></div>

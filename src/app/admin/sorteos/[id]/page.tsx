@@ -116,7 +116,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
             id: draw.id, title: draw.title, prizeName: draw.prize_name, prizeValue: draw.prize_value,
             opensAt: draw.opens_at, closesAt: draw.closes_at, claimHours: draw.claim_window_hours,
             winnerPercent: Number(draw.winner_retained_chance_percent), maxBaseChances: draw.max_base_chances,
-            maxExtraChances: draw.max_extra_chances, points: draw.points_config as Record<string, number>,
+            maxExtraChances: draw.max_extra_chances,
           }}
           urls={requirementUrls}
         />
