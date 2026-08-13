@@ -2,6 +2,7 @@
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { revalidatePath } from "next/cache";
 
 export type RedemptionState = { error?: string; redemption?: { code: string; points: number; ars_value: number; reward_name: string; expires_at: string } };
 
@@ -20,4 +21,12 @@ export async function createRedemption(_: RedemptionState, formData: FormData): 
   if (error?.message.includes("MINIMUM_POINTS")) return { error: "La cantidad está por debajo del mínimo permitido." };
   if (error) return { error: "No pudimos generar el canje. Intentá nuevamente." };
   return { redemption: created as RedemptionState["redemption"] };
+}
+
+export async function cancelRedemption(formData: FormData) {
+  const redemptionId = String(formData.get("redemptionId") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(redemptionId)) return;
+  const supabase = await createServerSupabaseClient();
+  const { error } = await supabase.rpc("cancel_own_point_redemption", { p_redemption_id: redemptionId });
+  if (!error) revalidatePath("/canjes");
 }
