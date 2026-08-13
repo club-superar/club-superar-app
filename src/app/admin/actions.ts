@@ -88,6 +88,7 @@ export async function createDraw(_: AdminActionState, formData: FormData): Promi
     share_story: 0,
     completion_bonus: 0,
     extra_action: 0,
+    non_winner_participation: readInteger("nonWinnerPoints"),
     max_extra_actions: readInteger("maxExtraChances"),
   };
   const maxBaseChances = readInteger("maxBaseChances");
@@ -169,6 +170,7 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
     completionPoints: 0, extraActionPoints: 0,
     maxBaseChances: integer("maxBaseChances"), maxExtraChances: integer("maxExtraChances"),
     winnerPercent: integer("winnerPercent"), claimHours: integer("claimHours"),
+    nonWinnerPoints: integer("nonWinnerPoints"),
   };
 
   if (!Number.isSafeInteger(drawId) || drawId <= 0 || title.length < 3 || prizeName.length < 3 || !opensAt || !closesAt) {
@@ -182,7 +184,8 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
   if (!Number.isInteger(values.maxBaseChances) || values.maxBaseChances < 2 || values.maxBaseChances > 6
     || !Number.isInteger(values.maxExtraChances) || values.maxExtraChances < 0 || values.maxExtraChances > 2
     || !Number.isInteger(values.winnerPercent) || values.winnerPercent < 0 || values.winnerPercent > 100
-    || !Number.isInteger(values.claimHours) || values.claimHours < 1 || values.claimHours > 168) {
+    || !Number.isInteger(values.claimHours) || values.claimHours < 1 || values.claimHours > 168
+    || !Number.isInteger(values.nonWinnerPoints) || values.nonWinnerPoints < 0 || values.nonWinnerPoints > 100) {
     return { error: "Revisá los puntos y los límites del sorteo." };
   }
 
@@ -202,6 +205,12 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
     if (error.message.includes("DRAW_NOT_DRAFT")) return { error: "Este sorteo ya fue abierto y sus reglas están congeladas." };
     return { error: "No pudimos guardar los cambios. Revisá los datos." };
   }
+  const { error: pointsConfigError } = await admin.from("draws").update({ points_config: {
+    follow_instagram: 0, whatsapp_group: 0, comment_and_tag: 0, share_story: 0,
+    completion_bonus: 0, extra_action: 0, max_extra_actions: values.maxExtraChances,
+    non_winner_participation: values.nonWinnerPoints,
+  } }).eq("id", drawId).eq("status", "draft");
+  if (pointsConfigError) return { error: "El sorteo se guardó, pero no pudimos guardar los puntos de participación." };
   revalidatePath("/admin");
   revalidatePath(`/admin/sorteos/${drawId}`);
   revalidatePath("/");
@@ -290,231 +299,175 @@ export async function selectProvisionalWinner(formData: FormData) {
 
 function readAttemptActionIds(formData: FormData) {
   const drawId = Number(formData.get("drawId"));
-  const attemptId = Number(formData.get("attemptId"));
-  if (!Number.isSafeInteger(drawId) || drawId <= 0) return null;
-  if (!Number.isSafeInteger(attemptId) || attemptId <= 0) return null;
-  return { drawId, attemptId };
-}
+  const attemptId = Number(formData.gg����$z{-���jם        <code>{snapshot.snapshot_hash}</code>
+        </section>
+      )}
 
-export async function markWinnerUnderReview(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_mark_attempt_under_review", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos dejar al ganador en revision.");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
+      {snapshot && ["frozen", "winner_review"].includes(draw.status) && !currentAttempt && (
+        <section className="admin-draw-control">
+          <p className="eyebrow cyan">LISTA CERRADA</p>
+          <h2>{latestAttempt?.status === "disqualified" ? "Listo para volver a sortear" : "Todo listo para sortear"}</h2>
+          <p>La eleccion se guarda primero y la animacion solamente revela el resultado.</p>
+          <form action={selectProvisionalWinner}>
+            <input type="hidden" name="drawId" value={draw.id} />
+            <button type="submit">🎲 {latestAttempt?.status === "disqualified" ? "VOLVER A SORTEAR" : "REALIZAR SORTEO"}</button>
+          </form>
+        </section>
+      )}
 
-export async function disqualifyWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const reason = String(formData.get("reason") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
-  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "other"]);
-  if (!reasons.has(reason)) throw new Error("Selecciona un motivo valido.");
-  if (reason === "other" && notes.length < 3) throw new Error("Explica el motivo de la descalificacion.");
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_disqualify_attempt", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-    p_reason_key: reason,
-    p_notes: notes || null,
-  });
-  if (error) throw new Error("No pudimos descalificar a este participante.");
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
+      {currentAttempt && (
+        <DrawReveal
+          animate={revealAttemptId === currentAttempt.id}
+          attemptNumber={currentAttempt.attempt_number}
+          candidates={candidateNames}
+          winner={currentAttempt.draw_snapshot_entries.instagram_username}
+        />
+      )}
 
-export async function confirmWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_confirm_winner", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos confirmar al ganador.");
-  revalidatePath("/");
-  revalidatePath("/perfil");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
+      {draw.status === "completed" && latestAttempt?.status === "confirmed" && (
+        <>
+          <DrawReveal
+            animate={false}
+            attemptNumber={latestAttempt.attempt_number}
+            candidates={candidateNames}
+            official
+            winner={latestAttempt.draw_snapshot_entries.instagram_username}
+          />
+          {winner && (
+            <>
+              <WinnerCardGenerator
+                editionNumber={draw.edition_number}
+                prize={draw.prize_value === null ? draw.prize_name : `${draw.prize_name} - ${new Intl.NumberFormat("es-AR", { style: "currency", currency: draw.currency_code, maximumFractionDigits: 0 }).format(draw.prize_value)}`}
+                confirmedAt={winner.confirmed_at}
+                username={winner.instagram_username}
+              />
+              <WinnerShareTools
+                claimDeadline={winner.claim_deadline}
+                editionNumber={draw.edition_number}
+                prize={draw.prize_value === null ? draw.prize_name : `${draw.prize_name} por ${new Intl.NumberFormat("es-AR", { style: "currency", currency: draw.currency_code, maximumFractionDigits: 0 }).format(draw.prize_value)}`}
+                username={winner.instagram_username}
+              />
+              <section className="winner-claim-panel">
+                <p className="eyebrow cyan">SEGUIMIENTO DEL PREMIO</p>
+                <h2>{winner.claim_status === "pending" ? "Esperando reclamo" : winner.claim_status === "claimed" ? "Premio reclamado" : winner.claim_status === "fulfilled" ? "Premio entregado" : "Plazo vencido"}</h2>
+                <p>
+                  {winner.claim_status === "pending" && `El ganador tiene tiempo hasta ${new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(winner.claim_deadline))}.`}
+                  {winner.claim_status === "claimed" && `Reclamado el ${new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(winner.claimed_at))}.`}
+                  {winner.claim_status === "fulfilled" && `Entregado el ${new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(winner.fulfilled_at))}.`}
+                  {winner.claim_status === "expired" && "El ganador no reclamó dentro del plazo configurado."}
+                </p>
+                {winner.claim_status === "pending" && (
+                  <div>
+                    <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="claimed" /><button type="submit">Marcar como reclamado</button></form>
+                    {new Date() >= new Date(winner.claim_deadline) && <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="expired" /><button className="claim-expired" type="submit">Marcar plazo vencido</button></form>}
+                  </div>
+                )}
+                {winner.claim_status === "claimed" && <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="fulfilled" /><button type="submit">Confirmar entrega del premio</button></form>}
+              </section>
+            </>
+          )}
+        </>
+      )}
 
-export async function updateWinnerClaimStatus(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const drawId = Number(formData.get("drawId"));
-  const winnerId = Number(formData.get("winnerId"));
-  const newStatus = String(formData.get("newStatus") ?? "");
-  if (!Number.isSafeInteger(drawId) || drawId <= 0 || !Number.isSafeInteger(winnerId) || winnerId <= 0) return;
-  if (!new Set(["claimed", "fulfilled", "expired"]).has(newStatus)) return;
+      {currentAttempt && (
+        <section className="winner-review-panel">
+          <p className="eyebrow cyan">VALIDACION MANUAL</p>
+          <h2>Revisar a @{currentAttempt.draw_snapshot_entries.instagram_username}</h2>
+          <p>Comproba Instagram, comentario, historia y permanencia en WhatsApp antes de confirmar.</p>
+          <div className="winner-review-actions">
+            <form action={confirmWinner}>
+              <input type="hidden" name="drawId" value={draw.id} />
+              <input type="hidden" name="attemptId" value={currentAttempt.id} />
+              <button className="confirm-winner" type="submit">Confirmar ganador</button>
+            </form>
+            {currentAttempt.status === "provisional" && (
+              <form action={markWinnerUnderReview}>
+                <input type="hidden" name="drawId" value={draw.id} />
+                <input type="hidden" name="attemptId" value={currentAttempt.id} />
+                <button className="hold-winner" type="submit">Dejar en revision</button>
+              </form>
+            )}
+          </div>
+          <form action={disqualifyWinner} className="disqualify-form">
+            <input type="hidden" name="drawId" value={draw.id} />
+            <input type="hidden" name="attemptId" value={currentAttempt.id} />
+            <label htmlFor="reason">Si no cumple, selecciona el motivo</label>
+            <select id="reason" name="reason" required defaultValue="">
+              <option value="" disabled>Elegir motivo</option>
+              <option value="not_in_whatsapp">No esta en WhatsApp</option>
+              <option value="not_following_instagram">No sigue Instagram</option>
+              <option value="story_not_shared">No compartio la historia</option>
+              <option value="invalid_comment">Comentario incorrecto</option>
+              <option value="false_data">Datos falsos</option>
+              <option value="other">Otro</option>
+            </select>
+            <textarea name="notes" placeholder="Detalle opcional; obligatorio si elegis Otro" rows={3} />
+            <button type="submit">No cumple</button>
+          </form>
+        </section>
+      )}
 
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_winner_claim_status", {
-    p_actor_id: actorId,
-    p_winner_id: winnerId,
-    p_new_status: newStatus,
-  });
-  if (error) {
-    if (error.message.includes("INVALID_CLAIM_TRANSITION")) {
-      throw new Error("Ese cambio no corresponde al estado actual o el plazo todavía no venció.");
-    }
-    throw new Error("No pudimos actualizar el estado del premio.");
-  }
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${drawId}`);
-}
+      {drawAttempts.length > 0 && (
+        <section className="admin-attempt-history">
+          <h2>Historial de intentos</h2>
+          {drawAttempts.map((attempt) => (
+            <div key={attempt.id}>
+              <strong>#{attempt.attempt_number} · @{attempt.draw_snapshot_entries.instagram_username}</strong>
+              <span className={`attempt-${attempt.status}`}>{attemptStatusLabels[attempt.status] ?? attempt.status}</span>
+            </div>
+          ))}
+        </section>
+      )}
 
-export async function updateBadgeSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const loyalStreak = Number(formData.get("loyalStreak"));
-  const legendPoints = Number(formData.get("legendPoints"));
-  if (!Number.isInteger(loyalStreak) || loyalStreak < 2 || loyalStreak > 50
-    || !Number.isInteger(legendPoints) || legendPoints < 10 || legendPoints > 1000000) {
-    return { error: "Revisá los límites de las insignias." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_badge_thresholds", {
-    p_actor_id: actorId,
-    p_loyal_streak: loyalStreak,
-    p_legend_points: legendPoints,
-  });
-  if (error) return { error: "No pudimos actualizar las insignias." };
-  revalidatePath("/admin");
-  revalidatePath("/perfil");
-  revalidatePath("/miembro/[username]", "page");
-  revalidatePath("/admin/miembros/[id]", "page");
-  return { success: "Límites actualizados y miembros revisados." };
-}
-
-function readMemberId(formData: FormData) {
-  const profileId = String(formData.get("profileId") ?? "");
-  return /^[0-9a-f-]{36}$/i.test(profileId) ? profileId : null;
-}
-
-function revalidateMemberProgress(profileId: string, username?: string) {
-  revalidatePath(`/admin/miembros/${profileId}`);
-  revalidatePath("/admin/miembros");
-  revalidatePath("/admin");
-  revalidatePath("/perfil");
-  if (username) revalidatePath(`/miembro/${username}`);
-}
-
-export async function adjustMemberPoints(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const amount = Number(formData.get("amount"));
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !Number.isInteger(amount) || amount === 0 || Math.abs(amount) > 100000 || reason.length < 3 || reason.length > 200) {
-    return { error: "Revisá la cantidad y escribí un motivo breve." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_adjust_member_points", {
-    p_actor_id: actorId, p_profile_id: profileId, p_amount: amount, p_reason: reason,
-  });
-  if (error?.message.includes("NEGATIVE_POINTS")) return { error: "El ajuste dejaría los puntos por debajo de cero." };
-  if (error) return { error: "No pudimos ajustar los SUPER Puntos." };
-  revalidateMemberProgress(profileId, username);
-  return { success: `${amount > 0 ? "+" : ""}${amount} SUPER Puntos guardados.` };
-}
-
-export async function updateMemberStreak(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const currentStreak = Number(formData.get("currentStreak"));
-  const longestStreak = Number(formData.get("longestStreak"));
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !Number.isInteger(currentStreak) || !Number.isInteger(longestStreak)
-    || currentStreak < 0 || longestStreak < currentStreak || longestStreak > 1000
-    || reason.length < 3 || reason.length > 200) {
-    return { error: "La mejor racha debe ser igual o mayor que la actual. Agregá un motivo." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_update_member_streak", {
-    p_actor_id: actorId, p_profile_id: profileId, p_current_streak: currentStreak,
-    p_longest_streak: longestStreak, p_reason: reason,
-  });
-  if (error) return { error: "No pudimos actualizar la racha." };
-  revalidateMemberProgress(profileId, username);
-  return { success: "Racha actualizada." };
-}
-
-export async function setMemberBadge(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const profileId = readMemberId(formData);
-  const badgeKey = String(formData.get("badgeKey") ?? "");
-  const awarded = String(formData.get("awarded") ?? "") === "true";
-  const reason = String(formData.get("reason") ?? "").trim();
-  const username = String(formData.get("username") ?? "").trim();
-  if (!profileId || !new Set(["loyal", "legend"]).has(badgeKey) || reason.length < 3 || reason.length > 200) {
-    return { error: "Elegí Fiel o Leyenda y escribí un motivo." };
-  }
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_set_member_badge", {
-    p_actor_id: actorId, p_profile_id: profileId, p_badge_key: badgeKey,
-    p_awarded: awarded, p_reason: reason,
-  });
-  if (error) return { error: "No pudimos cambiar la insignia." };
-  revalidateMemberProgress(profileId, username);
-  return { success: awarded ? "Insignia otorgada." : "Insignia quitada." };
-}
-
-export async function updateRewardSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId();
-  const earningPercent = Number(formData.get("earningPercent"));
-  const arsPerPoint = Number(formData.get("arsPerPoint"));
-  const minimum = Number(formData.get("minimum"));
-  const expiry = Number(formData.get("expiry"));
-  if (!Number.isFinite(earningPercent) || earningPercent <= 0 || earningPercent > 25 || !Number.isFinite(arsPerPoint) || arsPerPoint <= 0 || !Number.isInteger(minimum) || minimum < 1 || !Number.isInteger(expiry) || expiry < 3 || expiry > 60) return { error: "Revisá los valores del sistema." };
-  const { error } = await createAdminSupabaseClient().rpc("admin_update_reward_settings", { p_actor_id: actorId, p_earning_percent: earningPercent, p_ars_per_point: arsPerPoint, p_minimum: minimum, p_expiry: expiry });
-  if (error) return { error: "No pudimos guardar la configuración." };
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes");
-  return { success: "Configuración guardada." };
-}
-
-export async function saveReward(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  await requireAdminUserId();
-  const name = String(formData.get("name") ?? "").trim(); const description = String(formData.get("description") ?? "").trim(); const pointsCost = Number(formData.get("pointsCost")); const stock = Number(formData.get("stock"));
-  if (name.length < 3 || name.length > 80 || description.length > 240 || !Number.isInteger(pointsCost) || pointsCost < 1 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return { error: "Revisá el nombre, los puntos y el cupo." };
-  const { error } = await createAdminSupabaseClient().from("reward_catalog").insert({ name, description, points_cost: pointsCost, stock_remaining: stock });
-  if (error) return { error: "No pudimos guardar el producto." };
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-  return { success: "Producto guardado." };
-}
-
-export async function toggleReward(formData: FormData) {
-  await requireAdminUserId(); const id = Number(formData.get("id")); const active = String(formData.get("active")) === "true"; if (!Number.isSafeInteger(id) || id <= 0) return;
-  await createAdminSupabaseClient().from("reward_catalog").update({ active, updated_at: new Date().toISOString() }).eq("id", id);
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-}
-
-export async function updateRewardStock(formData: FormData) {
-  await requireAdminUserId();
-  const id = Number(formData.get("id"));
-  const stock = Number(formData.get("stock"));
-  if (!Number.isSafeInteger(id) || id <= 0 || !Number.isInteger(stock) || stock < 0 || stock > 100000) return;
-  await createAdminSupabaseClient().from("reward_catalog").update({ stock_remaining: stock, updated_at: new Date().toISOString() }).eq("id", id);
-  revalidatePath("/admin/canjes"); revalidatePath("/canjes"); revalidatePath("/caja");
-}
-
-export async function confirmPointRedemption(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
-  const actorId = await requireAdminUserId(); const code = String(formData.get("code") ?? "").replace(/[^a-f0-9]/gi, "").toUpperCase();
-  if (code.length !== 8) return { error: "El código debe tener 8 caracteres." };
-  const { data, error } = await createAdminSupabaseClient().rpc("admin_confirm_point_redemption", { p_actor_id: actorId, p_code: code });
-  if (error?.message.includes("CODE_NOT_FOUND")) return { error: "Código inexistente." };
-  if (error?.message.includes("CODE_NOT_PENDING")) return { error: "Este código venció o ya fue utilizado." };
-  if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto está agotado. No se descontaron puntos." };
-  if (error) return { error: "No pudimos confirmar el canje." };
-  revalidatePath("/admin/canjes"); revalidatePath("/perfil");
-  return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
+      <section className="admin-panel">
+        <form className="admin-search">
+          <label htmlFor="q">Buscar por Instagram o codigo</label>
+          <div><input id="q" name="q" defaultValue={query} placeholder="@usuario o SUPER-..." /><button>Buscar</button></div>
+        </form>
+        <p className="admin-result-count">Mostrando {filtered.length} de {participations.length}</p>
+        <div className="admin-participant-list">
+          {filtered.length === 0 && <p className="admin-empty">No encontramos participantes con esa busqueda.</p>}
+          {filtered.map((item) => (
+            <article className="admin-participant" key={item.id}>
+              <div className="admin-participant-head">
+                <div><strong>@{item.profiles.instagram_username}</strong><small>{item.profiles.display_name || "Sin nombre visible"}</small></div>
+                <div><code>{item.participant_code}</code><span>{item.final_chances} chances · racha {item.streak_number}</span></div>
+              </div>
+              <div className="admin-completion-grid">
+                {[...item.requirement_completions]
+                  .sort((a, b) => a.draw_requirements.requirement_key.localeCompare(b.draw_requirements.requirement_key))
+                  .map((completion) => (
+                    <div key={completion.id}>
+                      <span className={`review-state review-${completion.state}`}>{stateLabels[completion.state] ?? completion.state}</span>
+                      <small>{completion.draw_requirements.title}</small>
+                      {completion.state !== "not_started" && (
+                        <div className="review-actions">
+                          {completion.state !== "verified" && (
+                            <form action={reviewRequirement}>
+                              <input type="hidden" name="completionId" value={completion.id} />
+                              <input type="hidden" name="drawId" value={draw.id} />
+                              <input type="hidden" name="decision" value="verified" />
+                              <button className="verify" type="submit">Verificar</button>
+                            </form>
+                          )}
+                          {completion.state !== "rejected" && (
+                            <form action={reviewRequirement} className="reject-form">
+                              <input type="hidden" name="completionId" value={completion.id} />
+                              <input type="hidden" name="drawId" value={draw.id} />
+                              <input type="hidden" name="decision" value="rejected" />
+                              <input name="reason" aria-label={`Motivo para rechazar ${completion.draw_requirements.title}`} placeholder="Motivo" minLength={3} required />
+                              <button className="reject" type="submit">Rechazar</button>
+                            </form>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+    </main>
+  );
 }

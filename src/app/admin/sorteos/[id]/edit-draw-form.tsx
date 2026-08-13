@@ -15,6 +15,7 @@ type EditDrawFormProps = {
     winnerPercent: number;
     maxBaseChances: number;
     maxExtraChances: number;
+    nonWinnerPoints: number;
   };
   urls: Record<string, string>;
 };
@@ -47,6 +48,7 @@ export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
           <legend>Chances y límites</legend>
           <div className="admin-rule-grid">
             <p className="admin-rule-note full">Los requisitos y las acciones extra suman chances, no SUPER Puntos.</p>
+            <div className="admin-field"><label htmlFor="editNonWinnerPoints">Puntos por participar y no ganar</label><input id="editNonWinnerPoints" name="nonWinnerPoints" type="number" min="0" max="100" defaultValue={draw.nonWinnerPoints} required /></div>
             <div className="admin-field"><label htmlFor="editBaseChances">Máximo por racha</label><input id="editBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue={draw.maxBaseChances} required /></div>
             <div className="admin-field"><label htmlFor="editExtraChances">Máximo de extras</label><input id="editExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue={draw.maxExtraChances} required /></div>
             <div className="admin-field"><label htmlFor="editWinnerPercent">Chances después de ganar (%)</label><input id="editWinnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue={draw.winnerPercent} required /></div>

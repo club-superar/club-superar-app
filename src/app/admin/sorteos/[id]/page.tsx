@@ -117,6 +117,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
             opensAt: draw.opens_at, closesAt: draw.closes_at, claimHours: draw.claim_window_hours,
             winnerPercent: Number(draw.winner_retained_chance_percent), maxBaseChances: draw.max_base_chances,
             maxExtraChances: draw.max_extra_chances,
+            nonWinnerPoints: Number((draw.points_config as Record<string, number>)?.non_winner_participation ?? 2),
           }}
           urls={requirementUrls}
         />
