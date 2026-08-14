@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import {
   adjustMemberPoints,
   setMemberBadge,
+  setMemberRedemptionOverride,
   updateMemberStreak,
   type AdminActionState,
 } from "@/app/admin/actions";
@@ -16,6 +17,7 @@ type MemberProgressControlsProps = {
   longestStreak: number;
   badges: BadgeDefinition[];
   awardedBadgeKeys: string[];
+  redemptionOverrideActive: boolean;
 };
 
 function Feedback({ state }: { state: AdminActionState }) {
@@ -50,12 +52,23 @@ function BadgeControl({ profileId, username, badge, awarded }: {
 export function MemberProgressControls(props: MemberProgressControlsProps) {
   const [pointsState, pointsAction, pointsPending] = useActionState(adjustMemberPoints, {});
   const [streakState, streakAction, streakPending] = useActionState(updateMemberStreak, {});
+  const [redemptionState, redemptionAction, redemptionPending] = useActionState(setMemberRedemptionOverride, {});
   const awarded = new Set(props.awardedBadgeKeys);
 
   return (
     <section className="admin-panel member-progress-controls">
       <div className="admin-panel-title"><h2>Editar progreso</h2><small>CAMBIOS AUDITADOS</small></div>
       <p className="admin-help">Usá estos controles para pruebas o correcciones. Cada cambio necesita un motivo.</p>
+
+      <form action={redemptionAction} className={`member-redemption-override ${props.redemptionOverrideActive ? "enabled" : ""}`}>
+        <input type="hidden" name="profileId" value={props.profileId} />
+        <input type="hidden" name="username" value={props.username} />
+        <input type="hidden" name="active" value={props.redemptionOverrideActive ? "false" : "true"} />
+        <div><p className="eyebrow cyan">EXCEPCIÓN DE CANJE</p><h3>{props.redemptionOverrideActive ? "Canjes habilitados manualmente" : "Habilitar canjes sin participación"}</h3><small>Solo Administración puede activar o quitar este permiso. No modifica puntos, rachas ni participaciones.</small></div>
+        <label>Motivo<input name="reason" maxLength={200} placeholder={props.redemptionOverrideActive ? "Ej.: finalizó la prueba" : "Ej.: prueba autorizada"} required /></label>
+        <button className={props.redemptionOverrideActive ? "danger-soft" : "button primary"} disabled={redemptionPending}>{redemptionPending ? "Guardando..." : props.redemptionOverrideActive ? "Quitar permiso especial" : "Habilitar canjes"}</button>
+        <Feedback state={redemptionState} />
+      </form>
 
       <div className="member-control-grid">
         <form action={pointsAction} className="member-control-form">
@@ -90,4 +103,3 @@ export function MemberProgressControls(props: MemberProgressControlsProps) {
     </section>
   );
 }
-

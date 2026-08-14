@@ -478,6 +478,24 @@ export async function setMemberBadge(_: AdminActionState, formData: FormData): P
   return { success: awarded ? "Insignia otorgada." : "Insignia quitada." };
 }
 
+export async function setMemberRedemptionOverride(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const active = String(formData.get("active") ?? "") === "true";
+  const reason = String(formData.get("reason") ?? "").trim();
+  const username = String(formData.get("username") ?? "").trim();
+  if (!profileId || reason.length < 3 || reason.length > 200) {
+    return { error: "Escribí un motivo breve para registrar la excepción." };
+  }
+  const { error } = await createAdminSupabaseClient().rpc("admin_set_redemption_access_override", {
+    p_actor_id: actorId, p_profile_id: profileId, p_active: active, p_reason: reason,
+  });
+  if (error) return { error: "No pudimos cambiar el permiso especial de canje." };
+  revalidateMemberProgress(profileId, username);
+  revalidatePath("/canjes");
+  return { success: active ? "Canjes habilitados como excepción." : "Excepción de canje desactivada." };
+}
+
 export async function updateRewardSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const actorId = await requireAdminUserId();
   const earningPercent = Number(formData.get("earningPercent"));

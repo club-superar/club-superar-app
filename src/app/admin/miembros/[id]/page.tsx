@@ -20,7 +20,7 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
   const id = (await params).id;
   if (!/^[0-9a-f-]{36}$/i.test(id)) notFound();
   const admin = createAdminSupabaseClient();
-  const [profileResult, pointsResult, participationResult, badgeResult, movementResult, winnerResult, disqualificationResult, badgeDefinitionsResult] = await Promise.all([
+  const [profileResult, pointsResult, participationResult, badgeResult, movementResult, winnerResult, disqualificationResult, badgeDefinitionsResult, redemptionOverrideResult] = await Promise.all([
     admin.from("profiles").select("id, instagram_username, display_name, status, current_streak, longest_streak, created_at").eq("id", id).maybeSingle(),
     admin.from("points_ledger").select("amount").eq("profile_id", id),
     admin.from("participations").select("id, status, streak_number, base_chances, extra_chances, final_chances, created_at, draws!inner(id, edition_number, title, status)").eq("profile_id", id).order("created_at", { ascending: false }),
@@ -29,6 +29,7 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
     admin.from("winners").select("id, draw_id, confirmed_at, claim_status, draws!inner(edition_number, prize_name)").eq("profile_id", id).order("confirmed_at", { ascending: false }),
     admin.from("disqualifications").select("id, draw_id, reason_key, notes, created_at, draws!inner(edition_number), participations!inner(profile_id)").eq("participations.profile_id", id).order("created_at", { ascending: false }),
     admin.from("badge_definitions").select("badge_key, name, description, icon").in("badge_key", ["loyal", "legend"]).eq("active", true).order("id"),
+    admin.from("redemption_access_overrides").select("active, reason, granted_at").eq("profile_id", id).maybeSingle(),
   ]);
   const profile = profileResult.data;
   if (!profile) notFound();
@@ -56,6 +57,7 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
         longestStreak={profile.longest_streak}
         badges={badgeDefinitions}
         awardedBadgeKeys={badges.map((badge) => badge.badge_definitions.badge_key)}
+        redemptionOverrideActive={redemptionOverrideResult.data?.active === true}
       />
 
       <div className="admin-member-columns">
@@ -69,4 +71,3 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
     </main>
   );
 }
-
