@@ -72,6 +72,17 @@ function isRequirementComplete(item: Completion) {
     : new Set(["declared", "verified"]).has(item.state);
 }
 
+function completionStatus(item: Completion) {
+  if (item.state === "verified") return { label: "Completado", tone: "complete" };
+  if (item.state === "rejected") return { label: "Revisión manual", tone: "review" };
+  if (item.state === "declared") return automaticRequirements.has(item.draw_requirements.requirement_key)
+    ? { label: "Verificando", tone: "checking" }
+    : { label: "Completado", tone: "complete" };
+  return automaticRequirements.has(item.draw_requirements.requirement_key)
+    ? { label: "Pendiente automático", tone: "pending" }
+    : { label: "Pendiente", tone: "pending" };
+}
+
 function formatPrize(draw: Draw) {
   if (draw.prize_value === null) return draw.prize_name;
   return new Intl.NumberFormat("es-AR", {
@@ -229,6 +240,7 @@ export default async function Home() {
           <div className="requirement-list">
             {completions.map((item) => {
               const done = isRequirementComplete(item);
+              const status = completionStatus(item);
               const requirement = item.draw_requirements;
               const automatic = automaticRequirements.has(requirement.requirement_key);
               const detail = requirement.requirement_key === "comment_and_tag"
@@ -237,7 +249,7 @@ export default async function Home() {
               return (
                 <article className={done ? "requirement done" : "requirement"} key={item.id}>
                   <span className="check" aria-hidden="true">{done ? "✓" : ""}</span>
-                  <div><strong>{requirement.title}</strong><small>{detail}</small></div>
+                  <div><strong>{requirement.title}</strong><small>{detail}</small><em className={`completion-status ${status.tone}`}>{status.label}</em></div>
                   {!done && (
                     <div className="requirement-actions">
                       {requirement.action_url && <a href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>}
@@ -304,8 +316,8 @@ export default async function Home() {
       </section>
 
       <footer className="club-footer">
-        <Link href="/admin/ingresar">Administración</Link>
-        {branding.visible !== false && <a href={branding.creator_url} target="_blank" rel="noreferrer">{branding.creator_text}</a>}
+        <Link href="/como-funciona">¿Cómo funciona el Club?</Link>
+        <span><Link href="/admin/ingresar">Administración</Link>{branding.visible !== false && <a href={branding.creator_url} target="_blank" rel="noreferrer">{branding.creator_text}</a>}</span>
       </footer>
 
       <nav className="bottom-nav" aria-label="Navegacion principal">

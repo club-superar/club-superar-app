@@ -298,75 +298,7 @@ export async function selectProvisionalWinner(formData: FormData) {
   redirect(`/admin/sorteos/${drawId}?reveal=${attempt?.id ?? ""}`);
 }
 
-function readAttemptActionIds(formData: FormData) {
-  const drawId = Number(formData.get("drawId"));
-  const attemptId = Number(formData.get("attemptId"));
-  if (!Number.isSafeInteger(drawId) || drawId <= 0) return null;
-  if (!Number.isSafeInteger(attemptId) || attemptId <= 0) return null;
-  return { drawId, attemptId };
-}
-
-export async function markWinnerUnderReview(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_mark_attempt_under_review", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos dejar al ganador en revision.");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function disqualifyWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const reason = String(formData.get("reason") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
-  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "other"]);
-  if (!reasons.has(reason)) throw new Error("Selecciona un motivo valido.");
-  if (reason === "other" && notes.length < 3) throw new Error("Explica el motivo de la descalificacion.");
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_disqualify_attempt", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-    p_reason_key: reason,
-    p_notes: notes || null,
-  });
-  if (error) throw new Error("No pudimos descalificar a este participante.");
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function confirmWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_confirm_winner", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos confirmar al ganador.");
-  revalidatePath("/");
-  revalidatePath("/perfil");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function updateWinnerClaimStatus(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const drawId = Number(formData.get("drawId"));
-  const winnerId = Number(formData.get("winnerId"));
-  const newStatus = String(formData.get("newStatus") ?? "");
-  if (!Number.isSafeInteger(drawId) || drawId <= 0 || !Number.isSafeInteger(winnerId) || winnerId <= 0) return;
-  if (!new Set(["claimed", "fulfilled", "expired"]).has(newStatus)) return;
-
-  const admin = createAdminSupabaseClient();
+function readAttemptActionIds(formData: Form˜Æm¢Gß≤⁄Óù∆≠y–const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_update_winner_claim_status", {
     p_actor_id: actorId,
     p_winner_id: winnerId,
@@ -495,6 +427,21 @@ export async function updatePublicBranding(_: AdminActionState, formData: FormDa
   revalidatePath("/");
   revalidatePath("/admin");
   return { success: "Cr√©dito p√∫blico actualizado." };
+}
+
+export async function updateClubFeatures(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const helpInstagramUrl = String(formData.get("helpInstagramUrl") ?? "").trim();
+  const redemptionsEnabled = String(formData.get("redemptionsEnabled") ?? "") === "true";
+  if (!/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]+\/?$/.test(helpInstagramUrl)) {
+    return { error: "Peg√° el enlace completo del Instagram oficial de SUPER.AR." };
+  }
+  const { error } = await createAdminSupabaseClient().rpc("admin_update_club_features", {
+    p_actor_id: actorId, p_help_instagram_url: helpInstagramUrl, p_redemptions_enabled: redemptionsEnabled,
+  });
+  if (error) return { error: "No pudimos guardar la configuraci√≥n de lanzamiento." };
+  ["/", "/ingresar", "/como-funciona", "/canjes", "/admin"].forEach((path) => revalidatePath(path));
+  return { success: redemptionsEnabled ? "Canjes habilitados p√∫blicamente." : "Canjes guardados como Pr√≥ximamente." };
 }
 
 export async function setMemberRedemptionOverride(_: AdminActionState, formData: FormData): Promise<AdminActionState> {

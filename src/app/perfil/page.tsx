@@ -90,6 +90,8 @@ export default async function ProfilePage() {
         <article><span>🏆</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
       </section>
 
+      <Link className="profile-guide-link" href="/como-funciona"><span>?</span><div><strong>¿Cómo funciona el Club?</strong><small>Chances, rachas, puntos, insignias y canjes.</small></div><b>→</b></Link>
+
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
         {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (

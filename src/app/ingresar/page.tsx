@@ -4,15 +4,8 @@ import Link from "next/link";
 
 export default async function LoginPage() {
   const supabase = createAdminSupabaseClient();
-  const { data } = await supabase
-    .from("draw_requirements")
-    .select("action_url")
-    .eq("requirement_key", "follow_instagram")
-    .not("action_url", "is", null)
-    .order("id", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-  const candidate = data?.action_url ?? "";
+  const { data } = await supabase.rpc("get_club_public_settings");
+  const candidate = (data as { help_instagram_url?: string } | null)?.help_instagram_url ?? "";
   const instagramUrl = /^https:\/\/(www\.)?instagram\.com\//i.test(candidate)
     ? candidate
     : "https://www.instagram.com/";

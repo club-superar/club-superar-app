@@ -2,6 +2,7 @@ import Link from "next/link";
 import { DrawForm } from "@/app/admin/draw-form";
 import { BadgeSettingsForm } from "@/app/admin/badge-settings-form";
 import { BrandingForm } from "@/app/admin/branding-form";
+import { LaunchSettingsForm } from "@/app/admin/launch-settings-form";
 import { freezeDraw, logoutAdmin, openDraw } from "@/app/admin/actions";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
@@ -17,7 +18,7 @@ const statusLabels: Record<string, string> = {
 export default async function AdminPage() {
   const actorId = await requireAdminUserId();
   const admin = createAdminSupabaseClient();
-  const [drawResult, memberResult, winnerResult, disqualificationResult, streakResult, recentWinnerResult, badgeSettingsResult, brandingResult] = await Promise.all([
+  const [drawResult, memberResult, winnerResult, disqualificationResult, streakResult, recentWinnerResult, badgeSettingsResult, brandingResult, featuresResult] = await Promise.all([
     admin.from("draws").select("id, edition_number, title, prize_name, prize_value, status, opens_at, closes_at, created_at").order("edition_number", { ascending: false }).limit(12),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("status", "active"),
     admin.from("winners").select("id", { count: "exact", head: true }),
@@ -26,6 +27,7 @@ export default async function AdminPage() {
     admin.from("winners").select("id, draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number)").order("confirmed_at", { ascending: false }).limit(4),
     admin.rpc("admin_get_badge_thresholds", { p_actor_id: actorId }),
     admin.rpc("get_public_branding"),
+    admin.rpc("get_club_public_settings"),
   ]);
   const draws = drawResult.data ?? [];
   const activeDraw = draws.find((draw) => ["open", "frozen", "drawing", "winner_review"].includes(draw.status));
@@ -42,6 +44,7 @@ export default async function AdminPage() {
   const claimLabels: Record<string, string> = { pending: "Pendiente de reclamo", claimed: "Reclamado", fulfilled: "Entregado", expired: "Vencido" };
   const badgeSettings = (badgeSettingsResult.data ?? { loyal_streak: 3, legend_points: 100 }) as { loyal_streak?: number; legend_points?: number };
   const branding = (brandingResult.data ?? { creator_text: "Creado por @gonzapuefll", creator_url: "https://www.instagram.com/gonzapuefll/", visible: true }) as { creator_text: string; creator_url: string; visible: boolean };
+  const features = (featuresResult.data ?? { help_instagram_url: "https://www.instagram.com/", redemptions_enabled: false }) as { help_instagram_url?: string; redemptions_enabled?: boolean };
 
   return (
     <main className="admin-shell">
@@ -82,6 +85,7 @@ export default async function AdminPage() {
       <section className="admin-panel"><h2>Insignias automáticas</h2><BadgeSettingsForm loyalStreak={Number(badgeSettings.loyal_streak ?? 3)} legendPoints={Number(badgeSettings.legend_points ?? 100)} /></section>
       <section className="admin-panel"><h2>Crédito del creador</h2><p className="admin-help">Este texto aparece junto al acceso de Administración en la página pública.</p><BrandingForm creatorText={branding.creator_text} creatorUrl={branding.creator_url} visible={branding.visible !== false} /></section>
 
+      <section className="admin-panel"><h2>Lanzamiento y ayuda</h2><p className="admin-help">Controlá cuándo se habilitan los canjes y a qué Instagram se dirige la recuperación.</p><LaunchSettingsForm helpInstagramUrl={features.help_instagram_url ?? "https://www.instagram.com/"} redemptionsEnabled={features.redemptions_enabled === true} /></section>
       <section className="admin-panel"><h2>Crear nuevo sorteo</h2><DrawForm /></section>
 
       <section className="admin-panel">

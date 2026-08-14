@@ -32,18 +32,28 @@ export default async function RedemptionsPage() {
   if (!profileId) redirect("/ingresar");
 
   const admin = createAdminSupabaseClient();
-  const [pointsResult, rewardsResult, settingsResult, historyResult, accessResult] = await Promise.all([
+  const [pointsResult, rewardsResult, settingsResult, historyResult, accessResult, featuresResult] = await Promise.all([
     admin.from("points_ledger").select("amount").eq("profile_id", profileId),
     admin.from("reward_catalog").select("id,name,description,points_cost,stock_remaining").eq("active", true).order("display_order"),
     admin.rpc("get_reward_settings"),
     admin.from("point_redemptions").select("id,reward_name,points,ars_value,code_suffix,status,expires_at,created_at").eq("profile_id", profileId).order("created_at", { ascending: false }).limit(12),
     admin.rpc("can_profile_redeem_points", { p_profile_id: profileId }),
+    admin.rpc("get_club_public_settings"),
   ]);
 
   const balance = (pointsResult.data ?? []).reduce((sum, row) => sum + Number(row.amount), 0);
   const settings = (settingsResult.data ?? {}) as Record<string, number>;
   const history = (historyResult.data ?? []) as RedemptionHistoryItem[];
   const canRedeem = accessResult.data === true;
+  const features = (featuresResult.data ?? {}) as { redemptions_enabled?: boolean };
+
+  if (features.redemptions_enabled !== true) return (
+    <main className="profile-shell">
+      <header className="topbar"><Link className="brand" href="/">SUPER<span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link><Link className="profile-back" href="/perfil">← Mi perfil</Link></header>
+      <section className="profile-heading"><p className="eyebrow cyan">BENEFICIOS</p><h1>Canjes</h1><p>Tenés <strong>{balance} SUPER Puntos</strong>.</p></section>
+      <section className="coming-soon-card"><span aria-hidden="true">✦</span><p className="eyebrow cyan">MUY PRONTO</p><h2>Se vienen los canjes SUPER.AR</h2><p>Seguí participando y acumulando puntos. Cuando habilitemos los canjes, vas a poder usarlos en beneficios del local.</p><Link className="button primary" href="/">Ir al sorteo actual</Link><Link className="text-link" href="/como-funciona">Conocer cómo funciona el Club</Link></section>
+    </main>
+  );
 
   return (
     <main className="profile-shell">

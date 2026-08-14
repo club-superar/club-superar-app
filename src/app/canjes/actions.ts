@@ -22,6 +22,7 @@ export async function createRedemption(_: RedemptionState, formData: FormData): 
   if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto se agotó o tiene todos sus cupos reservados." };
   if (error?.message.includes("REWARD_NOT_AVAILABLE")) return { error: "Ese producto ya no está disponible." };
   if (error?.message.includes("PARTICIPATION_REQUIRED")) return { error: "Completá tu participación en el sorteo actual para habilitar los canjes." };
+  if (error?.message.includes("REDEMPTIONS_NOT_LAUNCHED")) return { error: "Los canjes todavía no fueron habilitados. Tus puntos siguen acumulándose." };
   if (error) return { error: "No pudimos generar el canje. Intentá nuevamente." };
   return { redemption: created as RedemptionState["redemption"] };
 }
