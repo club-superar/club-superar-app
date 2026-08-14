@@ -12,7 +12,6 @@ async function requireUserId() {
   if (error || !userId) redirect("/ingresar");
   return userId;
 }
-
 export async function startParticipation(formData: FormData) {
   const userId = await requireUserId();
   const drawId = Number(formData.get("drawId"));
@@ -37,30 +36,11 @@ export async function declareRequirement(formData: FormData) {
     p_user_id: userId,
     p_completion_id: completionId,
   });
-  if (error) throw new Error("No pudimos guardar este paso.");
-  revalidatePath("/");
-  revalidatePath("/perfil");
-}
-
-export async function declareExtraAction(formData: FormData) {
-  const userId = await requireUserId();
-  const participationId = Number(formData.get("participationId"));
-  const actionType = String(formData.get("actionType") ?? "");
-  const value = String(formData.get("value") ?? "").trim();
-  if (!Number.isSafeInteger(participationId) || participationId <= 0 || !value) return;
-  if (!new Set(["additional_tag", "extra_post_share"]).has(actionType)) return;
-
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("declare_extra_social_action", {
-    p_user_id: userId,
-    p_participation_id: participationId,
-    p_action_type: actionType,
-    p_value: value,
-  });
   if (error) {
-    if (error.message.includes("EXTRA_ACTION_ALREADY_DECLARED")) throw new Error("Esta accion ya estaba registrada.");
-    if (error.message.includes("EXTRA_LIMIT_REACHED")) throw new Error("Ya alcanzaste el maximo de chances extra.");
-    throw new Error("No pudimos guardar la chance extra.");
+    if (error.message.includes("AUTOMATIC_VERIFICATION_REQUIRED")) {
+      throw new Error("Este paso se confirma automaticamente desde Instagram.");
+    }
+    throw new Error("No pudimos guardar este paso.");
   }
   revalidatePath("/");
   revalidatePath("/perfil");

@@ -164,4 +164,3 @@ revoke all on function public.admin_set_member_badge(uuid, uuid, text, boolean, 
 grant execute on function public.admin_adjust_member_points(uuid, uuid, integer, text) to service_role;
 grant execute on function public.admin_update_member_streak(uuid, uuid, integer, integer, text) to service_role;
 grant execute on function public.admin_set_member_badge(uuid, uuid, text, boolean, text) to service_role;
-

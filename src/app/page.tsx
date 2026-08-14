@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
-import { declareExtraAction, declareRequirement, startParticipation } from "@/app/participation/actions";
+import { declareRequirement, startParticipation } from "@/app/participation/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -64,7 +64,13 @@ type PublicWinner = {
   };
 };
 
-const completedStates = new Set(["declared", "detected", "verified"]);
+const automaticRequirements = new Set(["comment_and_tag", "share_story"]);
+
+function isRequirementComplete(item: Completion) {
+  return automaticRequirements.has(item.draw_requirements.requirement_key)
+    ? item.state === "verified"
+    : new Set(["declared", "verified"]).has(item.state);
+}
 
 function formatPrize(draw: Draw) {
   if (draw.prize_value === null) return draw.prize_name;
@@ -142,9 +148,9 @@ export default async function Home() {
   const initials = username?.slice(0, 2).toUpperCase() ?? "SA";
   const completions = [...(participation?.requirement_completions ?? [])]
     .sort((a, b) => a.draw_requirements.display_order - b.draw_requirements.display_order);
-  const completedCount = completions.filter((item) => completedStates.has(item.state)).length;
+  const completedCount = completions.filter(isRequirementComplete).length;
   const requiredCount = completions.filter((item) => item.draw_requirements.required).length;
-  const missingCount = completions.filter((item) => item.draw_requirements.required && !completedStates.has(item.state)).length;
+  const missingCount = completions.filter((item) => item.draw_requirements.required && !isRequirementComplete(item)).length;
   const progress = requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
 
   return (
@@ -222,8 +228,9 @@ export default async function Home() {
 
           <div className="requirement-list">
             {completions.map((item) => {
-              const done = completedStates.has(item.state);
+              const done = isRequirementComplete(item);
               const requirement = item.draw_requirements;
+              const automatic = automaticRequirements.has(requirement.requirement_key);
               const detail = requirement.requirement_key === "comment_and_tag"
                 ? `Comenta, etiqueta a 2 personas y agrega ${participation.participant_code}`
                 : requirement.instructions;
@@ -234,10 +241,14 @@ export default async function Home() {
                   {!done && (
                     <div className="requirement-actions">
                       {requirement.action_url && <a href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>}
-                      <form action={declareRequirement}>
-                        <input type="hidden" name="completionId" value={item.id} />
-                        <button type="submit">Ya lo hice</button>
-                      </form>
+                      {automatic ? (
+                        <span className="automatic-check">Se confirma automáticamente</span>
+                      ) : (
+                        <form action={declareRequirement}>
+                          <input type="hidden" name="completionId" value={item.id} />
+                          <button type="submit">Ya lo hice</button>
+                        </form>
+                      )}
                     </div>
                   )}
                 </article>
@@ -261,24 +272,7 @@ export default async function Home() {
                 ))}
               </ul>
             )}
-            {participation.extra_chances < 2 && (
-              <div className="extra-action-forms">
-                <form action={declareExtraAction}>
-                  <input type="hidden" name="participationId" value={participation.id} />
-                  <input type="hidden" name="actionType" value="additional_tag" />
-                  <label htmlFor="extra-tag">Etiquete a otra persona</label>
-                  <input id="extra-tag" name="value" placeholder="@usuario" pattern="@?[A-Za-z0-9._]{1,30}" required />
-                  <button type="submit">Sumar etiqueta</button>
-                </form>
-                <form action={declareExtraAction}>
-                  <input type="hidden" name="participationId" value={participation.id} />
-                  <input type="hidden" name="actionType" value="extra_post_share" />
-                  <label htmlFor="extra-post">Comparti otra publicacion de SUPER.AR</label>
-                  <input id="extra-post" name="value" type="url" placeholder="https://instagram.com/p/..." required />
-                  <button type="submit">Sumar publicacion</button>
-                </form>
-              </div>
-            )}
+            {participation.extra_chances < 2 && <p className="automatic-extra-note">Las chances extra aparecen solas cuando Instagram confirma una etiqueta adicional o una nueva mención en historia.</p>}
           </div>
         </aside>
       )}

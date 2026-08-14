@@ -269,13 +269,13 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
                     <div key={completion.id}>
                       <span className={`review-state review-${completion.state}`}>{stateLabels[completion.state] ?? completion.state}</span>
                       <small>{completion.draw_requirements.title}</small>
-                      {completion.state !== "not_started" && (
-                        <div className="review-actions">
+                      <div className="review-actions">
                           {completion.state !== "verified" && (
                             <form action={reviewRequirement}>
                               <input type="hidden" name="completionId" value={completion.id} />
                               <input type="hidden" name="drawId" value={draw.id} />
                               <input type="hidden" name="decision" value="verified" />
+                              <input name="reason" aria-label={`Motivo para verificar ${completion.draw_requirements.title}`} placeholder="Motivo de la excepción" minLength={3} required />
                               <button className="verify" type="submit">Verificar</button>
                             </form>
                           )}
@@ -289,7 +289,6 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
                             </form>
                           )}
                         </div>
-                      )}
                     </div>
                   ))}
               </div>

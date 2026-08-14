@@ -25,4 +25,3 @@ export async function GET(request: NextRequest) {
   redirectTo.searchParams.set("error", "enlace-invalido");
   return NextResponse.redirect(redirectTo);
 }
-

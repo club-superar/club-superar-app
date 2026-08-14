@@ -23,4 +23,3 @@ export async function requireAdminUserId() {
   if (!userId) redirect("/admin/ingresar");
   return userId;
 }
-
