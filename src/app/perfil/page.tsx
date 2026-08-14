@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { UsernameForm } from "./username-form";
 
 type ParticipationHistory = {
   id: number;
@@ -89,6 +90,8 @@ export default async function ProfilePage() {
         <article><span>🎟</span><strong>{currentParticipation?.final_chances ?? 0}</strong><small>Chances actuales</small></article>
         <article><span>🏆</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
       </section>
+
+      <section className="profile-panel"><UsernameForm currentUsername={profile.instagram_username} /></section>
 
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>

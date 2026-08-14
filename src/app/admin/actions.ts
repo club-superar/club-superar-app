@@ -5,8 +5,9 @@ import { redirect } from "next/navigation";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSessionSupabaseClient } from "@/lib/supabase/server";
+import { generateRecoveryCode, hashRecoveryCode, isValidInstagramUsername, normalizeInstagramUsername } from "@/lib/auth/participant";
 
-export type AdminActionState = { error?: string; success?: string };
+export type AdminActionState = { error?: string; success?: string; recoveryCode?: string };
 
 export async function loginAdmin(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const email = String(formData.get("email") ?? "")
@@ -297,51 +298,7 @@ export async function selectProvisionalWinner(formData: FormData) {
   redirect(`/admin/sorteos/${drawId}?reveal=${attempt?.id ?? ""}`);
 }
 
-function readAttemptActionIds(formData: FormData) {
-  const drawId = Number(formData.get("drawId"));
-  const attemptId = Number(formData.get("attemptId"));
-  if (!Number.isSafeInteger(drawId) || drawId <= 0) return null;
-  if (!Number.isSafeInteger(attemptId) || attemptId <= 0) return null;
-  return { drawId, attemptId };
-}
-
-export async function markWinnerUnderReview(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_mark_attempt_under_review", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-  });
-  if (error) throw new Error("No pudimos dejar al ganador en revision.");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function disqualifyWinner(formData: FormData) {
-  const actorId = await requireAdminUserId();
-  const ids = readAttemptActionIds(formData);
-  if (!ids) return;
-  const reason = String(formData.get("reason") ?? "");
-  const notes = String(formData.get("notes") ?? "").trim();
-  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "other"]);
-  if (!reasons.has(reason)) throw new Error("Selecciona un motivo valido.");
-  if (reason === "other" && notes.length < 3) throw new Error("Explica el motivo de la descalificacion.");
-  const admin = createAdminSupabaseClient();
-  const { error } = await admin.rpc("admin_disqualify_attempt", {
-    p_actor_id: actorId,
-    p_attempt_id: ids.attemptId,
-    p_reason_key: reason,
-    p_notes: notes || null,
-  });
-  if (error) throw new Error("No pudimos descalificar a este participante.");
-  revalidatePath("/");
-  revalidatePath("/admin");
-  revalidatePath(`/admin/sorteos/${ids.drawId}`);
-}
-
-export async function confirmWinner(formData: FormData) {
+function readAttemptAÎ}≠¢Gß≤⁄Óù∆≠yŸnc function confirmWinner(formData: FormData) {
   const actorId = await requireAdminUserId();
   const ids = readAttemptActionIds(formData);
   if (!ids) return;
@@ -478,6 +435,24 @@ export async function setMemberBadge(_: AdminActionState, formData: FormData): P
   return { success: awarded ? "Insignia otorgada." : "Insignia quitada." };
 }
 
+export async function updatePublicBranding(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const creatorText = String(formData.get("creatorText") ?? "").trim();
+  const creatorUrl = String(formData.get("creatorUrl") ?? "").trim();
+  const visible = String(formData.get("visible") ?? "") === "true";
+  if (creatorText.length < 3 || creatorText.length > 80
+    || !/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]+\/?$/.test(creatorUrl)) {
+    return { error: "Revis√° el texto y peg√° el enlace completo de Instagram." };
+  }
+  const { error } = await createAdminSupabaseClient().rpc("admin_update_public_branding", {
+    p_actor_id: actorId, p_creator_text: creatorText, p_creator_url: creatorUrl, p_visible: visible,
+  });
+  if (error) return { error: "No pudimos guardar el cr√©dito del creador." };
+  revalidatePath("/");
+  revalidatePath("/admin");
+  return { success: "Cr√©dito p√∫blico actualizado." };
+}
+
 export async function setMemberRedemptionOverride(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const actorId = await requireAdminUserId();
   const profileId = readMemberId(formData);
@@ -494,6 +469,45 @@ export async function setMemberRedemptionOverride(_: AdminActionState, formData:
   revalidateMemberProgress(profileId, username);
   revalidatePath("/canjes");
   return { success: active ? "Canjes habilitados como excepci√≥n." : "Excepci√≥n de canje desactivada." };
+}
+
+export async function changeMemberInstagramUsername(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const oldUsername = String(formData.get("username") ?? "").trim();
+  const newUsername = normalizeInstagramUsername(String(formData.get("newUsername") ?? ""));
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!profileId || !isValidInstagramUsername(newUsername) || reason.length < 3 || reason.length > 200) {
+    return { error: "Revis√° el usuario y escrib√≠ un motivo breve." };
+  }
+  const { data, error } = await createAdminSupabaseClient().rpc("admin_change_member_instagram_username", {
+    p_actor_id: actorId, p_profile_id: profileId, p_new_username: newUsername, p_reason: reason,
+  });
+  if (error?.message.includes("USERNAME_TAKEN")) return { error: "Ese usuario pertenece a otra cuenta del Club." };
+  if (error) return { error: "No pudimos actualizar el usuario." };
+  revalidateMemberProgress(profileId, oldUsername);
+  revalidatePath(`/miembro/${newUsername}`);
+  return { success: `Usuario actualizado a @${typeof data === "string" ? data : newUsername}.` };
+}
+
+export async function regenerateMemberRecoveryCode(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
+  const actorId = await requireAdminUserId();
+  const profileId = readMemberId(formData);
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!profileId || reason.length < 3 || reason.length > 200) return { error: "Escrib√≠ un motivo breve para regenerar la clave." };
+  const recoveryCode = generateRecoveryCode();
+  const admin = createAdminSupabaseClient();
+  const { error: authError } = await admin.auth.admin.updateUserById(profileId, { password: recoveryCode });
+  if (authError) return { error: "No pudimos reemplazar la clave de recuperaci√≥n." };
+  const { error: auditError } = await admin.rpc("admin_record_recovery_reset", {
+    p_actor_id: actorId, p_profile_id: profileId,
+    p_recovery_code_hash: hashRecoveryCode(recoveryCode), p_reason: reason,
+  });
+  revalidateMemberProgress(profileId);
+  return {
+    success: auditError ? "Clave regenerada. Guardala ahora; no se pudo completar el registro de auditor√≠a." : "Clave regenerada. La anterior ya no funciona.",
+    recoveryCode,
+  };
 }
 
 export async function updateRewardSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {

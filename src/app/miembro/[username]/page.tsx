@@ -21,10 +21,12 @@ export default async function PublicMemberPage({ params }: PublicMemberPageProps
   if (!/^[a-z0-9._]{1,30}$/.test(normalized)) notFound();
 
   const admin = createAdminSupabaseClient();
+  const { data: profileId } = await admin.rpc("resolve_participant_login", { p_username: normalized });
+  if (!profileId || typeof profileId !== "string") notFound();
   const { data: profile } = await admin
     .from("profiles")
     .select("id, instagram_username, current_streak, created_at")
-    .eq("instagram_username_normalized", normalized)
+    .eq("id", profileId)
     .eq("status", "active")
     .maybeSingle();
   if (!profile) notFound();

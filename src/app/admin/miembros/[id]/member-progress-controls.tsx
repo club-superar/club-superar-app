@@ -3,6 +3,8 @@
 import { useActionState } from "react";
 import {
   adjustMemberPoints,
+  changeMemberInstagramUsername,
+  regenerateMemberRecoveryCode,
   setMemberBadge,
   setMemberRedemptionOverride,
   updateMemberStreak,
@@ -53,12 +55,37 @@ export function MemberProgressControls(props: MemberProgressControlsProps) {
   const [pointsState, pointsAction, pointsPending] = useActionState(adjustMemberPoints, {});
   const [streakState, streakAction, streakPending] = useActionState(updateMemberStreak, {});
   const [redemptionState, redemptionAction, redemptionPending] = useActionState(setMemberRedemptionOverride, {});
+  const [usernameState, usernameAction, usernamePending] = useActionState(changeMemberInstagramUsername, {});
+  const [recoveryState, recoveryAction, recoveryPending] = useActionState(regenerateMemberRecoveryCode, {});
   const awarded = new Set(props.awardedBadgeKeys);
 
   return (
     <section className="admin-panel member-progress-controls">
       <div className="admin-panel-title"><h2>Editar progreso</h2><small>CAMBIOS AUDITADOS</small></div>
       <p className="admin-help">Usá estos controles para pruebas o correcciones. Cada cambio necesita un motivo.</p>
+
+      <div className="member-security-grid">
+        <form action={usernameAction} className="member-control-form">
+          <input type="hidden" name="profileId" value={props.profileId} />
+          <input type="hidden" name="username" value={props.username} />
+          <h3>Cambiar usuario de Instagram</h3>
+          <p>Conserva puntos, rachas, historial y el usuario anterior como acceso alternativo.</p>
+          <label>Nuevo usuario<div className="input-prefix"><span>@</span><input name="newUsername" defaultValue={props.username} maxLength={30} required /></div></label>
+          <label>Motivo<input name="reason" maxLength={200} placeholder="Ej.: cambió su usuario en Instagram" required /></label>
+          <button className="button primary" disabled={usernamePending}>{usernamePending ? "Guardando..." : "Actualizar usuario"}</button>
+          <Feedback state={usernameState} />
+        </form>
+
+        <form action={recoveryAction} className="member-control-form recovery-reset-form">
+          <input type="hidden" name="profileId" value={props.profileId} />
+          <h3>Regenerar clave de recuperación</h3>
+          <p>La clave anterior dejará de funcionar. Verificá antes la identidad del miembro.</p>
+          <label>Motivo<input name="reason" maxLength={200} placeholder="Ej.: perdió su clave" required /></label>
+          <button className="danger-soft" disabled={recoveryPending}>{recoveryPending ? "Regenerando..." : "Generar clave nueva"}</button>
+          <Feedback state={recoveryState} />
+          {recoveryState.recoveryCode && <div className="admin-recovery-code"><small>MOSTRAR UNA SOLA VEZ</small><strong>{recoveryState.recoveryCode}</strong><p>Entregásela únicamente al titular verificado.</p></div>}
+        </form>
+      </div>
 
       <form action={redemptionAction} className={`member-redemption-override ${props.redemptionOverrideActive ? "enabled" : ""}`}>
         <input type="hidden" name="profileId" value={props.profileId} />

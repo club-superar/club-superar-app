@@ -9,7 +9,7 @@ export function LoginForm() {
     <form action={action} className="auth-card">
       <p className="eyebrow cyan">YA SOY MIEMBRO</p>
       <h1>Volvé a entrar</h1>
-      <p>Usá el mismo usuario y el código que guardaste al registrarte.</p>
+      <p>Usá tu usuario actual o uno anterior, junto con el código que guardaste al registrarte.</p>
       <label htmlFor="instagram">Usuario de Instagram</label>
       <div className="input-prefix"><span>@</span><input id="instagram" name="instagram" autoCapitalize="none" autoCorrect="off" placeholder="tu.usuario" required /></div>
       <label htmlFor="recoveryCode">Código de recuperación</label>

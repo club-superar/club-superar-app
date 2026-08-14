@@ -21,11 +21,7 @@ export async function registerParticipant(_: AuthState, formData: FormData): Pro
   }
 
   const admin = createAdminSupabaseClient();
-  const { data: existing } = await admin
-    .from("profiles")
-    .select("id")
-    .eq("instagram_username_normalized", username)
-    .maybeSingle();
+  const { data: existing } = await admin.rpc("resolve_participant_login", { p_username: username });
   if (existing) return { error: "Ese usuario ya está registrado. Probá ingresar con tu código." };
 
   const recoveryCode = generateRecoveryCode();
@@ -66,9 +62,16 @@ export async function loginParticipant(_: AuthState, formData: FormData): Promis
     return { error: "Revisá el usuario y el código de recuperación." };
   }
 
+  const admin = createAdminSupabaseClient();
+  const { data: profileId } = await admin.rpc("resolve_participant_login", { p_username: username });
+  if (!profileId || typeof profileId !== "string") return { error: "El usuario o el cÃ³digo no coinciden." };
+  const { data: authUser, error: userError } = await admin.auth.admin.getUserById(profileId);
+  const internalEmail = authUser.user?.email;
+  if (userError || !internalEmail) return { error: "El usuario o el cÃ³digo no coinciden." };
+
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword({
-    email: participantEmail(username),
+    email: internalEmail,
     password: recoveryCode,
   });
   if (error) return { error: "El usuario o el código no coinciden." };

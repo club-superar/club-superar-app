@@ -99,15 +99,18 @@ export default async function Home() {
     .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code)")
     .order("confirmed_at", { ascending: false })
     .limit(20);
+  const brandingPromise = supabase.rpc("get_public_branding");
 
-  const [{ data: rawDraw }, { data: profile }, { data: pointRows }, { data: rawWinners }] = await Promise.all([
+  const [{ data: rawDraw }, { data: profile }, { data: pointRows }, { data: rawWinners }, { data: rawBranding }] = await Promise.all([
     drawPromise,
     profilePromise,
     pointsPromise,
     winnersPromise,
+    brandingPromise,
   ]);
   const draw = rawDraw as Draw | null;
   const winners = (rawWinners ?? []) as unknown as PublicWinner[];
+  const branding = (rawBranding ?? { creator_text: "Creado por @gonzapuefll", creator_url: "https://www.instagram.com/gonzapuefll/", visible: true }) as { creator_text: string; creator_url: string; visible: boolean };
   const winnerCounts = winners.reduce<Record<string, number>>((counts, winner) => {
     counts[winner.instagram_username] = (counts[winner.instagram_username] ?? 0) + 1;
     return counts;
@@ -308,15 +311,15 @@ export default async function Home() {
 
       <footer className="club-footer">
         <Link href="/admin/ingresar">Administración</Link>
+        {branding.visible !== false && <a href={branding.creator_url} target="_blank" rel="noreferrer">{branding.creator_text}</a>}
       </footer>
 
       <nav className="bottom-nav" aria-label="Navegacion principal">
         <Link className="active" href="/"><span>⌂</span>Inicio</Link>
         <Link href="/#sorteos"><span>◇</span>Sorteos</Link>
-        <Link href="/#ganadores"><span>♕</span>Ganadores</Link>
+        <Link href={username ? "/canjes" : "/ingresar"}><span>◈</span>Canjes</Link>
         <Link href={username ? "/perfil" : "/ingresar"}><span>○</span>Mi perfil</Link>
       </nav>
     </main>
   );
 }
-
