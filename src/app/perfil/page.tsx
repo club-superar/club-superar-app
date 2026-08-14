@@ -2,7 +2,6 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
-import { UsernameForm } from "./username-form";
 
 type ParticipationHistory = {
   id: number;
@@ -91,8 +90,6 @@ export default async function ProfilePage() {
         <article><span>🏆</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
       </section>
 
-      <section className="profile-panel"><UsernameForm currentUsername={profile.instagram_username} /></section>
-
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
         {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (
@@ -115,7 +112,7 @@ export default async function ProfilePage() {
       </section>
 
       <section className="profile-panel redemption-entry"><div><p className="eyebrow cyan">BENEFICIOS</p><h2>Usar mis SUPER Puntos</h2><p>Generá un QR o código y mostralo en caja. Solo se descuentan cuando el canje se confirma.</p></div><Link className="button primary" href="/canjes">Ver canjes</Link></section>
-      <div className="profile-actions"><Link className="button primary" href="/">Ir al sorteo actual</Link><form action={signOut}><button className="button secondary">Cerrar sesión</button></form></div>
+      <div className="profile-actions"><Link className="button primary" href="/">Ir al sorteo actual</Link><Link className="button secondary" href="/perfil/configuracion">Configuración</Link><form action={signOut}><button className="button secondary">Cerrar sesión</button></form></div>
     </main>
   );
 }

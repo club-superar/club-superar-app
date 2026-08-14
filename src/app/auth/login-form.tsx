@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { loginParticipant, type AuthState } from "./actions";
 
-export function LoginForm() {
+export function LoginForm({ instagramUrl }: { instagramUrl: string }) {
   const [state, action, pending] = useActionState(loginParticipant, {} as AuthState);
   return (
     <form action={action} className="auth-card">
@@ -16,6 +16,11 @@ export function LoginForm() {
       <input className="text-input code-input" id="recoveryCode" name="recoveryCode" autoCapitalize="characters" autoCorrect="off" placeholder="SUPER-XXXXX-XXXXX" required />
       {state.error && <p className="form-error" role="alert">{state.error}</p>}
       <button className="button primary" disabled={pending}>{pending ? "Ingresando..." : "Ingresar"}</button>
+      <details className="recovery-help">
+        <summary>Olvidé mi código de recuperación</summary>
+        <p>Solicitá un código nuevo a Autoservicio SUPER.AR. Por seguridad, solamente el administrador puede regenerarlo.</p>
+        <a className="text-link" href={instagramUrl} target="_blank" rel="noreferrer">Escribir por Instagram</a>
+      </details>
       <a className="text-link" href="/registro">Crear una cuenta</a>
     </form>
   );
