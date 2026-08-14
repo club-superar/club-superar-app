@@ -20,6 +20,7 @@ export async function createRedemption(_: RedemptionState, formData: FormData): 
   if (error?.message.includes("INSUFFICIENT_POINTS")) return { error: "No tenés suficientes SUPER Puntos disponibles." };
   if (error?.message.includes("MINIMUM_POINTS")) return { error: "La cantidad está por debajo del mínimo permitido." };
   if (error?.message.includes("REWARD_OUT_OF_STOCK")) return { error: "Ese producto se agotó o tiene todos sus cupos reservados." };
+  if (error?.message.includes("REWARD_NOT_AVAILABLE")) return { error: "Ese producto ya no está disponible." };
   if (error?.message.includes("PARTICIPATION_REQUIRED")) return { error: "Completá tu participación en el sorteo actual para habilitar los canjes." };
   if (error) return { error: "No pudimos generar el canje. Intentá nuevamente." };
   return { redemption: created as RedemptionState["redemption"] };

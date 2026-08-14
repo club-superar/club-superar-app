@@ -1,47 +1,4 @@
--- Las acciones del sorteo otorgan chances, no SUPER Puntos.
--- Los canjes quedan disponibles solo para participantes habilitados.
-
-update public.draw_requirements set points = 0 where points <> 0;
-
-update public.draws
-set points_config = jsonb_build_object(
-  'follow_instagram', 0, 'whatsapp_group', 0, 'comment_and_tag', 0,
-  'share_story', 0, 'completion_bonus', 0, 'extra_action', 0,
-  'max_extra_actions', max_extra_chances
-);
-
--- Conserva el libro contable: revierte con un movimiento compensatorio los
--- puntos de prueba que se habían acreditado bajo la regla incorrecta.
-insert into public.points_ledger (profile_id, amount, reason_key, description, idempotency_key)
-select profile_id, -sum(amount)::integer, 'rules_correction',
-  'Corrección: los pasos del sorteo otorgan chances, no SUPER Puntos',
-  'rules-correction:20260814:' || profile_id::text
-from public.points_ledger
-where reason_key in ('follow_instagram','whatsapp_group','comment_and_tag','share_story','completion_bonus','extra_action')
-  and amount > 0
-group by profile_id
-having sum(amount) > 0
-on conflict (idempotency_key) do nothing;
-
-create or replace function public.can_profile_redeem_points(p_profile_id uuid)
-returns boolean language plpgsql stable security definer set search_path = '' as $$
-declare v_open_draw_id bigint;
-begin
-  select id into v_open_draw_id from public.draws
-  where status = 'open' and (opens_at is null or opens_at <= now())
-    and (closes_at is null or closes_at > now())
-  order by edition_number desc limit 1;
-  if v_open_draw_id is not null then
-    return exists (select 1 from public.participations
-      where draw_id = v_open_draw_id and profile_id = p_profile_id
-        and status = 'eligible' and completed_at is not null);
-  end if;
-  return exists (select 1 from public.participations
-    where profile_id = p_profile_id and completed_at is not null
-      and status in ('eligible','frozen','winner_provisional','winner_confirmed'));
-end; $$;
-revoke all on function public.can_profile_redeem_points(uuid) from public,anon,authenticated;
-grant execute on function public.can_profile_redeem_points(uuid) to service_role;
+-- Corrige la referencia a la configuracion privada usada al crear canjes.
 
 create or replace function public.create_point_redemption(p_profile_id uuid, p_reward_id bigint, p_points integer)
 returns jsonb language plpgsql security definer set search_path='' as $$
