@@ -19,6 +19,9 @@ const contentSecurityPolicy = `
 `.replace(/\s{2,}/g, " ").trim();
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "ubgpfafmcrtnsutzhmua.supabase.co", pathname: "/storage/v1/object/public/winner-deliveries/**" }],
+  },
   poweredByHeader: false,
   reactStrictMode: true,
   async headers() {

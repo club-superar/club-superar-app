@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { BottomNav } from "@/app/bottom-nav";
 
 type ParticipationHistory = {
   id: number;
@@ -115,6 +116,7 @@ export default async function ProfilePage() {
 
       <section className="profile-panel redemption-entry"><div><p className="eyebrow cyan">BENEFICIOS</p><h2>Usar mis SUPER Puntos</h2><p>Generá un QR o código y mostralo en caja. Solo se descuentan cuando el canje se confirma.</p></div><Link className="button primary" href="/canjes">Ver canjes</Link></section>
       <div className="profile-actions"><Link className="button primary" href="/">Ir al sorteo actual</Link><Link className="button secondary" href="/perfil/configuracion">Configuración</Link><form action={signOut}><button className="button secondary">Cerrar sesión</button></form></div>
+      <BottomNav active="perfil" signedIn />
     </main>
   );
 }

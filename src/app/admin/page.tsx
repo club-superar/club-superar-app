@@ -3,7 +3,7 @@ import { DrawForm } from "@/app/admin/draw-form";
 import { BadgeSettingsForm } from "@/app/admin/badge-settings-form";
 import { BrandingForm } from "@/app/admin/branding-form";
 import { LaunchSettingsForm } from "@/app/admin/launch-settings-form";
-import { freezeDraw, logoutAdmin, openDraw } from "@/app/admin/actions";
+import { deleteTestDraw, freezeDraw, logoutAdmin, openDraw } from "@/app/admin/actions";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
@@ -15,8 +15,9 @@ const statusLabels: Record<string, string> = {
   drawing: "Sorteando", winner_review: "Revisando ganador", completed: "Finalizado", cancelled: "Cancelado",
 };
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ notice?: string }> }) {
   const actorId = await requireAdminUserId();
+  const notice = (await searchParams).notice;
   const admin = createAdminSupabaseClient();
   const [drawResult, memberResult, winnerResult, disqualificationResult, streakResult, recentWinnerResult, badgeSettingsResult, brandingResult, featuresResult] = await Promise.all([
     admin.from("draws").select("id, edition_number, title, prize_name, prize_value, status, opens_at, closes_at, created_at").order("edition_number", { ascending: false }).limit(12),
@@ -53,6 +54,13 @@ export default async function AdminPage() {
         <form action={logoutAdmin}><button className="admin-logout">Salir</button></form>
       </header>
       <section className="admin-heading"><p className="eyebrow cyan">PANEL PRIVADO</p><h1>Sorteos</h1><p>Crea una edicion, revisala y abrila cuando este lista.</p><Link className="admin-members-link" href="/admin/miembros">Buscar y revisar miembros →</Link></section>
+      {notice === "no-participants" && <p className="admin-notice warning" role="status">No hay participantes completos para congelar. Podés revisar los pasos o eliminar este sorteo si era solo una prueba.</p>}
+      {notice === "freeze-error" && <p className="admin-notice error" role="alert">No pudimos cerrar el sorteo. Revisá su estado e intentá nuevamente.</p>}
+      {notice === "frozen" && <p className="admin-notice success" role="status">Sorteo cerrado y lista de participantes congelada correctamente.</p>}
+      {notice === "deleted" && <p className="admin-notice success" role="status">El sorteo de prueba y sus participaciones fueron eliminados. Las cuentas de los miembros se conservaron.</p>}
+      {notice === "delete-confirmation" && <p className="admin-notice warning" role="alert">Para borrar una prueba tenés que escribir BORRAR.</p>}
+      {notice === "delete-has-winner" && <p className="admin-notice error" role="alert">No se puede borrar una edición con un ganador confirmado.</p>}
+      {notice === "delete-error" && <p className="admin-notice error" role="alert">No pudimos borrar esa edición.</p>}
 
       <section className="admin-dashboard" aria-label="Resumen general">
         <article><small>MIEMBROS ACTIVOS</small><strong>{memberResult.count ?? 0}</strong><span>Total del Club</span></article>
@@ -95,7 +103,7 @@ export default async function AdminPage() {
           {(draws ?? []).map((draw) => (
             <article className="admin-draw" key={draw.id}>
               <div><small>EDICION #{String(draw.edition_number).padStart(3, "0")}</small><strong>{draw.title}</strong><span>{draw.prize_name}{draw.prize_value !== null ? ` - $${Number(draw.prize_value).toLocaleString("es-AR")}` : ""}</span></div>
-              <div className="admin-draw-actions"><span className={`status-pill status-${draw.status}`}>{statusLabels[draw.status] ?? draw.status}</span><Link href={`/admin/sorteos/${draw.id}`}>Participantes</Link>{draw.status === "draft" && <form action={openDraw}><input type="hidden" name="drawId" value={draw.id} /><button type="submit">Abrir sorteo</button></form>}{draw.status === "open" && <form action={freezeDraw}><input type="hidden" name="drawId" value={draw.id} /><button className="freeze-button" type="submit">Cerrar y congelar</button></form>}</div>
+              <div className="admin-draw-actions"><span className={`status-pill status-${draw.status}`}>{statusLabels[draw.status] ?? draw.status}</span><Link href={`/admin/sorteos/${draw.id}`}>Participantes</Link>{draw.status === "draft" && <form action={openDraw}><input type="hidden" name="drawId" value={draw.id} /><button type="submit">Abrir sorteo</button></form>}{draw.status === "open" && <form action={freezeDraw}><input type="hidden" name="drawId" value={draw.id} /><button className="freeze-button" type="submit">Cerrar y congelar</button></form>} {!['completed'].includes(draw.status) && <details className="delete-test-draw"><summary>Eliminar prueba</summary><form action={deleteTestDraw}><input type="hidden" name="drawId" value={draw.id} /><label>Escribí BORRAR para confirmar<input name="confirmation" required autoComplete="off" /></label><button type="submit">Eliminar este sorteo de prueba</button></form></details>}</div>
             </article>
           ))}
         </div>

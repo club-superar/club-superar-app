@@ -64,10 +64,10 @@ export async function loginParticipant(_: AuthState, formData: FormData): Promis
 
   const admin = createAdminSupabaseClient();
   const { data: profileId } = await admin.rpc("resolve_participant_login", { p_username: username });
-  if (!profileId || typeof profileId !== "string") return { error: "El usuario o el cÃ³digo no coinciden." };
+  if (!profileId || typeof profileId !== "string") return { error: "El usuario o el código no coinciden." };
   const { data: authUser, error: userError } = await admin.auth.admin.getUserById(profileId);
   const internalEmail = authUser.user?.email;
-  if (userError || !internalEmail) return { error: "El usuario o el cÃ³digo no coinciden." };
+  if (userError || !internalEmail) return { error: "El usuario o el código no coinciden." };
 
   const supabase = await createServerSupabaseClient();
   const { error } = await supabase.auth.signInWithPassword({

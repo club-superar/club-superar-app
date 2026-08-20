@@ -4,6 +4,7 @@ import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { RedemptionForm } from "./redemption-form";
 import { cancelRedemption } from "./actions";
+import { BottomNav } from "@/app/bottom-nav";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,7 @@ export default async function RedemptionsPage() {
       <header className="topbar"><Link className="brand" href="/">SUPER<span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link><Link className="profile-back" href="/perfil">← Mi perfil</Link></header>
       <section className="profile-heading"><p className="eyebrow cyan">BENEFICIOS</p><h1>Canjes</h1><p>Tenés <strong>{balance} SUPER Puntos</strong>.</p></section>
       <section className="coming-soon-card"><span aria-hidden="true">✦</span><p className="eyebrow cyan">MUY PRONTO</p><h2>Se vienen los canjes SUPER.AR</h2><p>Seguí participando y acumulando puntos. Cuando habilitemos los canjes, vas a poder usarlos en beneficios del local.</p><Link className="button primary" href="/">Ir al sorteo actual</Link><Link className="text-link" href="/como-funciona">Conocer cómo funciona el Club</Link></section>
+      <BottomNav active="canjes" signedIn />
     </main>
   );
 
@@ -111,6 +113,7 @@ export default async function RedemptionsPage() {
           </div>
         )}
       </section>
+      <BottomNav active="canjes" signedIn />
     </main>
   );
 }

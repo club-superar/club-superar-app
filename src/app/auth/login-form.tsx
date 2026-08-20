@@ -11,9 +11,9 @@ export function LoginForm({ instagramUrl }: { instagramUrl: string }) {
       <h1>Volvé a entrar</h1>
       <p>Usá tu usuario actual o uno anterior, junto con el código que guardaste al registrarte.</p>
       <label htmlFor="instagram">Usuario de Instagram</label>
-      <div className="input-prefix"><span>@</span><input id="instagram" name="instagram" autoCapitalize="none" autoCorrect="off" placeholder="tu.usuario" required /></div>
+      <div className="input-prefix"><span>@</span><input id="instagram" name="instagram" autoComplete="username" autoCapitalize="none" autoCorrect="off" placeholder="tu.usuario" required /></div>
       <label htmlFor="recoveryCode">Código de recuperación</label>
-      <input className="text-input code-input" id="recoveryCode" name="recoveryCode" autoCapitalize="characters" autoCorrect="off" placeholder="SUPER-XXXXX-XXXXX" required />
+      <input className="text-input code-input" id="recoveryCode" name="recoveryCode" autoComplete="current-password" autoCapitalize="characters" autoCorrect="off" placeholder="SUPER-XXXXX-XXXXX" required />
       {state.error && <p className="form-error" role="alert">{state.error}</p>}
       <button className="button primary" disabled={pending}>{pending ? "Ingresando..." : "Ingresar"}</button>
       <details className="recovery-help">

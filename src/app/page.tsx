@@ -1,7 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
-import { declareRequirement, startParticipation } from "@/app/participation/actions";
+import { BottomNav } from "@/app/bottom-nav";
+import { AutoStartParticipation } from "@/app/participation/auto-start";
+import { declareRequirement } from "@/app/participation/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -62,6 +65,7 @@ type PublicWinner = {
     prize_value: number | null;
     currency_code: string;
   };
+  winner_deliveries: { description: string; delivered_at: string; photo_path: string; photo_subject: string } | null;
 };
 
 const automaticRequirements = new Set(["comment_and_tag", "share_story"]);
@@ -100,7 +104,8 @@ export default async function Home() {
   const drawPromise = supabase
     .from("draws")
     .select("id, edition_number, title, prize_name, prize_value, currency_code, status, closes_at, draw_requirements(id, requirement_key, title, instructions, action_url, required, points, display_order)")
-    .in("status", ["scheduled", "open"])
+    .neq("status", "draft")
+    .neq("status", "cancelled")
     .order("edition_number", { ascending: false })
     .limit(1)
     .maybeSingle();
@@ -113,7 +118,7 @@ export default async function Home() {
     : Promise.resolve({ data: [] });
   const winnersPromise = supabase
     .from("winners")
-    .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code)")
+    .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code), winner_deliveries(description, delivered_at, photo_path, photo_subject)")
     .order("confirmed_at", { ascending: false })
     .limit(20);
   const brandingPromise = supabase.rpc("get_public_branding");
@@ -163,6 +168,12 @@ export default async function Home() {
   const requiredCount = completions.filter((item) => item.draw_requirements.required).length;
   const missingCount = completions.filter((item) => item.draw_requirements.required && !isRequirementComplete(item)).length;
   const progress = requiredCount === 0 ? 0 : Math.round((completedCount / requiredCount) * 100);
+  const closesAt = draw?.closes_at ? new Date(draw.closes_at).getTime() : null;
+  // This dynamic Server Component needs the request time to avoid offering participation after closing.
+  // eslint-disable-next-line react-hooks/purity
+  const isOpen = draw?.status === "open" && (closesAt === null || closesAt > Date.now());
+  const isClosedPending = Boolean(draw) && !isOpen && draw?.status !== "completed";
+  const isCompleted = draw?.status === "completed";
 
   return (
     <main className="app-shell">
@@ -198,7 +209,7 @@ export default async function Home() {
             <div><p className="eyebrow cyan">SORTEO #{String(draw.edition_number).padStart(3, "0")}</p><h2>{draw.title}</h2></div>
             <strong className="prize">{formatPrize(draw)}</strong>
           </div>
-          {draw.closes_at ? <Countdown closesAt={draw.closes_at} /> : <p className="draw-date-pending">Fecha de cierre a confirmar.</p>}
+          {isOpen && draw.closes_at ? <Countdown closesAt={draw.closes_at} /> : isCompleted ? <p className="draw-closed">Sorteo finalizado. Consultá el ganador en el historial.</p> : isClosedPending ? <p className="draw-closed">Participación cerrada. Estamos preparando el sorteo.</p> : <p className="draw-date-pending">Fecha de cierre a confirmar.</p>}
         </section>
       ) : (
         <section className="draw-card empty-draw" id="sorteos">
@@ -208,19 +219,9 @@ export default async function Home() {
         </section>
       )}
 
-      {draw && username && draw.status === "open" && !participation && (
-        <section className="start-card">
-          <p className="eyebrow cyan">SORTEO ABIERTO</p>
-          <h2>Activa tu participacion</h2>
-          <p>Te daremos tu codigo unico para esta edicion y podras completar los pasos.</p>
-          <form action={startParticipation}>
-            <input type="hidden" name="drawId" value={draw.id} />
-            <button className="button primary" type="submit">Participar ahora</button>
-          </form>
-        </section>
-      )}
+      {draw && username && isOpen && !participation && <AutoStartParticipation drawId={draw.id} />}
 
-      {draw && !username && draw.status === "open" && (
+      {draw && !username && isOpen && (
         <section className="start-card">
           <h2>Ingresa para participar</h2>
           <p>Crea tu cuenta con tu usuario de Instagram o entra con tu codigo de recuperacion.</p>
@@ -228,7 +229,7 @@ export default async function Home() {
         </section>
       )}
 
-      {participation && (
+      {participation && isOpen && (
         <section className="checklist">
           <div className="section-title">
             <div><p className="eyebrow">TU PARTICIPACION</p><h2>{missingCount === 0 ? "¡Estas participando!" : `Te ${missingCount === 1 ? "falta" : "faltan"} ${missingCount} ${missingCount === 1 ? "paso" : "pasos"}`}</h2></div>
@@ -271,7 +272,7 @@ export default async function Home() {
         </section>
       )}
 
-      {participation && (
+      {participation && isOpen && (
         <aside className="bonus extra-actions">
           <span aria-hidden="true">⚡</span>
           <div className="extra-actions-content">
@@ -299,7 +300,8 @@ export default async function Home() {
         ) : (
           <div className="winner-list">
             {winners.map((winner) => (
-              <Link className="winner-public-link" href={`/miembro/${encodeURIComponent(winner.instagram_username)}`} key={winner.draw_id}>
+              <article className="winner-history-card" key={winner.draw_id}>
+              <Link className="winner-public-link" href={`/miembro/${encodeURIComponent(winner.instagram_username)}`}>
                 <div className="winner-trophy" aria-hidden="true">♕</div>
                 <div>
                   <small>SORTEO #{String(winner.draws.edition_number).padStart(3, "0")}</small>
@@ -310,6 +312,8 @@ export default async function Home() {
                   {Array.from({ length: Math.min(winnerCounts[winner.instagram_username], 5) }, (_, index) => <span key={index}>🏆</span>)}
                 </div>
               </Link>
+              {winner.winner_deliveries && <div className="winner-delivery-proof"><Image unoptimized width={110} height={86} src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/winner-deliveries/${winner.winner_deliveries.photo_path}`} alt={winner.winner_deliveries.photo_subject === "winner" ? `Entrega del premio a @${winner.instagram_username}` : `Premio entregado en el sorteo ${winner.draws.edition_number}`} /><div><strong>Premio entregado</strong><p>{winner.winner_deliveries.description}</p><small>{new Intl.DateTimeFormat("es-AR").format(new Date(winner.winner_deliveries.delivered_at))}</small></div></div>}
+              </article>
             ))}
           </div>
         )}
@@ -320,12 +324,7 @@ export default async function Home() {
         <span><Link href="/admin/ingresar">Administración</Link>{branding.visible !== false && <a href={branding.creator_url} target="_blank" rel="noreferrer">{branding.creator_text}</a>}</span>
       </footer>
 
-      <nav className="bottom-nav" aria-label="Navegacion principal">
-        <Link className="active" href="/"><span>⌂</span>Inicio</Link>
-        <Link href="/#sorteos"><span>◇</span>Sorteos</Link>
-        <Link href={username ? "/canjes" : "/ingresar"}><span>◈</span>Canjes</Link>
-        <Link href={username ? "/perfil" : "/ingresar"}><span>○</span>Mi perfil</Link>
-      </nav>
+      <BottomNav active="inicio" signedIn={Boolean(username)} />
     </main>
   );
 }
