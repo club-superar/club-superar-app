@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { UsernameForm } from "../username-form";
+import { BottomNav } from "@/app/bottom-nav";
 
 export default async function ProfileSettingsPage() {
   const supabase = await createServerSupabaseClient();
@@ -28,6 +29,7 @@ export default async function ProfileSettingsPage() {
         <p>Administrá los datos que usás para ingresar al Club SUPER.AR.</p>
       </section>
       <section className="profile-panel"><UsernameForm currentUsername={profile.instagram_username} /></section>
+      <BottomNav active="perfil" signedIn />
     </main>
   );
 }

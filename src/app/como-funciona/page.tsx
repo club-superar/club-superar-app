@@ -1,13 +1,17 @@
 import Link from "next/link";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { BottomNav } from "@/app/bottom-nav";
+import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 export default async function HowItWorksPage() {
   const admin = createAdminSupabaseClient();
-  const [{ data: settingsData }, { data: draw }] = await Promise.all([
+  const supabase = await createServerSupabaseClient();
+  const [{ data: settingsData }, { data: draw }, { data: claimsData }] = await Promise.all([
     admin.rpc("get_club_public_settings"),
     admin.from("draws").select("edition_number,title,prize_name,max_base_chances,max_extra_chances,closes_at").in("status", ["scheduled", "open"]).order("edition_number", { ascending: false }).limit(1).maybeSingle(),
+    supabase.auth.getClaims(),
   ]);
   const settings = (settingsData ?? {}) as { loyal_streak?: number; legend_points?: number; help_instagram_url?: string; redemptions_enabled?: boolean };
   const helpUrl = /^https:\/\/(www\.)?instagram\.com\//i.test(settings.help_instagram_url ?? "") ? settings.help_instagram_url! : "https://www.instagram.com/";
@@ -26,5 +30,6 @@ export default async function HowItWorksPage() {
     </section>
     <section className="rules-card"><p className="eyebrow cyan">REGLAS DEL SORTEO</p>{draw ? <><h2>Sorteo #{String(draw.edition_number).padStart(3, "0")}: {draw.title}</h2><ul><li>Premio: {draw.prize_name}.</li><li>Se necesita completar todos los requisitos obligatorios.</li><li>Máximo de {totalChances} chances según la configuración actual.</li><li>Antes de confirmar al ganador, SUPER.AR vuelve a revisar los requisitos.</li>{draw.closes_at && <li>Cierra el {new Intl.DateTimeFormat("es-AR", { dateStyle: "long", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(draw.closes_at))}.</li>}</ul></> : <><h2>Próxima edición</h2><p>Las fechas, el premio y los límites aparecerán acá cuando se publique el próximo sorteo.</p></>}</section>
     <section className="help-card"><div><p className="eyebrow cyan">AYUDA</p><h2>¿Te quedó alguna duda?</h2><p>Escribinos al Instagram oficial y te ayudamos.</p></div><a className="button primary" href={helpUrl} target="_blank" rel="noreferrer">Contactar a SUPER.AR</a></section>
+    <BottomNav active="inicio" signedIn={Boolean(claimsData?.claims?.sub)} />
   </main>;
 }
