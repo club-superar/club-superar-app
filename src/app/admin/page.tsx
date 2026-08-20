@@ -103,7 +103,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
           {(draws ?? []).map((draw) => (
             <article className="admin-draw" key={draw.id}>
               <div><small>EDICION #{String(draw.edition_number).padStart(3, "0")}</small><strong>{draw.title}</strong><span>{draw.prize_name}{draw.prize_value !== null ? ` - $${Number(draw.prize_value).toLocaleString("es-AR")}` : ""}</span></div>
-              <div className="admin-draw-actions"><span className={`status-pill status-${draw.status}`}>{statusLabels[draw.status] ?? draw.status}</span><Link href={`/admin/sorteos/${draw.id}`}>Participantes</Link>{draw.status === "draft" && <form action={openDraw}><input type="hidden" name="drawId" value={draw.id} /><button type="submit">Abrir sorteo</button></form>}{draw.status === "open" && <form action={freezeDraw}><input type="hidden" name="drawId" value={draw.id} /><button className="freeze-button" type="submit">Cerrar y congelar</button></form>} {!['completed'].includes(draw.status) && <details className="delete-test-draw"><summary>Eliminar prueba</summary><form action={deleteTestDraw}><input type="hidden" name="drawId" value={draw.id} /><label>Escribí BORRAR para confirmar<input name="confirmation" required autoComplete="off" /></label><button type="submit">Eliminar este sorteo de prueba</button></form></details>}</div>
+              <div className="admin-draw-actions"><span className={`status-pill status-${draw.status}`}>{statusLabels[draw.status] ?? draw.status}</span><Link href={`/admin/sorteos/${draw.id}`}>Participantes</Link>{draw.status === "draft" && <form action={openDraw}><input type="hidden" name="drawId" value={draw.id} /><button type="submit">Abrir sorteo</button></form>}{draw.status === "open" && <form action={freezeDraw}><input type="hidden" name="drawId" value={draw.id} /><button className="freeze-button" type="submit">Cerrar y congelar</button></form>}<details className="delete-test-draw"><summary>Eliminar prueba</summary><form action={deleteTestDraw}><input type="hidden" name="drawId" value={draw.id} /><label>Escribí BORRAR para confirmar<input name="confirmation" required autoComplete="off" /></label><button type="submit">Eliminar este sorteo de prueba</button></form></details></div>
             </article>
           ))}
         </div>
@@ -111,3 +111,4 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
     </main>
   );
 }
+

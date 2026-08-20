@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
 import { BottomNav } from "@/app/bottom-nav";
@@ -65,7 +64,6 @@ type PublicWinner = {
     prize_value: number | null;
     currency_code: string;
   };
-  winner_deliveries: { description: string; delivered_at: string; photo_path: string; photo_subject: string } | null;
 };
 
 const automaticRequirements = new Set(["comment_and_tag", "share_story"]);
@@ -118,7 +116,7 @@ export default async function Home() {
     : Promise.resolve({ data: [] });
   const winnersPromise = supabase
     .from("winners")
-    .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code), winner_deliveries(description, delivered_at, photo_path, photo_subject)")
+    .select("draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number, prize_name, prize_value, currency_code)")
     .order("confirmed_at", { ascending: false })
     .limit(20);
   const brandingPromise = supabase.rpc("get_public_branding");
@@ -312,7 +310,6 @@ export default async function Home() {
                   {Array.from({ length: Math.min(winnerCounts[winner.instagram_username], 5) }, (_, index) => <span key={index}>🏆</span>)}
                 </div>
               </Link>
-              {winner.winner_deliveries && <div className="winner-delivery-proof"><Image unoptimized width={110} height={86} src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/winner-deliveries/${winner.winner_deliveries.photo_path}`} alt={winner.winner_deliveries.photo_subject === "winner" ? `Entrega del premio a @${winner.instagram_username}` : `Premio entregado en el sorteo ${winner.draws.edition_number}`} /><div><strong>Premio entregado</strong><p>{winner.winner_deliveries.description}</p><small>{new Intl.DateTimeFormat("es-AR").format(new Date(winner.winner_deliveries.delivered_at))}</small></div></div>}
               </article>
             ))}
           </div>
@@ -328,3 +325,4 @@ export default async function Home() {
     </main>
   );
 }
+

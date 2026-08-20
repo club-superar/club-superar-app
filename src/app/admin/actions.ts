@@ -287,6 +287,7 @@ export async function deleteTestDraw(formData: FormData) {
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("admin_delete_test_draw", { p_actor_id: actorId, p_draw_id: drawId });
   if (error) redirect(`/admin?notice=${error.message.includes("DRAW_HAS_WINNER") ? "delete-has-winner" : "delete-error"}`);
+  await admin.storage.from("winner-deliveries").remove([`draw-${drawId}.webp`]);
   revalidatePath("/");
   revalidatePath("/admin");
   redirect("/admin?notice=deleted");
@@ -659,3 +660,4 @@ export async function saveWinnerDelivery(_: DeliveryState, formData: FormData): 
   revalidatePath(`/admin/sorteos/${drawId}`);
   return { success: true };
 }
+
