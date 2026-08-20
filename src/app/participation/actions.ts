@@ -12,18 +12,26 @@ async function requireUserId() {
   if (error || !userId) redirect("/ingresar");
   return userId;
 }
-export async function startParticipation(formData: FormData) {
+export async function startParticipation(formData: FormData): Promise<{ ok: boolean }> {
   const userId = await requireUserId();
   const drawId = Number(formData.get("drawId"));
-  if (!Number.isSafeInteger(drawId) || drawId <= 0) return;
+  if (!Number.isSafeInteger(drawId) || drawId <= 0) return { ok: false };
 
   const admin = createAdminSupabaseClient();
   const { error } = await admin.rpc("start_draw_participation", {
     p_user_id: userId,
     p_draw_id: drawId,
   });
-  if (error) throw new Error("No pudimos iniciar la participacion.");
+  if (error) {
+    console.error("[participation:start] Supabase rejected participation", {
+      drawId,
+      code: error.code,
+      message: error.message,
+    });
+    return { ok: false };
+  }
   revalidatePath("/");
+  return { ok: true };
 }
 
 export async function declareRequirement(formData: FormData) {
