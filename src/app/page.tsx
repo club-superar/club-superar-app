@@ -3,7 +3,8 @@ import { AdminInviteRedirect } from "@/app/admin/invite-redirect";
 import { Countdown } from "@/app/countdown";
 import { BottomNav } from "@/app/bottom-nav";
 import { AutoStartParticipation } from "@/app/participation/auto-start";
-import { declareRequirement } from "@/app/participation/actions";\nimport { RefreshParticipationStatus } from "@/app/participation/refresh-status";
+import { declareRequirement } from "@/app/participation/actions";
+import { RefreshParticipationStatus } from "@/app/participation/refresh-status";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -272,7 +273,8 @@ export default async function Home() {
               );
             })}
           </div>
-          {missingCount === 0 && <p className="eligible-note">Guardamos tu participacion. Antes de entregar el premio, SUPER.AR comprobara los requisitos del ganador.</p>}\n          <RefreshParticipationStatus />
+          {missingCount === 0 && <p className="eligible-note">Guardamos tu participacion. Antes de entregar el premio, SUPER.AR comprobara los requisitos del ganador.</p>}
+          <RefreshParticipationStatus />
         </section>
       )}
 
