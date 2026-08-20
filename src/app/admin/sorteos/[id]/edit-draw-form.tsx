@@ -48,11 +48,11 @@ export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
           <legend>Chances y límites</legend>
           <div className="admin-rule-grid">
             <p className="admin-rule-note full">Los requisitos y las acciones extra suman chances, no SUPER Puntos.</p>
-            <div className="admin-field"><label htmlFor="editNonWinnerPoints">Puntos por participar y no ganar</label><input id="editNonWinnerPoints" name="nonWinnerPoints" type="number" min="0" max="100" defaultValue={draw.nonWinnerPoints} required /></div>
-            <div className="admin-field"><label htmlFor="editBaseChances">Máximo por racha</label><input id="editBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue={draw.maxBaseChances} required /></div>
-            <div className="admin-field"><label htmlFor="editExtraChances">Máximo de extras</label><input id="editExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue={draw.maxExtraChances} required /></div>
-            <div className="admin-field"><label htmlFor="editWinnerPercent">Chances después de ganar (%)</label><input id="editWinnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue={draw.winnerPercent} required /></div>
-            <div className="admin-field"><label htmlFor="editClaimHours">Horas para reclamar</label><input id="editClaimHours" name="claimHours" type="number" min="1" max="168" defaultValue={draw.claimHours} required /></div>
+            <div className="admin-field"><label htmlFor="editNonWinnerPoints">Puntos por participar y no ganar</label><input id="editNonWinnerPoints" name="nonWinnerPoints" type="number" min="0" max="100" defaultValue={draw.nonWinnerPoints} required /><small>Se entregan al finalizar únicamente a quienes completaron el sorteo y no ganaron.</small></div>
+            <div className="admin-field"><label htmlFor="editBaseChances">Máximo de chances base con racha</label><input id="editBaseChances" name="maxBaseChances" type="number" min="4" max="6" defaultValue={draw.maxBaseChances} required /><small>Empieza en 4 y puede subir hasta 6 por participar en sorteos consecutivos.</small></div>
+            <div className="admin-field"><label htmlFor="editExtraChances">Máximo de chances extras</label><input id="editExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue={draw.maxExtraChances} required /><small>Una por etiqueta adicional y otra por compartir una publicación diferente.</small></div>
+            <div className="admin-field"><label htmlFor="editWinnerPercent">Chances conservadas después de ganar (%)</label><input id="editWinnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue={draw.winnerPercent} required /><small>El ganador anterior conserva solo este porcentaje en la próxima edición.</small></div>
+            <div className="admin-field"><label htmlFor="editClaimHours">Tiempo para reclamar el premio</label><input id="editClaimHours" name="claimHours" type="number" min="1" max="168" defaultValue={draw.claimHours} required /><small>Cantidad de horas antes de poder pasar al ganador suplente.</small></div>
           </div>
         </fieldset>
         {state.error && <p className="form-error full" role="alert">{state.error}</p>}
@@ -62,3 +62,4 @@ export function EditDrawForm({ draw, urls }: EditDrawFormProps) {
     </details>
   );
 }
+

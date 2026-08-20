@@ -22,11 +22,11 @@ export function DrawForm() {
         <p>Quedan congeladas en este sorteo. Podés usar otros valores en la próxima edición.</p>
         <div className="admin-rule-grid">
           <p className="admin-rule-note full">Completar los requisitos habilita las chances. Los SUPER Puntos se configurarán aparte y no se entregan por cada paso.</p>
-          <div className="admin-field"><label htmlFor="nonWinnerPoints">Puntos por participar y no ganar</label><input id="nonWinnerPoints" name="nonWinnerPoints" type="number" min="0" max="100" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="maxBaseChances">Máximo por racha</label><input id="maxBaseChances" name="maxBaseChances" type="number" min="2" max="6" defaultValue="6" required /></div>
-          <div className="admin-field"><label htmlFor="maxExtraChances">Máximo de extras</label><input id="maxExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue="2" required /></div>
-          <div className="admin-field"><label htmlFor="winnerPercent">Chances después de ganar (%)</label><input id="winnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue="25" required /></div>
-          <div className="admin-field"><label htmlFor="claimHours">Horas para reclamar</label><input id="claimHours" name="claimHours" type="number" min="1" max="168" defaultValue="24" required /></div>
+          <div className="admin-field"><label htmlFor="nonWinnerPoints">Puntos por participar y no ganar</label><input id="nonWinnerPoints" name="nonWinnerPoints" type="number" min="0" max="100" defaultValue="2" required /><small>Se entregan al finalizar únicamente a quienes completaron el sorteo y no ganaron.</small></div>
+          <div className="admin-field"><label htmlFor="maxBaseChances">Máximo de chances base con racha</label><input id="maxBaseChances" name="maxBaseChances" type="number" min="4" max="6" defaultValue="6" required /><small>Empieza en 4 y puede subir hasta 6 por participar en sorteos consecutivos.</small></div>
+          <div className="admin-field"><label htmlFor="maxExtraChances">Máximo de chances extras</label><input id="maxExtraChances" name="maxExtraChances" type="number" min="0" max="2" defaultValue="2" required /><small>Una por etiqueta adicional y otra por compartir una publicación diferente.</small></div>
+          <div className="admin-field"><label htmlFor="winnerPercent">Chances conservadas después de ganar (%)</label><input id="winnerPercent" name="winnerPercent" type="number" min="0" max="100" defaultValue="25" required /><small>El ganador anterior conserva solo este porcentaje en la próxima edición.</small></div>
+          <div className="admin-field"><label htmlFor="claimHours">Tiempo para reclamar el premio</label><input id="claimHours" name="claimHours" type="number" min="1" max="168" defaultValue="24" required /><small>Cantidad de horas antes de poder pasar al ganador suplente.</small></div>
         </div>
       </fieldset>
       {state.error && <p className="form-error full" role="alert">{state.error}</p>}
@@ -35,3 +35,4 @@ export function DrawForm() {
     </form>
   );
 }
+
