@@ -13,8 +13,18 @@ type PublicBadge = {
 type PublicWin = {
   id: number;
   confirmed_at: string;
-  draws: { edition_number: number; prize_name: string };
+  draws: { edition_number: number; prize_name: string; prize_value: number | null; currency_code: string };
 };
+
+function formatPrize(win: PublicWin) {
+  if (win.draws.prize_value === null) return win.draws.prize_name;
+  const value = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: win.draws.currency_code,
+    maximumFractionDigits: 0,
+  }).format(win.draws.prize_value);
+  return `${win.draws.prize_name} · ${value}`;
+}
 
 export default async function PublicMemberPage({ params }: PublicMemberPageProps) {
   const normalized = (await params).username.trim().toLowerCase().replace(/^@/, "");
@@ -34,7 +44,7 @@ export default async function PublicMemberPage({ params }: PublicMemberPageProps
   const [{ count: participationCount }, badgeResult, winResult] = await Promise.all([
     admin.from("participations").select("id", { count: "exact", head: true }).eq("profile_id", profile.id),
     admin.from("profile_badges").select("id, awarded_at, badge_definitions!inner(badge_key, name, description, icon)").eq("profile_id", profile.id).order("awarded_at", { ascending: false }),
-    admin.from("winners").select("id, confirmed_at, draws!inner(edition_number, prize_name)").eq("profile_id", profile.id).order("confirmed_at", { ascending: false }),
+    admin.from("winners").select("id, confirmed_at, draws!inner(edition_number, prize_name, prize_value, currency_code)").eq("profile_id", profile.id).order("confirmed_at", { ascending: false }),
   ]);
   const badges = (badgeResult.data ?? []) as unknown as PublicBadge[];
   const wins = (winResult.data ?? []) as unknown as PublicWin[];
@@ -69,7 +79,7 @@ export default async function PublicMemberPage({ params }: PublicMemberPageProps
       {wins.length > 0 && (
         <section className="profile-panel">
           <div className="profile-section-title"><div><p className="eyebrow cyan">HISTORIAL</p><h2>Sorteos ganados</h2></div><span>{wins.length}</span></div>
-          <div className="public-member-wins">{wins.map((win) => <article key={win.id}><div className="public-win-summary"><span>🏆</span><div><small>SORTEO #{String(win.draws.edition_number).padStart(3, "0")}</small><strong>{win.draws.prize_name}</strong></div></div></article>)}</div>
+          <div className="public-member-wins">{wins.map((win) => <article key={win.id}><div className="public-win-summary"><span>🏆</span><div><small>SORTEO #{String(win.draws.edition_number).padStart(3, "0")}</small><strong>{formatPrize(win)}</strong></div></div></article>)}</div>
         </section>
       )}
 
