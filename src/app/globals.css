@@ -63,6 +63,9 @@ button { cursor: pointer; }
 .participant-code small { color: var(--muted); font-size: 9px; letter-spacing: 1.2px; }
 .participant-code strong { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 23px; }
 .participant-code span { color: var(--muted); font-size: 10px; }
+.participant-code-row { display: flex; align-items: center; justify-content: center; gap: 10px; min-width: 0; }
+.copy-code-button { min-height: 36px; padding: 0 12px; border: 1px solid var(--cyan); border-radius: 10px; background: var(--cyan-soft); color: var(--cyan); font-size: 10px; font-weight: 950; white-space: nowrap; }
+.copy-code-button:active { transform: scale(.97); }
 .participation-refresh { display: grid; gap: 7px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); text-align: center; }
 .participation-refresh button { width: 100%; min-height: 48px; border: 1px solid var(--cyan); border-radius: 13px; background: var(--cyan-soft); color: var(--cyan); font-size: 13px; font-weight: 950; }
 .participation-refresh button:disabled { cursor: wait; opacity: .7; }
