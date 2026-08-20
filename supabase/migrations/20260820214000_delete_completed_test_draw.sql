@@ -19,8 +19,6 @@ begin
   values (p_actor_id, 'draw.test_deleted', 'draw', p_draw_id::text, to_jsonb(v_draw));
 
   delete from public.winner_deliveries where draw_id = p_draw_id;
-  delete from public.generated_assets
-    where winner_id in (select id from public.winners where draw_id = p_draw_id);
   delete from public.winners where draw_id = p_draw_id;
   delete from public.disqualifications where draw_id = p_draw_id;
   delete from public.draw_attempts where draw_id = p_draw_id;
