@@ -30,9 +30,9 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
     }, 1000);
     let index = 0;
     const ticker = window.setInterval(() => {
-      index = (index + 7) % Math.max(candidates.length, 1);
+      index = (index + 1) % Math.max(candidates.length, 1);
       setRollingName(candidates[index] ?? winner);
-    }, 90);
+    }, 180);
     const revealTimer = window.setTimeout(() => {
       window.clearInterval(countdownTimer);
       window.clearInterval(ticker);
@@ -51,7 +51,13 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
     <section className={`draw-reveal${animate && !revealed ? " is-animating" : ""}`} aria-live="polite">
       <p className="eyebrow cyan">INTENTO #{attemptNumber}</p>
       {countdown > 0 ? (
-        <strong className="draw-countdown">{countdown}</strong>
+        <div className="draw-animation">
+          <strong className="draw-countdown">{countdown}</strong>
+          <div className="draw-rolling">
+            <small>LAS CHANCES ESTÁN GIRANDO...</small>
+            <strong key={rollingName}>@{rollingName}</strong>
+          </div>
+        </div>
       ) : revealed ? (
         <div className="draw-winner">
           <span>🎉</span>

@@ -94,6 +94,16 @@ function formatPrize(draw: Draw) {
   }).format(draw.prize_value);
 }
 
+function formatWinnerPrize(winner: PublicWinner) {
+  if (winner.draws.prize_value === null) return winner.draws.prize_name;
+  const value = new Intl.NumberFormat("es-AR", {
+    style: "currency",
+    currency: winner.draws.currency_code,
+    maximumFractionDigits: 0,
+  }).format(winner.draws.prize_value);
+  return `${winner.draws.prize_name} · ${value}`;
+}
+
 export default async function Home() {
   const supabase = await createServerSupabaseClient();
   const { data: claimData } = await supabase.auth.getClaims();
@@ -297,10 +307,10 @@ export default async function Home() {
               <article className="winner-history-card" key={winner.draw_id}>
               <Link className="winner-public-link" href={`/miembro/${encodeURIComponent(winner.instagram_username)}`}>
                 <div className="winner-trophy" aria-hidden="true">🏆</div>
-                <div>
+                <div className="winner-public-copy">
                   <small>SORTEO #{String(winner.draws.edition_number).padStart(3, "0")}</small>
                   <strong>@{winner.instagram_username}</strong>
-                  <span>{winner.draws.prize_name}</span>
+                  <span>{formatWinnerPrize(winner)}</span>
                 </div>
               </Link>
               </article>
