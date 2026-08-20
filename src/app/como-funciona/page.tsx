@@ -15,13 +15,13 @@ export default async function HowItWorksPage() {
   ]);
   const settings = (settingsData ?? {}) as { loyal_streak?: number; legend_points?: number; help_instagram_url?: string; redemptions_enabled?: boolean };
   const helpUrl = /^https:\/\/(www\.)?instagram\.com\//i.test(settings.help_instagram_url ?? "") ? settings.help_instagram_url! : "https://www.instagram.com/";
-  const totalChances = Number(draw?.max_base_chances ?? 4) + Number(draw?.max_extra_chances ?? 1);
+  const totalChances = Number(draw?.max_base_chances ?? 6) + Number(draw?.max_extra_chances ?? 2);
 
   return <main className="info-shell">
     <header className="topbar"><Link className="brand" href="/">SUPER<span className="brand-dot">.</span><span className="brand-ar">AR</span><small>CLUB</small></Link><Link className="profile-back" href="/">← Inicio</Link></header>
     <section className="info-hero"><p className="eyebrow cyan">GUÍA RÁPIDA</p><h1>¿Cómo funciona el Club?</h1><p>Todo lo importante, explicado fácil y sin vueltas.</p></section>
     <section className="info-grid">
-      <details open><summary><span>🎟</span><strong>Chances</strong></summary><p>Son tus oportunidades para salir sorteado. Completá todos los pasos para obtener las chances base y sumá extras etiquetando a otra persona o compartiendo otra publicación. En la edición actual podés llegar hasta {totalChances}.</p></details>
+      <details open><summary><span>🎟</span><strong>Chances</strong></summary><p>Completá todos los pasos y obtené 4 chances. Podés sumar 2 extras con las acciones adicionales y hasta 2 más por tu racha. El máximo es de {totalChances} chances.</p></details>
       <details><summary><span>🔥</span><strong>Rachas</strong></summary><p>Tu racha aumenta cuando participás correctamente en sorteos consecutivos. Si dejás pasar una edición, la racha vuelve a empezar.</p></details>
       <details><summary><span>★</span><strong>SUPER Puntos</strong></summary><p>Se acumulan al participar y, más adelante, con misiones y compras validadas. Los puntos no reemplazan las chances: sirven para obtener beneficios.</p></details>
       <details><summary><span>🏅</span><strong>Insignias</strong></summary><p>Conseguís “Fiel” al alcanzar {Number(settings.loyal_streak ?? 3)} sorteos consecutivos. “Leyenda SUPER.AR” se obtiene al llegar a {Number(settings.legend_points ?? 1000).toLocaleString("es-AR")} SUPER Puntos.</p></details>
@@ -33,3 +33,4 @@ export default async function HowItWorksPage() {
     <BottomNav active="inicio" signedIn={Boolean(claimsData?.claims?.sub)} />
   </main>;
 }
+
