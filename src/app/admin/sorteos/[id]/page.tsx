@@ -5,7 +5,6 @@ import { DrawReveal } from "@/app/admin/sorteos/[id]/draw-reveal";
 import { EditDrawForm } from "@/app/admin/sorteos/[id]/edit-draw-form";
 import { WinnerCardGenerator } from "@/app/admin/sorteos/[id]/winner-card-generator";
 import { WinnerShareTools } from "@/app/admin/sorteos/[id]/winner-share-tools";
-import { DeliveryProofForm } from "@/app/admin/sorteos/[id]/delivery-proof-form";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
@@ -194,7 +193,6 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
                 )}
                 {winner.claim_status === "claimed" && <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="fulfilled" /><button type="submit">Confirmar entrega del premio</button></form>}
               </section>
-              <DeliveryProofForm drawId={draw.id} winnerId={winner.id} />
             </>
           )}
         </>
@@ -301,3 +299,4 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
     </main>
   );
 }
+

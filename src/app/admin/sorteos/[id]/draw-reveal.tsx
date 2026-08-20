@@ -48,7 +48,7 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
   }, [animate, candidates, winner]);
 
   return (
-    <section className="draw-reveal" aria-live="polite">
+    <section className={`draw-reveal${animate && !revealed ? " is-animating" : ""}`} aria-live="polite">
       <p className="eyebrow cyan">INTENTO #{attemptNumber}</p>
       {countdown > 0 ? (
         <strong className="draw-countdown">{countdown}</strong>
@@ -61,10 +61,11 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
         </div>
       ) : (
         <div className="draw-rolling">
-          <small>BUSCANDO ENTRE HAS CHANCES...</small>
+          <small>BUSCANDO ENTRE LAS CHANCES...</small>
           <strong>@{rollingName}</strong>
         </div>
       )}
     </section>
   );
 }
+

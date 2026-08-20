@@ -86,7 +86,7 @@ function completionStatus(item: Completion) {
 }
 
 function formatPrize(draw: Draw) {
-  if (draw.prize_value === null) return draw.prize_name;
+  if (draw.prize_value === null) return null;
   return new Intl.NumberFormat("es-AR", {
     style: "currency",
     currency: draw.currency_code,
@@ -131,11 +131,6 @@ export default async function Home() {
   const draw = rawDraw as Draw | null;
   const winners = (rawWinners ?? []) as unknown as PublicWinner[];
   const branding = (rawBranding ?? { creator_text: "Creado por @gonzapuefll", creator_url: "https://www.instagram.com/gonzapuefll/", visible: true }) as { creator_text: string; creator_url: string; visible: boolean };
-  const winnerCounts = winners.reduce<Record<string, number>>((counts, winner) => {
-    counts[winner.instagram_username] = (counts[winner.instagram_username] ?? 0) + 1;
-    return counts;
-  }, {});
-
   let participation: Participation | null = null;
   let socialActions: SocialAction[] = [];
   if (draw && userId) {
@@ -205,8 +200,9 @@ export default async function Home() {
         <section className="draw-card" id="sorteos">
           <div className="draw-head">
             <div><p className="eyebrow cyan">SORTEO #{String(draw.edition_number).padStart(3, "0")}</p><h2>{draw.title}</h2></div>
-            <strong className="prize">{formatPrize(draw)}</strong>
+            {draw.prize_value !== null && <strong className="prize">{formatPrize(draw)}</strong>}
           </div>
+          <p className="draw-prize-name"><span>PREMIO</span><strong>{draw.prize_name}</strong></p>
           {isOpen && draw.closes_at ? <Countdown closesAt={draw.closes_at} /> : isCompleted ? <p className="draw-closed">Sorteo finalizado. Consultá el ganador en el historial.</p> : isClosedPending ? <p className="draw-closed">Participación cerrada. Estamos preparando el sorteo.</p> : <p className="draw-date-pending">Fecha de cierre a confirmar.</p>}
         </section>
       ) : (
@@ -300,14 +296,11 @@ export default async function Home() {
             {winners.map((winner) => (
               <article className="winner-history-card" key={winner.draw_id}>
               <Link className="winner-public-link" href={`/miembro/${encodeURIComponent(winner.instagram_username)}`}>
-                <div className="winner-trophy" aria-hidden="true">♕</div>
+                <div className="winner-trophy" aria-hidden="true">🏆</div>
                 <div>
                   <small>SORTEO #{String(winner.draws.edition_number).padStart(3, "0")}</small>
                   <strong>@{winner.instagram_username}</strong>
                   <span>{winner.draws.prize_name}</span>
-                </div>
-                <div className="winner-medals" aria-label={`${winnerCounts[winner.instagram_username]} sorteos ganados`}>
-                  {Array.from({ length: Math.min(winnerCounts[winner.instagram_username], 5) }, (_, index) => <span key={index}>🏆</span>)}
                 </div>
               </Link>
               </article>
