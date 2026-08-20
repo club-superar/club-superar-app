@@ -63,6 +63,10 @@ button { cursor: pointer; }
 .participant-code small { color: var(--muted); font-size: 9px; letter-spacing: 1.2px; }
 .participant-code strong { color: var(--cyan); font-family: var(--font-geist-mono), monospace; font-size: 23px; }
 .participant-code span { color: var(--muted); font-size: 10px; }
+.participation-refresh { display: grid; gap: 7px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); text-align: center; }
+.participation-refresh button { width: 100%; min-height: 48px; border: 1px solid var(--cyan); border-radius: 13px; background: var(--cyan-soft); color: var(--cyan); font-size: 13px; font-weight: 950; }
+.participation-refresh button:disabled { cursor: wait; opacity: .7; }
+.participation-refresh small { color: var(--muted); font-size: 10px; line-height: 1.45; }
 .requirement-list { display: grid; gap: 9px; }
 .requirement { display: grid; grid-template-columns: 34px 1fr auto; align-items: center; gap: 11px; padding: 13px; border: 1px solid #6b2a31; border-radius: 14px; background: #160d0f; }
 .requirement.done { border-color: var(--line); background: var(--panel); }
