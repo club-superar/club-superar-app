@@ -5,6 +5,7 @@ import { BottomNav } from "@/app/bottom-nav";
 import { AutoStartParticipation } from "@/app/participation/auto-start";
 import { declareRequirement } from "@/app/participation/actions";
 import { RefreshParticipationStatus } from "@/app/participation/refresh-status";
+import { CopyCodeButton } from "@/app/participation/copy-code-button";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -240,7 +241,7 @@ export default async function Home() {
             <div><p className="eyebrow">TU PARTICIPACION</p><h2>{missingCount === 0 ? "¡Estas participando!" : `Te ${missingCount === 1 ? "falta" : "faltan"} ${missingCount} ${missingCount === 1 ? "paso" : "pasos"}`}</h2></div>
             <span>{completedCount}/{requiredCount}</span>
           </div>
-          <div className="participant-code"><small>TU CODIGO DE ESTA EDICION</small><strong>{participation.participant_code}</strong><span>Usa siempre este mismo codigo en tus comentarios.</span></div>
+          <div className="participant-code"><small>TU CODIGO DE ESTA EDICION</small><div className="participant-code-row"><strong>{participation.participant_code}</strong><CopyCodeButton code={participation.participant_code} /></div><span>Usa siempre este mismo codigo en tus comentarios.</span></div>
           <div className="progress"><span style={{ width: `${progress}%` }} /></div>
 
           <div className="requirement-list">
