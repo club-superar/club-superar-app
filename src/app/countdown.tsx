@@ -12,12 +12,27 @@ function remainingUntil(date: string) {
 }
 
 export function Countdown({ closesAt }: { closesAt: string }) {
-  const [remaining, setRemaining] = useState(() => remainingUntil(closesAt));
+  const [remaining, setRemaining] = useState<ReturnType<typeof remainingUntil> | null>(null);
 
   useEffect(() => {
+    const firstTick = window.setTimeout(() => setRemaining(remainingUntil(closesAt)), 0);
     const timer = window.setInterval(() => setRemaining(remainingUntil(closesAt)), 1_000);
-    return () => window.clearInterval(timer);
+    return () => {
+      window.clearTimeout(firstTick);
+      window.clearInterval(timer);
+    };
   }, [closesAt]);
+
+  if (!remaining) {
+    return (
+      <div className="countdown" aria-label="Cargando tiempo restante">
+        <div><strong>--</strong><small>DIAS</small></div><i>:</i>
+        <div><strong>--</strong><small>HORAS</small></div><i>:</i>
+        <div><strong>--</strong><small>MIN</small></div><i>:</i>
+        <div><strong>--</strong><small>SEG</small></div>
+      </div>
+    );
+  }
 
   if (remaining.finished) return <p className="draw-closed">Este sorteo ya cerro.</p>;
   const label = `Faltan ${remaining.days} días, ${remaining.hours} horas, ${remaining.minutes} minutos y ${remaining.seconds} segundos`;
