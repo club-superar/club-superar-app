@@ -11,7 +11,7 @@ type DrawRevealProps = {
 };
 
 export function DrawReveal({ animate, attemptNumber, candidates, official = false, winner }: DrawRevealProps) {
-  const [countdown, setCountdown] = useState(animate ? 3 : 0);
+  const [countdown, setCountdown] = useState(animate ? 10 : 0);
   const [rollingName, setRollingName] = useState(candidates[0] ?? winner);
   const [revealed, setRevealed] = useState(!animate);
 
@@ -25,23 +25,25 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
       return () => window.clearTimeout(revealImmediately);
     }
 
-    const timeouts = [
-      window.setTimeout(() => setCountdown(2), 1000),
-      window.setTimeout(() => setCountdown(1), 2000),
-      window.setTimeout(() => setCountdown(0), 3000),
-      window.setTimeout(() => setRevealed(true), 6600),
-    ];
+    const countdownTimer = window.setInterval(() => {
+      setCountdown((current) => Math.max(0, current - 1));
+    }, 1000);
     let index = 0;
     const ticker = window.setInterval(() => {
       index = (index + 7) % Math.max(candidates.length, 1);
       setRollingName(candidates[index] ?? winner);
     }, 90);
-    const stopTicker = window.setTimeout(() => window.clearInterval(ticker), 6600);
+    const revealTimer = window.setTimeout(() => {
+      window.clearInterval(countdownTimer);
+      window.clearInterval(ticker);
+      setCountdown(0);
+      setRevealed(true);
+    }, 10_000);
 
     return () => {
-      timeouts.forEach(window.clearTimeout);
+      window.clearInterval(countdownTimer);
       window.clearInterval(ticker);
-      window.clearTimeout(stopTicker);
+      window.clearTimeout(revealTimer);
     };
   }, [animate, candidates, winner]);
 
@@ -59,7 +61,7 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
         </div>
       ) : (
         <div className="draw-rolling">
-          <small>BUSCANDO ENTRE LAS CHANCES...</small>
+          <small>BUSCANDO ENTRE HAS CHANCES...</small>
           <strong>@{rollingName}</strong>
         </div>
       )}
