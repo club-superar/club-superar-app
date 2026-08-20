@@ -27,11 +27,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="es" className={`${geist.variable} ${geistMono.variable}`}>
-      <head>
-        <link rel="stylesheet" href="/club.css?v=20260814-3" />
-        <link rel="stylesheet" href="/canjes.css?v=20260814-3" />
-      </head>
       <body><PwaRegister />{children}</body>
     </html>
   );
 }
+
