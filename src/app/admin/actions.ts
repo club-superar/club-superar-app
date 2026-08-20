@@ -107,7 +107,7 @@ export async function createDraw(_: AdminActionState, formData: FormData): Promi
     return { error: "Los tres enlaces deben comenzar con https://" };
   }
   if (!Object.values(rules).every((value) => Number.isInteger(value) && value >= 0 && value <= 100)
-    || !Number.isInteger(maxBaseChances) || maxBaseChances < 2 || maxBaseChances > 6
+    || !Number.isInteger(maxBaseChances) || maxBaseChances < 4 || maxBaseChances > 6
     || !Number.isInteger(maxExtraChances) || maxExtraChances < 0 || maxExtraChances > 2
     || !Number.isInteger(winnerPercent) || winnerPercent < 0 || winnerPercent > 100
     || !Number.isInteger(claimHours) || claimHours < 1 || claimHours > 168) {
@@ -182,7 +182,7 @@ export async function updateDraftDraw(_: AdminActionState, formData: FormData): 
   if (![instagramProfileUrl, whatsappGroupUrl, mainPublicationUrl].every((url) => /^https:\/\//.test(url))) {
     return { error: "Los tres enlaces deben comenzar con https://" };
   }
-  if (!Number.isInteger(values.maxBaseChances) || values.maxBaseChances < 2 || values.maxBaseChances > 6
+  if (!Number.isInteger(values.maxBaseChances) || values.maxBaseChances < 4 || values.maxBaseChances > 6
     || !Number.isInteger(values.maxExtraChances) || values.maxExtraChances < 0 || values.maxExtraChances > 2
     || !Number.isInteger(values.winnerPercent) || values.winnerPercent < 0 || values.winnerPercent > 100
     || !Number.isInteger(values.claimHours) || values.claimHours < 1 || values.claimHours > 168
