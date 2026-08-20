@@ -27,7 +27,9 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          wranglerVersion: "^4.68.0"
+          # Keep the deployment tool deterministic. Newer Wrangler releases
+          # auto-provision an OpenNext R2 cache that this project does not use.
+          wranglerVersion: "4.68.0"
           command: deploy
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
