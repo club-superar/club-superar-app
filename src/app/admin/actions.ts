@@ -635,29 +635,4 @@ export async function confirmPointRedemption(_: AdminActionState, formData: Form
   revalidatePath("/admin/canjes"); revalidatePath("/perfil");
   return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
 }
-export type DeliveryState = { error?: string; success?: boolean };
-
-export async function saveWinnerDelivery(_: DeliveryState, formData: FormData): Promise<DeliveryState> {
-  const actorId = await requireAdminUserId();
-  const drawId = Number(formData.get("drawId"));
-  const winnerId = Number(formData.get("winnerId"));
-  const description = String(formData.get("description") ?? "").trim();
-  const photoSubject = String(formData.get("photoSubject") ?? "");
-  const winnerConsent = formData.get("winnerConsent") === "yes";
-  const photo = formData.get("photo");
-  if (!Number.isSafeInteger(drawId) || !Number.isSafeInteger(winnerId) || description.length < 3 || !["winner", "merchandise"].includes(photoSubject)) return { error: "Revisá los datos de la entrega." };
-  if (photoSubject === "winner" && !winnerConsent) return { error: "Necesitás confirmar la autorización del ganador." };
-  if (!(photo instanceof File) || photo.size === 0 || photo.type !== "image/webp" || photo.size > 819_200) return { error: "La foto no pudo optimizarse o supera el límite permitido." };
-
-  const admin = createAdminSupabaseClient();
-  const path = `draw-${drawId}.webp`;
-  const { error: uploadError } = await admin.storage.from("winner-deliveries").upload(path, await photo.arrayBuffer(), { contentType: "image/webp", upsert: true, cacheControl: "3600" });
-  if (uploadError) return { error: "No pudimos guardar la foto." };
-  const { error } = await admin.from("winner_deliveries").upsert({ draw_id: drawId, winner_id: winnerId, description, photo_path: path, photo_subject: photoSubject, winner_consent_confirmed: winnerConsent, delivered_at: new Date().toISOString(), created_by: actorId, updated_at: new Date().toISOString() }, { onConflict: "draw_id" });
-  if (error) return { error: "Guardamos la foto, pero no pudimos publicar la entrega." };
-  await admin.rpc("admin_update_winner_claim_status", { p_actor_id: actorId, p_winner_id: winnerId, p_new_status: "fulfilled" });
-  revalidatePath("/");
-  revalidatePath(`/admin/sorteos/${drawId}`);
-  return { success: true };
-}
 
