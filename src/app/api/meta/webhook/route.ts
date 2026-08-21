@@ -5,6 +5,48 @@ export const dynamic = "force-dynamic";
 
 const MAX_WEBHOOK_BYTES = 256 * 1024;
 
+type AdminClient = ReturnType<typeof createAdminSupabaseClient>;
+
+async function resolveCommentIdentity(
+  admin: AdminClient,
+  event: { username: string; participantCode: string; mediaId: string },
+) {
+  const { data: profileId, error: profileError } = await admin.rpc("resolve_participant_login", {
+    p_username: event.username,
+  });
+  if (profileError || !profileId) return event.username;
+
+  const [{ data: profile }, { data: participations }] = await Promise.all([
+    admin.from("profiles").select("instagram_username_normalized").eq("id", profileId).maybeSingle(),
+    admin.from("participations")
+      .select("draw_id")
+      .eq("profile_id", profileId)
+      .eq("participant_code", event.participantCode)
+      .order("created_at", { ascending: false })
+      .limit(10),
+  ]);
+
+  const drawIds = [...new Set((participations ?? []).map((item) => item.draw_id))];
+  if (drawIds.length > 0) {
+    const { data: draws } = await admin.from("draws")
+      .select("id, edition_number, instagram_media_id")
+      .in("id", drawIds)
+      .eq("status", "open")
+      .or(`closes_at.is.null,closes_at.gt.${new Date().toISOString()}`)
+      .order("edition_number", { ascending: false })
+      .limit(1);
+    const draw = draws?.[0];
+    if (draw && !draw.instagram_media_id) {
+      await admin.from("draws")
+        .update({ instagram_media_id: event.mediaId })
+        .eq("id", draw.id)
+        .is("instagram_media_id", null);
+    }
+  }
+
+  return profile?.instagram_username_normalized || event.username;
+}
+
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const mode = url.searchParams.get("hub.mode");
@@ -42,10 +84,15 @@ export async function POST(request: Request) {
   const events = parseInstagramWebhook(payload);
   for (const event of events) {
     if (event.kind === "comment") {
+      // El login admite el usuario actual y sus nombres anteriores. Usamos esa
+      // misma identidad para que un cambio de @ no rompa la verificacion social.
+      // El primer comentario valido tambien vincula de forma segura la publicacion
+      // con el sorteo abierto mediante perfil + codigo unico de participacion.
+      const matchedUsername = await resolveCommentIdentity(admin, event);
       const { error } = await admin.rpc("record_instagram_comment", {
         p_external_id: event.externalId,
         p_instagram_user_id: event.instagramUserId,
-        p_instagram_username: event.username,
+        p_instagram_username: matchedUsername,
         p_instagram_media_id: event.mediaId,
         p_participant_code: event.participantCode,
         p_mentions: event.mentions,
@@ -64,3 +111,4 @@ export async function POST(request: Request) {
   }
   return new Response("EVENT_RECEIVED", { status: 200 });
 }
+
