@@ -44,7 +44,7 @@ export default async function PublicMemberPage({ params }: PublicMemberPageProps
   const [{ count: participationCount }, badgeResult, winResult] = await Promise.all([
     admin.from("participations").select("id", { count: "exact", head: true }).eq("profile_id", profile.id),
     admin.from("profile_badges").select("id, awarded_at, badge_definitions!inner(badge_key, name, description, icon)").eq("profile_id", profile.id).order("awarded_at", { ascending: false }),
-    admin.from("winners").select("id, confirmed_at, draws!inner(edition_number, prize_name, prize_value, currency_code)").eq("profile_id", profile.id).order("confirmed_at", { ascending: false }),
+    admin.from("winners").select("id, confirmed_at, draws!inner(edition_number, prize_name, prize_value, currency_code)").eq("profile_id", profile.id).is("superseded_at", null).order("confirmed_at", { ascending: false }),
   ]);
   const badges = (badgeResult.data ?? []) as unknown as PublicBadge[];
   const wins = (winResult.data ?? []) as unknown as PublicWin[];

@@ -12,7 +12,7 @@ type WinnerShareToolsProps = {
 export function WinnerShareTools({ claimDeadline, editionNumber, prize, username }: WinnerShareToolsProps) {
   const [copied, setCopied] = useState(false);
   const deadline = new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(claimDeadline));
-  const message = `🎉 ¡Tenemos ganador del sorteo #${String(editionNumber).padStart(3, "0")}!\n\n🏆 @${username}\n🎁 ${prize}\n\nPara confirmar el premio debe encontrarse actualmente dentro de este grupo y comunicarse por privado con SUPER.AR antes del ${deadline}. Si no cumple los requisitos o no reclama dentro del plazo, se realizará nuevamente el sorteo.`;
+  const message = `🎉 ¡Tenemos ganador del sorteo #${String(editionNumber).padStart(3, "0")}!\n\n🏆 Ganador: @${username}\n🎁 Premio: ${prize}\n\nPara reclamar el premio deberá comunicarse por privado con SUPER.AR antes del ${deadline}.\n\nAntes de la entrega realizaremos la verificación final de los requisitos, incluyendo que continúe dentro de este grupo de WhatsApp.\n\nSi no se comunica dentro del plazo o la verificación final no es correcta, el premio volverá a sortearse entre los demás participantes habilitados.`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   async function copyMessage() {
@@ -31,3 +31,4 @@ export function WinnerShareTools({ claimDeadline, editionNumber, prize, username
     </section>
   );
 }
+

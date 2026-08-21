@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { confirmWinner, disqualifyWinner, markWinnerUnderReview, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus } from "@/app/admin/actions";
+import { confirmWinner, disqualifyWinner, markWinnerUnderReview, rerollConfirmedWinner, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus } from "@/app/admin/actions";
 import { DrawReveal } from "@/app/admin/sorteos/[id]/draw-reveal";
 import { EditDrawForm } from "@/app/admin/sorteos/[id]/edit-draw-form";
 import { WinnerCardGenerator } from "@/app/admin/sorteos/[id]/winner-card-generator";
@@ -75,8 +75,8 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
       .order("created_at", { ascending: false }),
     admin.from("draw_snapshots").select("participant_count, total_chances, snapshot_hash, created_at").eq("draw_id", drawId).order("version", { ascending: false }).limit(1).maybeSingle(),
     admin.from("draw_attempts").select("id, attempt_number, status, created_at, draw_snapshot_entries!inner(instagram_username, participation_id)").eq("draw_id", drawId).order("attempt_number", { ascending: false }).limit(20),
-    admin.from("draw_snapshot_entries").select("instagram_username, draw_snapshots!inner(draw_id)").eq("draw_snapshots.draw_id", drawId).order("id", { ascending: true }),
-    admin.from("winners").select("id, instagram_username, confirmed_at, claim_deadline, claim_status, claimed_at, fulfilled_at").eq("draw_id", drawId).maybeSingle(),
+    admin.from("draw_snapshot_entries").select("instagram_username, participation_id, draw_snapshots!inner(draw_id)").eq("draw_snapshots.draw_id", drawId).order("id", { ascending: true }),
+    admin.from("winners").select("id, instagram_username, confirmed_at, claim_deadline, claim_status, claimed_at, fulfilled_at").eq("draw_id", drawId).is("superseded_at", null).maybeSingle(),
   ]);
   if (!draw) notFound();
 
@@ -88,7 +88,12 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
   const drawAttempts = (attempts ?? []) as unknown as DrawAttempt[];
   const latestAttempt = drawAttempts[0];
   const currentAttempt = drawAttempts.find((attempt) => ["provisional", "under_review"].includes(attempt.status));
-  const candidateNames = (snapshotEntries ?? []).map((entry) => entry.instagram_username);
+  const excludedParticipationIds = new Set(
+    participations.filter((item) => item.status === "disqualified").map((item) => item.id),
+  );
+  const candidateNames = (snapshotEntries ?? [])
+    .filter((entry) => !excludedParticipationIds.has(entry.participation_id))
+    .map((entry) => entry.instagram_username);
   const requirementUrls = Object.fromEntries((requirements ?? []).map((item) => [item.requirement_key, item.action_url ?? ""]));
 
   return (
@@ -188,10 +193,29 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
                 {winner.claim_status === "pending" && (
                   <div>
                     <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="claimed" /><button type="submit">Marcar como reclamado</button></form>
-                    {new Date() >= new Date(winner.claim_deadline) && <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="expired" /><button className="claim-expired" type="submit">Marcar plazo vencido</button></form>}
                   </div>
                 )}
                 {winner.claim_status === "claimed" && <form action={updateWinnerClaimStatus}><input type="hidden" name="drawId" value={draw.id} /><input type="hidden" name="winnerId" value={winner.id} /><input type="hidden" name="newStatus" value="fulfilled" /><button type="submit">Confirmar entrega del premio</button></form>}
+                {winner.claim_status !== "fulfilled" && (
+                  <section className="winner-reroll-panel">
+                    <h3>¿El ganador no puede recibir el premio?</h3>
+                    <p>Se lo excluirá de esta edición y comenzará inmediatamente un nuevo sorteo entre los demás participantes.</p>
+                    <form action={rerollConfirmedWinner}>
+                      <input type="hidden" name="drawId" value={draw.id} />
+                      <input type="hidden" name="winnerId" value={winner.id} />
+                      <input type="hidden" name="reason" value="not_in_whatsapp" />
+                      <button className="reroll-winner" type="submit">No está en WhatsApp · volver a sortear</button>
+                    </form>
+                    {new Date() >= new Date(winner.claim_deadline) && ["pending", "expired"].includes(winner.claim_status) && (
+                      <form action={rerollConfirmedWinner}>
+                        <input type="hidden" name="drawId" value={draw.id} />
+                        <input type="hidden" name="winnerId" value={winner.id} />
+                        <input type="hidden" name="reason" value="claim_expired" />
+                        <button className="reroll-winner" type="submit">No reclamó en término · volver a sortear</button>
+                      </form>
+                    )}
+                  </section>
+                )}
               </section>
             </>
           )}

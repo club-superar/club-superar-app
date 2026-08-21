@@ -400,6 +400,47 @@ export async function updateWinnerClaimStatus(formData: FormData) {
   revalidatePath(`/admin/sorteos/${drawId}`);
 }
 
+export async function rerollConfirmedWinner(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const drawId = Number(formData.get("drawId"));
+  const winnerId = Number(formData.get("winnerId"));
+  const reason = String(formData.get("reason") ?? "");
+  if (!Number.isSafeInteger(drawId) || drawId <= 0 || !Number.isSafeInteger(winnerId) || winnerId <= 0) return;
+  if (!new Set(["not_in_whatsapp", "claim_expired"]).has(reason)) return;
+
+  const admin = createAdminSupabaseClient();
+  const { error: reopenError } = await admin.rpc("admin_reopen_confirmed_winner", {
+    p_actor_id: actorId,
+    p_winner_id: winnerId,
+    p_reason_key: reason,
+  });
+  if (reopenError) {
+    if (reopenError.message.includes("CLAIM_WINDOW_ACTIVE")) throw new Error("El plazo de reclamo todavía no venció.");
+    if (reopenError.message.includes("PRIZE_ALREADY_FULFILLED")) throw new Error("El premio ya fue entregado y no puede volver a sortearse.");
+    throw new Error("No pudimos excluir al ganador para volver a sortear.");
+  }
+
+  const { data, error: drawError } = await admin.rpc("admin_select_provisional_winner", {
+    p_actor_id: actorId,
+    p_draw_id: drawId,
+  });
+  if (drawError) {
+    revalidatePath("/");
+    revalidatePath("/admin");
+    revalidatePath(`/admin/sorteos/${drawId}`);
+    if (drawError.message.includes("NO_CANDIDATES_LEFT")) throw new Error("No quedan otros participantes habilitados para este premio.");
+    throw new Error("El ganador fue excluido. Volvé a intentar el sorteo desde este panel.");
+  }
+
+  const attempt = data as { id?: number } | null;
+  revalidatePath("/");
+  revalidatePath("/perfil");
+  revalidatePath("/admin");
+  revalidatePath("/admin/miembros");
+  revalidatePath(`/admin/sorteos/${drawId}`);
+  redirect(`/admin/sorteos/${drawId}?reveal=${attempt?.id ?? ""}`);
+}
+
 export async function updateBadgeSettings(_: AdminActionState, formData: FormData): Promise<AdminActionState> {
   const actorId = await requireAdminUserId();
   const loyalStreak = Number(formData.get("loyalStreak"));
