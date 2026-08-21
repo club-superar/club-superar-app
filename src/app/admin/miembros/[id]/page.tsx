@@ -13,7 +13,7 @@ type Winner = { id: number; draw_id: number; confirmed_at: string; claim_status:
 type Disqualification = { id: number; draw_id: number; reason_key: string; notes: string | null; created_at: string; draws: { edition_number: number } };
 
 const participationLabels: Record<string, string> = { started: "En progreso", eligible: "Completa", frozen: "Congelada", disqualified: "Descalificada", winner_provisional: "Ganador provisional", winner_confirmed: "Ganador confirmado" };
-const reasonLabels: Record<string, string> = { not_in_whatsapp: "No estaba en WhatsApp", not_following_instagram: "No seguía Instagram", story_not_shared: "No compartió la historia", invalid_comment: "Comentario inválido", false_data: "Datos falsos", other: "Otro" };
+const reasonLabels: Record<string, string> = { not_in_whatsapp: "No estaba en WhatsApp", not_following_instagram: "No seguía Instagram", story_not_shared: "No compartió la historia", invalid_comment: "Comentario inválido", false_data: "Datos falsos", claim_expired: "No reclamó el premio", other: "Otro" };
 
 export default async function AdminMemberPage({ params }: AdminMemberPageProps) {
   await requireAdminUserId();
@@ -26,7 +26,7 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
     admin.from("participations").select("id, status, streak_number, base_chances, extra_chances, final_chances, created_at, draws!inner(id, edition_number, title, status)").eq("profile_id", id).order("created_at", { ascending: false }),
     admin.from("profile_badges").select("id, awarded_at, badge_definitions!inner(badge_key, name, description, icon)").eq("profile_id", id).order("awarded_at", { ascending: false }),
     admin.from("points_ledger").select("id, amount, description, created_at").eq("profile_id", id).order("created_at", { ascending: false }).limit(30),
-    admin.from("winners").select("id, draw_id, confirmed_at, claim_status, draws!inner(edition_number, prize_name)").eq("profile_id", id).order("confirmed_at", { ascending: false }),
+    admin.from("winners").select("id, draw_id, confirmed_at, claim_status, draws!inner(edition_number, prize_name)").eq("profile_id", id).is("superseded_at", null).order("confirmed_at", { ascending: false }),
     admin.from("disqualifications").select("id, draw_id, reason_key, notes, created_at, draws!inner(edition_number), participations!inner(profile_id)").eq("participations.profile_id", id).order("created_at", { ascending: false }),
     admin.from("badge_definitions").select("badge_key, name, description, icon").in("badge_key", ["loyal", "legend"]).eq("active", true).order("id"),
     admin.from("redemption_access_overrides").select("active, reason, granted_at").eq("profile_id", id).maybeSingle(),
@@ -71,3 +71,4 @@ export default async function AdminMemberPage({ params }: AdminMemberPageProps) 
     </main>
   );
 }
+
