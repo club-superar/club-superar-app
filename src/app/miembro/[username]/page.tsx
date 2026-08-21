@@ -87,4 +87,3 @@ export default async function PublicMemberPage({ params }: PublicMemberPageProps
     </main>
   );
 }
-

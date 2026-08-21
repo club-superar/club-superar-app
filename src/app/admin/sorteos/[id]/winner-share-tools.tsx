@@ -12,7 +12,7 @@ type WinnerShareToolsProps = {
 export function WinnerShareTools({ claimDeadline, editionNumber, prize, username }: WinnerShareToolsProps) {
   const [copied, setCopied] = useState(false);
   const deadline = new Intl.DateTimeFormat("es-AR", { dateStyle: "short", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(claimDeadline));
-  const message = `🎉 ¡Tenemos ganador del sorteo #${String(editionNumber).padStart(3, "0")}!\n\n🏆 Ganador: @${username}\n🎁 Premio: ${prize}\n\nPara reclamar el premio deberá comunicarse por privado con SUPER.AR antes del ${deadline}.\n\nAntes de la entrega realizaremos la verificación final de los requisitos, incluyendo que continúe dentro de este grupo de WhatsApp.\n\nSi no se comunica dentro del plazo o la verificación final no es correcta, el premio volverá a sortearse entre los demás participantes habilitados.`;
+  const message = `🎉 ¡Ganador oficial del sorteo #${String(editionNumber).padStart(3, "0")}!\n\n🏆 Ganador: @${username}\n🎁 Premio: ${prize}\n\nEl código privado, el seguimiento de Instagram y la permanencia en este grupo de WhatsApp ya fueron verificados. SUPER.AR coordinará la entrega del premio con el ganador.`;
   const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
 
   async function copyMessage() {
@@ -26,9 +26,8 @@ export function WinnerShareTools({ claimDeadline, editionNumber, prize, username
       <p className="eyebrow cyan">ANUNCIO PARA WHATSAPP</p>
       <h2>Mensaje listo</h2>
       <pre>{message}</pre>
-      <small>Plazo de reclamo: {deadline} (hora Argentina).</small>
+      <small>Verificación completada antes del {deadline} (hora Argentina).</small>
       <div><button type="button" onClick={copyMessage}>{copied ? "Copiado ✓" : "Copiar mensaje"}</button><a href={whatsappUrl} target="_blank" rel="noreferrer">Abrir WhatsApp</a></div>
     </section>
   );
 }
-

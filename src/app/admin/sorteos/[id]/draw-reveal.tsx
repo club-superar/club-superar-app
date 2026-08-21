@@ -61,9 +61,9 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
       ) : revealed ? (
         <div className="draw-winner">
           <span>🎉</span>
-          <small>{official ? "GANADOR OFICIAL" : "GANADOR PROVISIONAL"}</small>
+          <small>{official ? "GANADOR OFICIAL" : "RESULTADO EN VALIDACIÓN"}</small>
           <strong>@{winner}</strong>
-          <p>{official ? "Resultado confirmado y guardado en el historial." : "Todavia debe verificarse antes de confirmarlo oficialmente."}</p>
+          <p>{official ? "Resultado confirmado y guardado en el historial." : "Guardá el video y publicalo solamente después de confirmar al ganador."}</p>
         </div>
       ) : (
         <div className="draw-rolling">
@@ -74,4 +74,3 @@ export function DrawReveal({ animate, attemptNumber, candidates, official = fals
     </section>
   );
 }
-

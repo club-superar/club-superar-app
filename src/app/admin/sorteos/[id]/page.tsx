@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { confirmWinner, disqualifyWinner, markWinnerUnderReview, rerollConfirmedWinner, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus } from "@/app/admin/actions";
+import { confirmWinner, disqualifyWinner, markWinnerUnderReview, rerollConfirmedWinner, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus, verifyProvisionalWinnerClaim } from "@/app/admin/actions";
 import { DrawReveal } from "@/app/admin/sorteos/[id]/draw-reveal";
 import { EditDrawForm } from "@/app/admin/sorteos/[id]/edit-draw-form";
 import { WinnerCardGenerator } from "@/app/admin/sorteos/[id]/winner-card-generator";
 import { WinnerShareTools } from "@/app/admin/sorteos/[id]/winner-share-tools";
+import { ProvisionalShareTools } from "@/app/admin/sorteos/[id]/provisional-share-tools";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
 type AdminDrawPageProps = {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ q?: string; reveal?: string }>;
+  searchParams: Promise<{ q?: string; reveal?: string; notice?: string }>;
 };
 
 type Completion = {
@@ -38,6 +39,10 @@ type DrawAttempt = {
   attempt_number: number;
   status: string;
   created_at: string;
+  claim_deadline: string;
+  claim_code_verified_at: string | null;
+  whatsapp_verified_at: string | null;
+  instagram_follow_verified_at: string | null;
   draw_snapshot_entries: { instagram_username: string; participation_id: number };
 };
 
@@ -74,7 +79,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
       .eq("draw_id", drawId)
       .order("created_at", { ascending: false }),
     admin.from("draw_snapshots").select("participant_count, total_chances, snapshot_hash, created_at").eq("draw_id", drawId).order("version", { ascending: false }).limit(1).maybeSingle(),
-    admin.from("draw_attempts").select("id, attempt_number, status, created_at, draw_snapshot_entries!inner(instagram_username, participation_id)").eq("draw_id", drawId).order("attempt_number", { ascending: false }).limit(20),
+    admin.from("draw_attempts").select("id, attempt_number, status, created_at, claim_deadline, claim_code_verified_at, whatsapp_verified_at, instagram_follow_verified_at, draw_snapshot_entries!inner(instagram_username, participation_id)").eq("draw_id", drawId).order("attempt_number", { ascending: false }).limit(20),
     admin.from("draw_snapshot_entries").select("instagram_username, participation_id, draw_snapshots!inner(draw_id)").eq("draw_snapshots.draw_id", drawId).order("id", { ascending: true }),
     admin.from("winners").select("id, instagram_username, confirmed_at, claim_deadline, claim_status, claimed_at, fulfilled_at").eq("draw_id", drawId).is("superseded_at", null).maybeSingle(),
   ]);
@@ -88,6 +93,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
   const drawAttempts = (attempts ?? []) as unknown as DrawAttempt[];
   const latestAttempt = drawAttempts[0];
   const currentAttempt = drawAttempts.find((attempt) => ["provisional", "under_review"].includes(attempt.status));
+  const provisionalVerified = Boolean(currentAttempt?.claim_code_verified_at && currentAttempt?.whatsapp_verified_at && currentAttempt?.instagram_follow_verified_at);
   const excludedParticipationIds = new Set(
     participations.filter((item) => item.status === "disqualified").map((item) => item.id),
   );
@@ -150,12 +156,19 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
       )}
 
       {currentAttempt && (
-        <DrawReveal
-          animate={revealAttemptId === currentAttempt.id}
-          attemptNumber={currentAttempt.attempt_number}
-          candidates={candidateNames}
-          winner={currentAttempt.draw_snapshot_entries.instagram_username}
-        />
+        <>
+          <DrawReveal
+            animate={revealAttemptId === currentAttempt.id}
+            attemptNumber={currentAttempt.attempt_number}
+            candidates={candidateNames}
+            winner={currentAttempt.draw_snapshot_entries.instagram_username}
+          />
+          <ProvisionalShareTools
+            claimDeadline={currentAttempt.claim_deadline}
+            editionNumber={draw.edition_number}
+            username={currentAttempt.draw_snapshot_entries.instagram_username}
+          />
+        </>
       )}
 
       {draw.status === "completed" && latestAttempt?.status === "confirmed" && (
@@ -226,12 +239,26 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
         <section className="winner-review-panel">
           <p className="eyebrow cyan">VALIDACION MANUAL</p>
           <h2>Revisar a @{currentAttempt.draw_snapshot_entries.instagram_username}</h2>
-          <p>Comproba Instagram, comentario, historia y permanencia en WhatsApp antes de confirmar.</p>
+          <p>Pedile el código privado por WhatsApp. Después comprobá que el número continúa en el grupo y que la cuenta sigue a SUPER.AR.</p>
+          {resolvedSearchParams.notice === "claim-incomplete" && <p className="form-error">Pegá el código y marcá las dos comprobaciones.</p>}
+          {resolvedSearchParams.notice === "claim-invalid" && <p className="form-error">El código no coincide con el ganador provisional.</p>}
+          {resolvedSearchParams.notice === "claim-expired" && <p className="form-error">El código venció. Corresponde volver a sortear.</p>}
+          {resolvedSearchParams.notice === "claim-error" && <p className="form-error">No pudimos verificar el reclamo. Intentá nuevamente.</p>}
+          {resolvedSearchParams.notice === "verification-required" && <p className="form-error">Primero completá la verificación del reclamo.</p>}
+          {resolvedSearchParams.notice === "claim-verified" && <p className="form-success">Código, Instagram y WhatsApp verificados correctamente.</p>}
+          <form action={verifyProvisionalWinnerClaim} className="provisional-verification-form">
+            <input type="hidden" name="drawId" value={draw.id} />
+            <input type="hidden" name="attemptId" value={currentAttempt.id} />
+            <label>Código privado recibido<input name="claimCode" placeholder="PREMIO-XXXXXX" autoCapitalize="characters" autoComplete="off" required disabled={provisionalVerified} /></label>
+            <label className="verification-check"><input type="checkbox" name="whatsappVerified" required disabled={provisionalVerified} defaultChecked={Boolean(currentAttempt.whatsapp_verified_at)} /> Confirmé que su número continúa en el grupo de WhatsApp</label>
+            <label className="verification-check"><input type="checkbox" name="instagramFollowVerified" required disabled={provisionalVerified} defaultChecked={Boolean(currentAttempt.instagram_follow_verified_at)} /> Confirmé que sigue a SUPER.AR en Instagram</label>
+            <button type="submit" disabled={provisionalVerified}>{provisionalVerified ? "Verificación completa ✓" : "Verificar reclamo"}</button>
+          </form>
           <div className="winner-review-actions">
             <form action={confirmWinner}>
               <input type="hidden" name="drawId" value={draw.id} />
               <input type="hidden" name="attemptId" value={currentAttempt.id} />
-              <button className="confirm-winner" type="submit">Confirmar ganador</button>
+              <button className="confirm-winner" type="submit" disabled={!provisionalVerified}>Confirmar ganador oficial</button>
             </form>
             {currentAttempt.status === "provisional" && (
               <form action={markWinnerUnderReview}>
@@ -252,6 +279,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
               <option value="story_not_shared">No compartio la historia</option>
               <option value="invalid_comment">Comentario incorrecto</option>
               <option value="false_data">Datos falsos</option>
+              <option value="claim_expired">No reclamó dentro del plazo</option>
               <option value="other">Otro</option>
             </select>
             <textarea name="notes" placeholder="Detalle opcional; obligatorio si elegis Otro" rows={3} />
@@ -323,4 +351,3 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
     </main>
   );
 }
-

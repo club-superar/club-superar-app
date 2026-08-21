@@ -343,7 +343,7 @@ export async function disqualifyWinner(formData: FormData) {
   if (!ids) return;
   const reason = String(formData.get("reason") ?? "");
   const notes = String(formData.get("notes") ?? "").trim();
-  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "other"]);
+  const reasons = new Set(["not_in_whatsapp", "not_following_instagram", "story_not_shared", "invalid_comment", "false_data", "claim_expired", "other"]);
   if (!reasons.has(reason)) throw new Error("Selecciona un motivo valido.");
   if (reason === "other" && notes.length < 3) throw new Error("Explica el motivo de la descalificacion.");
   const admin = createAdminSupabaseClient();
@@ -368,11 +368,41 @@ export async function confirmWinner(formData: FormData) {
     p_actor_id: actorId,
     p_attempt_id: ids.attemptId,
   });
-  if (error) throw new Error("No pudimos confirmar al ganador.");
+  if (error) {
+    if (error.message.includes("PROVISIONAL_VERIFICATION_REQUIRED")) redirect(`/admin/sorteos/${ids.drawId}?notice=verification-required`);
+    throw new Error("No pudimos confirmar al ganador.");
+  }
   revalidatePath("/");
   revalidatePath("/perfil");
   revalidatePath("/admin");
   revalidatePath(`/admin/sorteos/${ids.drawId}`);
+}
+
+export async function verifyProvisionalWinnerClaim(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const ids = readAttemptActionIds(formData);
+  if (!ids) return;
+  const claimCode = String(formData.get("claimCode") ?? "").trim().toUpperCase();
+  const whatsappVerified = formData.get("whatsappVerified") === "on";
+  const instagramFollowVerified = formData.get("instagramFollowVerified") === "on";
+  if (!/^PREMIO-[A-F0-9]{6}$/.test(claimCode) || !whatsappVerified || !instagramFollowVerified) {
+    redirect(`/admin/sorteos/${ids.drawId}?notice=claim-incomplete`);
+  }
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_verify_provisional_claim", {
+    p_actor_id: actorId,
+    p_attempt_id: ids.attemptId,
+    p_claim_code: claimCode,
+    p_whatsapp_verified: whatsappVerified,
+    p_instagram_follow_verified: instagramFollowVerified,
+  });
+  if (error) {
+    const notice = error.message.includes("INVALID_CLAIM_CODE") ? "claim-invalid"
+      : error.message.includes("CLAIM_EXPIRED") ? "claim-expired" : "claim-error";
+    redirect(`/admin/sorteos/${ids.drawId}?notice=${notice}`);
+  }
+  revalidatePath(`/admin/sorteos/${ids.drawId}`);
+  redirect(`/admin/sorteos/${ids.drawId}?notice=claim-verified`);
 }
 
 export async function updateWinnerClaimStatus(formData: FormData) {
@@ -676,4 +706,3 @@ export async function confirmPointRedemption(_: AdminActionState, formData: Form
   revalidatePath("/admin/canjes"); revalidatePath("/perfil");
   return { success: `Canje confirmado: ${(data as { points?: number })?.points ?? 0} puntos descontados.` };
 }
-

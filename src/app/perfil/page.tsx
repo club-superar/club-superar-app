@@ -3,6 +3,7 @@ import Link from "next/link";
 import { signOut } from "@/app/auth/actions";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { BottomNav } from "@/app/bottom-nav";
+import { ProvisionalClaimAlert, type ProvisionalClaim } from "@/app/participation/provisional-claim-alert";
 
 type ParticipationHistory = {
   id: number;
@@ -40,7 +41,7 @@ export default async function ProfilePage() {
   const userId = data?.claims?.sub;
   if (error || !userId) redirect("/ingresar");
 
-  const [profileResult, pointsResult, participationResult, badgeResult, movementsResult] = await Promise.all([
+  const [profileResult, pointsResult, participationResult, badgeResult, movementsResult, provisionalClaimResult] = await Promise.all([
     supabase.from("profiles").select("instagram_username, display_name, current_streak").eq("id", userId).single(),
     supabase.from("points_ledger").select("amount").eq("profile_id", userId),
     supabase
@@ -60,6 +61,7 @@ export default async function ProfilePage() {
       .eq("profile_id", userId)
       .order("created_at", { ascending: false })
       .limit(6),
+    supabase.rpc("get_my_provisional_claim"),
   ]);
 
   const profile = profileResult.data;
@@ -70,6 +72,7 @@ export default async function ProfilePage() {
   const points = (pointsResult.data ?? []).reduce((total, row) => total + Number(row.amount), 0);
   const currentParticipation = participations.find((item) => ["scheduled", "open"].includes(item.draws.status));
   const winnerCount = badges.filter((item) => item.badge_definitions.badge_key === "winner").length;
+  const provisionalClaim = ((provisionalClaimResult.data ?? []) as ProvisionalClaim[])[0] ?? null;
 
   return (
     <main className="profile-shell">
@@ -91,12 +94,14 @@ export default async function ProfilePage() {
         <article><span>🏆</span><strong>{winnerCount}</strong><small>Sorteos ganados</small></article>
       </section>
 
+      {provisionalClaim && <ProvisionalClaimAlert claim={provisionalClaim} />}
+
       <Link className="profile-guide-link" href="/como-funciona"><span>?</span><div><strong>¿Cómo funciona el Club?</strong><small>Chances, rachas, puntos, insignias y canjes.</small></div><b>→</b></Link>
 
       <section className="profile-panel">
         <div className="profile-section-title"><div><p className="eyebrow cyan">LOGROS</p><h2>Mis insignias</h2></div><span>{badges.length}</span></div>
         {badges.length === 0 ? <p className="profile-empty">Todavía no obtuviste insignias. Participá y mantené tu racha para desbloquearlas.</p> : (
-          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badge_definitions.description}</small></div></article>)}</div>
+          <div className="badge-list">{badges.map((badge) => <article key={badge.id}><span>{badge.badge_definitions.badge_key === "winner" ? "🏆" : badge.badge_definitions.icon}</span><div><strong>{badge.badge_definitions.name}</strong><small>{badge.badge_definitions.description}</small></div></article>)}</div>
         )}
       </section>
 

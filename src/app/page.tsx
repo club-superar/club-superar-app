@@ -6,6 +6,7 @@ import { AutoStartParticipation } from "@/app/participation/auto-start";
 import { declareRequirement } from "@/app/participation/actions";
 import { RefreshParticipationStatus } from "@/app/participation/refresh-status";
 import { CopyCodeButton } from "@/app/participation/copy-code-button";
+import { ProvisionalClaimAlert, type ProvisionalClaim } from "@/app/participation/provisional-claim-alert";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
 type Requirement = {
@@ -132,17 +133,22 @@ export default async function Home() {
     .order("confirmed_at", { ascending: false })
     .limit(20);
   const brandingPromise = supabase.rpc("get_public_branding");
+  const provisionalClaimPromise = userId
+    ? supabase.rpc("get_my_provisional_claim")
+    : Promise.resolve({ data: [] });
 
-  const [{ data: rawDraw }, { data: profile }, { data: pointRows }, { data: rawWinners }, { data: rawBranding }] = await Promise.all([
+  const [{ data: rawDraw }, { data: profile }, { data: pointRows }, { data: rawWinners }, { data: rawBranding }, { data: rawProvisionalClaims }] = await Promise.all([
     drawPromise,
     profilePromise,
     pointsPromise,
     winnersPromise,
     brandingPromise,
+    provisionalClaimPromise,
   ]);
   const draw = rawDraw as Draw | null;
   const winners = (rawWinners ?? []) as unknown as PublicWinner[];
   const branding = (rawBranding ?? { creator_text: "Creado por @gonzapuefll", creator_url: "https://www.instagram.com/gonzapuefll/", visible: true }) as { creator_text: string; creator_url: string; visible: boolean };
+  const provisionalClaim = ((rawProvisionalClaims ?? []) as ProvisionalClaim[])[0] ?? null;
   let participation: Participation | null = null;
   let socialActions: SocialAction[] = [];
   if (draw && userId) {
@@ -224,6 +230,8 @@ export default async function Home() {
           <p>Cuando SUPER.AR la publique, aparecera aca con su premio y contador.</p>
         </section>
       )}
+
+      {provisionalClaim && <ProvisionalClaimAlert claim={provisionalClaim} />}
 
       {draw && username && isOpen && !participation && <AutoStartParticipation drawId={draw.id} />}
 
@@ -331,4 +339,3 @@ export default async function Home() {
     </main>
   );
 }
-

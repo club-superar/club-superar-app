@@ -190,4 +190,3 @@ revoke all on function public.admin_reopen_confirmed_winner(uuid, bigint, text) 
 revoke all on function public.admin_confirm_winner(uuid, bigint) from public, anon, authenticated;
 grant execute on function public.admin_reopen_confirmed_winner(uuid, bigint, text) to service_role;
 grant execute on function public.admin_confirm_winner(uuid, bigint) to service_role;
-
