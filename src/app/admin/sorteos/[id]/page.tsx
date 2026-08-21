@@ -117,7 +117,7 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
 
       <section className="admin-participant-summary">
         <article><strong>{participations.length}</strong><small>Totales</small></article>
-        <article><strong>{participations.filter((item) => item.status === "eligible").length}</strong><small>Completos</small></article>
+        <article><strong>{participations.filter((item) => ["eligible", "frozen", "winner_provisional", "winner_confirmed"].includes(item.status)).length}</strong><small>Completos</small></article>
         <article><strong>{participations.reduce((total, item) => total + item.final_chances, 0)}</strong><small>Chances</small></article>
       </section>
 
@@ -138,8 +138,6 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
         <section className="admin-snapshot">
           <p className="eyebrow cyan">LISTA CONGELADA</p>
           <strong>{snapshot.participant_count} participantes · {Number(snapshot.total_chances)} chances</strong>
-          <small>Huella SHA-256</small>
-          <code>{snapshot.snapshot_hash}</code>
         </section>
       )}
 
@@ -348,6 +346,15 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
           ))}
         </div>
       </section>
+
+      {snapshot && (
+        <details className="admin-technical-details">
+          <summary>Verificación técnica del sorteo</summary>
+          <small>Huella SHA-256 de la lista congelada</small>
+          <code>{snapshot.snapshot_hash}</code>
+        </details>
+      )}
     </main>
   );
 }
+
