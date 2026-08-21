@@ -22,10 +22,10 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const [drawResult, memberResult, winnerResult, disqualificationResult, streakResult, recentWinnerResult, badgeSettingsResult, brandingResult, featuresResult] = await Promise.all([
     admin.from("draws").select("id, edition_number, title, prize_name, prize_value, status, opens_at, closes_at, created_at").order("edition_number", { ascending: false }).limit(12),
     admin.from("profiles").select("id", { count: "exact", head: true }).eq("status", "active"),
-    admin.from("winners").select("id", { count: "exact", head: true }),
+    admin.from("winners").select("id", { count: "exact", head: true }).is("superseded_at", null),
     admin.from("disqualifications").select("id", { count: "exact", head: true }),
     admin.from("profiles").select("id, instagram_username, current_streak, longest_streak").eq("status", "active").order("current_streak", { ascending: false }).order("longest_streak", { ascending: false }).limit(5),
-    admin.from("winners").select("id, draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number)").order("confirmed_at", { ascending: false }).limit(4),
+    admin.from("winners").select("id, draw_id, instagram_username, confirmed_at, claim_status, draws!inner(edition_number)").is("superseded_at", null).order("confirmed_at", { ascending: false }).limit(4),
     admin.rpc("admin_get_badge_thresholds", { p_actor_id: actorId }),
     admin.rpc("get_public_branding"),
     admin.rpc("get_club_public_settings"),
