@@ -296,7 +296,7 @@ export default async function Home() {
             {socialActions.length > 0 && (
               <ul className="extra-action-list">
                 {socialActions.map((action) => (
-                  <li key={action.id}>✓ {action.action_type === "additional_tag" ? `Etiqueta a @${action.target_instagram_username_normalized}` : `Publicacion ${action.publication_id}`}</li>
+                  <li key={action.id}>✓ {action.action_type === "additional_tag" ? `Etiquetaste a @${action.target_instagram_username_normalized}` : "Compartiste otra publicación de SUPER.AR"}</li>
                 ))}
               </ul>
             )}
@@ -340,3 +340,4 @@ export default async function Home() {
     </main>
   );
 }
+
