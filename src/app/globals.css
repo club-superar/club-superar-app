@@ -395,6 +395,11 @@ button { cursor: pointer; }
 .winner-claim-panel form, .winner-claim-panel button { width: 100%; }
 .winner-claim-panel button { min-height: 44px; border: 0; border-radius: 10px; background: var(--cyan); color: #001014; font-size: 11px; font-weight: 900; }
 .winner-claim-panel .claim-expired { border: 1px solid #64313a; background: #42151c; color: #ff9aa6; }
+.winner-reroll-panel { display: grid; gap: 8px; margin-top: 8px; padding-top: 14px; border-top: 1px solid #64313a; }
+.winner-reroll-panel h3, .winner-reroll-panel p { margin: 0; }
+.winner-reroll-panel h3 { font-size: 15px; }
+.winner-reroll-panel p { color: var(--muted); font-size: 10px; line-height: 1.45; }
+.winner-claim-panel .reroll-winner { border: 1px solid #8d3542; background: #42151c; color: #ffb1ba; }
 @media (max-width: 440px) { .winner-claim-panel > div { grid-template-columns: 1fr; } }
 .public-member-shell { width: min(100%, 620px); min-height: 100dvh; margin: 0 auto; padding: 0 18px 60px; }
 .public-member-hero { display: grid; justify-items: center; padding: 30px 0 22px; text-align: center; }
