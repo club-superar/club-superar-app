@@ -39,7 +39,7 @@ export default async function AdminMembersPage({ searchParams }: AdminMembersPag
     ? await Promise.all([
         admin.from("participations").select("profile_id").in("profile_id", profileIds),
         admin.from("profile_badges").select("profile_id").in("profile_id", profileIds),
-        admin.from("winners").select("profile_id").in("profile_id", profileIds),
+        admin.from("winners").select("profile_id").in("profile_id", profileIds).is("superseded_at", null),
       ])
     : [{ data: [] }, { data: [] }, { data: [] }];
 
@@ -88,3 +88,4 @@ export default async function AdminMembersPage({ searchParams }: AdminMembersPag
     </main>
   );
 }
+
