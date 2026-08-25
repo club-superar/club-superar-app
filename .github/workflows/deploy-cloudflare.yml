@@ -37,3 +37,4 @@ jobs:
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
           PARTICIPANT_EMAIL_DOMAIN: ${{ secrets.PARTICIPANT_EMAIL_DOMAIN }}
           RECOVERY_CODE_PEPPER: ${{ secrets.RECOVERY_CODE_PEPPER }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
