@@ -45,7 +45,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
   const claimLabels: Record<string, string> = { pending: "Pendiente de reclamo", claimed: "Reclamado", fulfilled: "Entregado", expired: "Vencido" };
   const badgeSettings = (badgeSettingsResult.data ?? { loyal_streak: 3, legend_points: 100 }) as { loyal_streak?: number; legend_points?: number };
   const branding = (brandingResult.data ?? { creator_text: "Creado por @gonzapuefll", creator_url: "https://www.instagram.com/gonzapuefll/", visible: true }) as { creator_text: string; creator_url: string; visible: boolean };
-  const features = (featuresResult.data ?? { help_instagram_url: "https://www.instagram.com/", redemptions_enabled: false }) as { help_instagram_url?: string; redemptions_enabled?: boolean };
+  const features = (featuresResult.data ?? { help_instagram_url: "https://www.instagram.com/", redemptions_enabled: false, tickets_enabled: false }) as { help_instagram_url?: string; redemptions_enabled?: boolean; tickets_enabled?: boolean };
 
   return (
     <main className="admin-shell">
@@ -92,8 +92,7 @@ export default async function AdminPage({ searchParams }: { searchParams: Promis
       <section className="admin-panel admin-rewards-entry"><div><h2>SUPER Puntos y canjes</h2><p>Configurá valores, productos y validá los códigos de caja.</p></div><Link className="button primary" href="/admin/canjes">Administrar canjes</Link><Link className="button secondary" href="/admin/caja">Configurar encargado de Caja</Link></section>
       <section className="admin-panel"><h2>Insignias automáticas</h2><BadgeSettingsForm loyalStreak={Number(badgeSettings.loyal_streak ?? 3)} legendPoints={Number(badgeSettings.legend_points ?? 100)} /></section>
       <section className="admin-panel"><h2>Crédito del creador</h2><p className="admin-help">Este texto aparece junto al acceso de Administración en la página pública.</p><BrandingForm creatorText={branding.creator_text} creatorUrl={branding.creator_url} visible={branding.visible !== false} /></section>
-
-      <section className="admin-panel"><h2>Lanzamiento y ayuda</h2><p className="admin-help">Controlá cuándo se habilitan los canjes y a qué Instagram se dirige la recuperación.</p><LaunchSettingsForm helpInstagramUrl={features.help_instagram_url ?? "https://www.instagram.com/"} redemptionsEnabled={features.redemptions_enabled === true} /></section>
+      <section className="admin-panel"><h2>Lanzamiento y ayuda</h2><p className="admin-help">Controlá cuándo se habilitan tickets y canjes, y a qué Instagram se dirige la recuperación.</p><LaunchSettingsForm helpInstagramUrl={features.help_instagram_url ?? "https://www.instagram.com/"} redemptionsEnabled={features.redemptions_enabled === true} ticketsEnabled={features.tickets_enabled === true} /></section>
       <section className="admin-panel"><h2>Crear nuevo sorteo</h2><DrawForm /></section>
 
       <section className="admin-panel">

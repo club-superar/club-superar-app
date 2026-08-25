@@ -589,15 +589,16 @@ export async function updateClubFeatures(_: AdminActionState, formData: FormData
   const actorId = await requireAdminUserId();
   const helpInstagramUrl = String(formData.get("helpInstagramUrl") ?? "").trim();
   const redemptionsEnabled = String(formData.get("redemptionsEnabled") ?? "") === "true";
+  const ticketsEnabled = String(formData.get("ticketsEnabled") ?? "") === "true";
   if (!/^https:\/\/(www\.)?instagram\.com\/[A-Za-z0-9._]+\/?$/.test(helpInstagramUrl)) {
     return { error: "Pegá el enlace completo del Instagram oficial de SUPER.AR." };
   }
   const { error } = await createAdminSupabaseClient().rpc("admin_update_club_features", {
-    p_actor_id: actorId, p_help_instagram_url: helpInstagramUrl, p_redemptions_enabled: redemptionsEnabled,
+    p_actor_id: actorId, p_help_instagram_url: helpInstagramUrl, p_redemptions_enabled: redemptionsEnabled, p_tickets_enabled: ticketsEnabled,
   });
   if (error) return { error: "No pudimos guardar la configuración de lanzamiento." };
-  ["/", "/ingresar", "/como-funciona", "/canjes", "/admin"].forEach((path) => revalidatePath(path));
-  return { success: redemptionsEnabled ? "Canjes habilitados públicamente." : "Canjes guardados como Próximamente." };
+  ["/", "/ingresar", "/como-funciona", "/tickets", "/canjes", "/admin"].forEach((path) => revalidatePath(path));
+  return { success: `Configuración guardada. Tickets: ${ticketsEnabled ? "habilitados" : "Próximamente"}. Canjes: ${redemptionsEnabled ? "habilitados" : "Próximamente"}.` };
 }
 
 export async function setMemberRedemptionOverride(_: AdminActionState, formData: FormData): Promise<AdminActionState> {

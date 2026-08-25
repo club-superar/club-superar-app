@@ -30,7 +30,7 @@ export default async function HowItWorksPage() {
     </section>
     <section className="rules-card"><p className="eyebrow cyan">REGLAS DEL SORTEO</p>{draw ? <><h2>Sorteo #{String(draw.edition_number).padStart(3, "0")}: {draw.title}</h2><ul><li>Premio: {draw.prize_name}.</li><li>Se necesita completar todos los requisitos obligatorios.</li><li>Máximo de {totalChances} chances según la configuración actual.</li><li>Antes de confirmar al ganador, SUPER.AR vuelve a revisar los requisitos.</li>{draw.closes_at && <li>Cierra el {new Intl.DateTimeFormat("es-AR", { dateStyle: "long", timeStyle: "short", timeZone: "America/Argentina/Buenos_Aires" }).format(new Date(draw.closes_at))}.</li>}</ul></> : <><h2>Próxima edición</h2><p>Las fechas, el premio y los límites aparecerán acá cuando se publique el próximo sorteo.</p></>}</section>
     <section className="help-card"><div><p className="eyebrow cyan">AYUDA</p><h2>¿Te quedó alguna duda?</h2><p>Escribinos al Instagram oficial y te ayudamos.</p></div><a className="button primary" href={helpUrl} target="_blank" rel="noreferrer">Contactar a SUPER.AR</a></section>
-    <BottomNav active="inicio" signedIn={Boolean(claimsData?.claims?.sub)} />
+    <BottomNav active="sorteo" signedIn={Boolean(claimsData?.claims?.sub)} />
   </main>;
 }
 

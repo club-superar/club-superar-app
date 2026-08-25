@@ -335,9 +335,7 @@ export default async function Home() {
         <span className="club-legal-links"><Link href="/privacidad">Privacidad</Link><Link href="/eliminar-datos">Eliminar mis datos</Link></span>
         <span><Link href="/admin/ingresar">Administración</Link>{branding.visible !== false && <a href={branding.creator_url} target="_blank" rel="noreferrer">{branding.creator_text}</a>}</span>
       </footer>
-
-      <BottomNav active="inicio" signedIn={Boolean(username)} />
+      <BottomNav active="sorteo" signedIn={Boolean(username)} />
     </main>
   );
 }
-
