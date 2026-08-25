@@ -4,8 +4,34 @@ import { createHash } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
+import { readTicketWithGemini } from "@/lib/gemini/ticket-reader";
 
 export type TicketReviewState = { error?: string; success?: string };
+
+export async function extractPendingTicket(formData: FormData) {
+  await requireAdminUserId();
+  const ticketId = String(formData.get("ticketId") ?? "");
+  if (!/^[0-9a-f-]{36}$/i.test(ticketId)) return;
+  const admin = createAdminSupabaseClient();
+  const { data: ticket } = await admin.from("purchase_tickets").select("storage_path,status").eq("id", ticketId).maybeSingle();
+  if (!ticket?.storage_path || ticket.status !== "pending") return;
+  const { data: image } = await admin.storage.from("ticket-temp").download(ticket.storage_path);
+  if (!image) return;
+  const bytes = Buffer.from(await image.arrayBuffer());
+  const extracted = await readTicketWithGemini(bytes, image.type || "image/jpeg");
+  await admin.from("purchase_tickets").update({
+    issuer_cuit: extracted.issuerCuit,
+    receipt_type: extracted.receiptType,
+    point_of_sale: extracted.pointOfSale,
+    receipt_number: extracted.receiptNumber,
+    issued_on: extracted.issuedOn,
+    total_amount: extracted.totalAmount,
+    cae: extracted.cae,
+    cae_expires_on: extracted.caeExpiresOn,
+    updated_at: new Date().toISOString(),
+  }).eq("id", ticketId).eq("status", "pending");
+  revalidatePath("/admin/tickets");
+}
 
 export async function reviewTicket(_: TicketReviewState, formData: FormData): Promise<TicketReviewState> {
   const actorId = await requireAdminUserId();
@@ -51,4 +77,3 @@ export async function reviewTicket(_: TicketReviewState, formData: FormData): Pr
   return result?.status === "duplicate" ? { success: "Duplicado detectado. No se acreditaron puntos." }
     : decision === "approved" ? { success: `Ticket aprobado: +${result?.points ?? 0} SUPER Puntos.` } : { success: "Ticket rechazado y foto eliminada." };
 }
-

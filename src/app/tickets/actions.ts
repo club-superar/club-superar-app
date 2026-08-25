@@ -4,6 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import { readTicketWithGemini } from "@/lib/gemini/ticket-reader";
 
 export type TicketActionState = { error?: string; success?: string };
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
@@ -22,6 +23,7 @@ export async function submitTicket(_: TicketActionState, formData: FormData): Pr
   if (!allowedTypes.has(file.type) || file.size > 6 * 1024 * 1024) return { error: "Usá una imagen JPG, PNG o WEBP de hasta 6 MB." };
 
   const bytes = Buffer.from(await file.arrayBuffer());
+  const extracted = await readTicketWithGemini(bytes, file.type);
   const imageHash = createHash("sha256").update(bytes).digest("hex");
   const { data: existing } = await admin.from("purchase_tickets").select("id").eq("image_sha256", imageHash).maybeSingle();
   if (existing) return { error: "Este ticket ya fue enviado anteriormente." };
@@ -30,13 +32,25 @@ export async function submitTicket(_: TicketActionState, formData: FormData): Pr
   const storagePath = `${userId}/${randomUUID()}.${extension}`;
   const { error: uploadError } = await admin.storage.from("ticket-temp").upload(storagePath, bytes, { contentType: file.type, upsert: false });
   if (uploadError) return { error: "No pudimos subir la foto. Intentá nuevamente." };
-  const { error: insertError } = await admin.from("purchase_tickets").insert({ profile_id: userId, storage_path: storagePath, image_sha256: imageHash });
+  const { error: insertError } = await admin.from("purchase_tickets").insert({
+    profile_id: userId,
+    storage_path: storagePath,
+    image_sha256: imageHash,
+    issuer_cuit: extracted.issuerCuit,
+    receipt_type: extracted.receiptType,
+    point_of_sale: extracted.pointOfSale,
+    receipt_number: extracted.receiptNumber,
+    issued_on: extracted.issuedOn,
+    total_amount: extracted.totalAmount,
+    cae: extracted.cae,
+    cae_expires_on: extracted.caeExpiresOn,
+  });
   if (insertError) {
     await admin.storage.from("ticket-temp").remove([storagePath]);
     return { error: insertError.code === "23505" ? "Este ticket ya fue enviado anteriormente." : "No pudimos registrar el ticket." };
   }
   revalidatePath("/tickets");
   revalidatePath("/admin/tickets");
-  return { success: "Ticket recibido. Quedó pendiente de revisión." };
+  const wasRead = Boolean(extracted.issuerCuit || extracted.receiptNumber || extracted.totalAmount || extracted.cae);
+  return { success: wasRead ? "Ticket leído. Quedó pendiente de confirmación." : "Ticket recibido. No pudimos leer todos los datos; quedó pendiente de revisión manual." };
 }
-
