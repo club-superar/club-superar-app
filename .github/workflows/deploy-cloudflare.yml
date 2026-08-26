@@ -27,6 +27,8 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          secrets: |
+            GEMINI_API_KEY
           # Keep the deployment tool deterministic. Newer Wrangler releases
           # auto-provision an OpenNext R2 cache that this project does not use.
           wranglerVersion: "4.68.0"
