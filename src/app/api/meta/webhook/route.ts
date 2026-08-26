@@ -37,10 +37,11 @@ async function resolveCommentIdentity(
       .limit(1);
     const draw = draws?.[0];
     if (draw && !draw.instagram_media_id) {
-      await admin.from("draws")
+      const { error: linkError } = await admin.from("draws")
         .update({ instagram_media_id: event.mediaId })
         .eq("id", draw.id)
         .is("instagram_media_id", null);
+      if (linkError) throw linkError;
     }
   }
 
