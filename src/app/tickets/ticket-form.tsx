@@ -69,6 +69,6 @@ export function TicketForm() {
     <small>Que se vean el CUIT, número, fecha, importe y CAE. La foto se optimiza automáticamente antes de enviarse.</small>
     {(clientError || state.error) && <p className="form-message error" role="alert">{clientError || state.error}</p>}
     {state.success && <p className="form-message success" role="status">{state.success}</p>}
-    <button className="button primary" disabled={busy}>{preparing ? "Preparando foto…" : pending ? "Enviando…" : "Enviar ticket"}</button>
+    <button className="button primary" disabled={busy}>{preparing ? "Preparando foto…" : pending ? "Analizando ticket…" : "Enviar ticket"}</button>
   </form>;
 }
