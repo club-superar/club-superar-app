@@ -31,7 +31,10 @@ function date(value: unknown) {
 
 export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Promise<TicketData> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return emptyTicket;
+  if (!apiKey) {
+    console.error("Ticket reader: GEMINI_API_KEY is missing");
+    return emptyTicket;
+  }
 
   try {
     const response = await fetch(
@@ -69,7 +72,10 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
         }),
       },
     );
-    if (!response.ok) return emptyTicket;
+    if (!response.ok) {
+      console.error("Ticket reader: Gemini API rejected the request", response.status, (await response.text()).slice(0, 500));
+      return emptyTicket;
+    }
     const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
     const text = payload.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!text) return emptyTicket;
@@ -85,7 +91,8 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
       cae: digits(parsed.cae, 14),
       caeExpiresOn: date(parsed.caeExpiresOn),
     };
-  } catch {
+  } catch (error) {
+    console.error("Ticket reader: unexpected error", error instanceof Error ? error.message : "unknown");
     return emptyTicket;
   }
 }
