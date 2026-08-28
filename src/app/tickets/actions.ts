@@ -23,7 +23,15 @@ export async function submitTicket(_: TicketActionState, formData: FormData): Pr
   if (!allowedTypes.has(file.type) || file.size > 6 * 1024 * 1024) return { error: "Usá una imagen JPG, PNG o WEBP de hasta 6 MB." };
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const extracted = await readTicketWithGemini(bytes, file.type);
+  let extracted;
+  try {
+    extracted = await readTicketWithGemini(bytes, file.type);
+  } catch (error) {
+    if (error instanceof Error && error.message === "TICKET_READER_BUSY") {
+      return { error: "El lector está ocupado. Esperá un minuto e intentá nuevamente." };
+    }
+    return { error: "No pudimos analizar el ticket. Intentá nuevamente." };
+  }
   const recognizedFields = [extracted.issuerCuit, extracted.pointOfSale, extracted.receiptNumber, extracted.issuedOn, extracted.totalAmount, extracted.cae, extracted.caeExpiresOn].filter(Boolean).length;
   if (recognizedFields === 0) {
     return { error: "No pudimos leer ningún dato. Sacá otra foto completa, derecha, con buena luz y sin reflejos." };
