@@ -260,6 +260,8 @@ export default async function Home() {
               const automatic = automaticRequirements.has(requirement.requirement_key);
               const detail = requirement.requirement_key === "comment_and_tag"
                 ? `Comenta, etiqueta a 2 personas y agrega ${participation.participant_code}`
+                : requirement.requirement_key === "share_story"
+                  ? "Compartila en tu historia y menciona a @autoserviciosuper.ar."
                 : requirement.instructions;
               return (
                 <article className={done ? "requirement done" : "requirement"} key={item.id}>
