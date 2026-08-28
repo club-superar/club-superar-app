@@ -15,7 +15,7 @@ export function RegisterForm() {
         <span className="success-mark">✓</span>
         <p className="eyebrow cyan">CUENTA CREADA</p>
         <h1>Guardá este código</h1>
-        <p>Lo vas a necesitar para entrar desde otro celular. No se lo compartas a nadie.</p>
+        <p>Lo vas a necesitar para volver a entrar. Guardalo ahora en Notas, en un chat de WhatsApp con vos mismo o en otro lugar seguro. No se lo compartas a nadie.</p>
         <strong className="recovery-code">{state.recoveryCode}</strong>
         <button className="button secondary" type="button" onClick={async () => {
           await navigator.clipboard.writeText(state.recoveryCode ?? "");
