@@ -24,6 +24,10 @@ export async function submitTicket(_: TicketActionState, formData: FormData): Pr
 
   const bytes = Buffer.from(await file.arrayBuffer());
   const extracted = await readTicketWithGemini(bytes, file.type);
+  const recognizedFields = [extracted.issuerCuit, extracted.pointOfSale, extracted.receiptNumber, extracted.issuedOn, extracted.totalAmount, extracted.cae, extracted.caeExpiresOn].filter(Boolean).length;
+  if (recognizedFields === 0) {
+    return { error: "No pudimos leer ningún dato. Sacá otra foto completa, derecha, con buena luz y sin reflejos." };
+  }
   const imageHash = createHash("sha256").update(bytes).digest("hex");
   const { data: existing } = await admin.from("purchase_tickets").select("id").eq("image_sha256", imageHash).maybeSingle();
   if (existing) return { error: "Este ticket ya fue enviado anteriormente." };
@@ -51,6 +55,7 @@ export async function submitTicket(_: TicketActionState, formData: FormData): Pr
   }
   revalidatePath("/tickets");
   revalidatePath("/admin/tickets");
-  const wasRead = Boolean(extracted.issuerCuit || extracted.receiptNumber || extracted.totalAmount || extracted.cae);
-  return { success: wasRead ? "Ticket leído. Quedó pendiente de confirmación." : "Ticket recibido. No pudimos leer todos los datos; quedó pendiente de revisión manual." };
+  return { success: recognizedFields === 7
+    ? "Ticket leído correctamente. Quedó pendiente de confirmación."
+    : `Ticket recibido. Reconocimos ${recognizedFields} de 7 datos; el resto se revisará manualmente.` };
 }
