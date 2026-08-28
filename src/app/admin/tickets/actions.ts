@@ -7,30 +7,41 @@ import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 import { readTicketWithGemini } from "@/lib/gemini/ticket-reader";
 
 export type TicketReviewState = { error?: string; success?: string };
+export type TicketExtractionState = { error?: string; success?: string };
 
-export async function extractPendingTicket(formData: FormData) {
-  await requireAdminUserId();
-  const ticketId = String(formData.get("ticketId") ?? "");
-  if (!/^[0-9a-f-]{36}$/i.test(ticketId)) return;
-  const admin = createAdminSupabaseClient();
-  const { data: ticket } = await admin.from("purchase_tickets").select("storage_path,status").eq("id", ticketId).maybeSingle();
-  if (!ticket?.storage_path || ticket.status !== "pending") return;
-  const { data: image } = await admin.storage.from("ticket-temp").download(ticket.storage_path);
-  if (!image) return;
-  const bytes = Buffer.from(await image.arrayBuffer());
-  const extracted = await readTicketWithGemini(bytes, image.type || "image/jpeg");
-  await admin.from("purchase_tickets").update({
-    issuer_cuit: extracted.issuerCuit,
-    receipt_type: extracted.receiptType,
-    point_of_sale: extracted.pointOfSale,
-    receipt_number: extracted.receiptNumber,
-    issued_on: extracted.issuedOn,
-    total_amount: extracted.totalAmount,
-    cae: extracted.cae,
-    cae_expires_on: extracted.caeExpiresOn,
-    updated_at: new Date().toISOString(),
-  }).eq("id", ticketId).eq("status", "pending");
-  revalidatePath("/admin/tickets");
+export async function extractPendingTicket(_: TicketExtractionState, formData: FormData): Promise<TicketExtractionState> {
+  try {
+    await requireAdminUserId();
+    const ticketId = String(formData.get("ticketId") ?? "");
+    if (!/^[0-9a-f-]{36}$/i.test(ticketId)) return { error: "El ticket seleccionado no es válido." };
+    const admin = createAdminSupabaseClient();
+    const { data: ticket, error: ticketError } = await admin.from("purchase_tickets").select("storage_path,status").eq("id", ticketId).maybeSingle();
+    if (ticketError) return { error: "No pudimos consultar el ticket. Intentá nuevamente." };
+    if (!ticket?.storage_path) return { error: "La foto temporal ya no está disponible." };
+    if (ticket.status !== "pending") return { error: "Este ticket ya fue revisado." };
+    const { data: image, error: imageError } = await admin.storage.from("ticket-temp").download(ticket.storage_path);
+    if (imageError || !image) return { error: "No pudimos abrir la foto del ticket." };
+    const bytes = Buffer.from(await image.arrayBuffer());
+    const extracted = await readTicketWithGemini(bytes, image.type || "image/jpeg");
+    const recognizedFields = [extracted.issuerCuit, extracted.pointOfSale, extracted.receiptNumber, extracted.issuedOn, extracted.totalAmount, extracted.cae, extracted.caeExpiresOn].filter(Boolean).length;
+    if (recognizedFields === 0) return { error: "No pudimos reconocer los datos. Revisá la foto o completalos manualmente." };
+    const { error: updateError } = await admin.from("purchase_tickets").update({
+      issuer_cuit: extracted.issuerCuit,
+      receipt_type: extracted.receiptType,
+      point_of_sale: extracted.pointOfSale,
+      receipt_number: extracted.receiptNumber,
+      issued_on: extracted.issuedOn,
+      total_amount: extracted.totalAmount,
+      cae: extracted.cae,
+      cae_expires_on: extracted.caeExpiresOn,
+      updated_at: new Date().toISOString(),
+    }).eq("id", ticketId).eq("status", "pending");
+    if (updateError) return { error: "Leímos la foto, pero no pudimos guardar los datos." };
+    revalidatePath("/admin/tickets");
+    return { success: `Lectura terminada: reconocimos ${recognizedFields} de 7 datos. Revisalos antes de aprobar.` };
+  } catch {
+    return { error: "No pudimos leer este ticket automáticamente. Podés intentarlo otra vez o completar los datos manualmente." };
+  }
 }
 
 export async function reviewTicket(_: TicketReviewState, formData: FormData): Promise<TicketReviewState> {
