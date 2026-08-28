@@ -6,6 +6,7 @@ import { AutoStartParticipation } from "@/app/participation/auto-start";
 import { declareRequirement } from "@/app/participation/actions";
 import { RefreshParticipationStatus } from "@/app/participation/refresh-status";
 import { CopyCodeButton } from "@/app/participation/copy-code-button";
+import { CommentActionButton } from "@/app/participation/comment-action-button";
 import { ProvisionalClaimAlert, type ProvisionalClaim } from "@/app/participation/provisional-claim-alert";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -259,7 +260,7 @@ export default async function Home() {
               const requirement = item.draw_requirements;
               const automatic = automaticRequirements.has(requirement.requirement_key);
               const detail = requirement.requirement_key === "comment_and_tag"
-                ? `Comenta, etiqueta a 2 personas y agrega ${participation.participant_code}`
+                ? `Comentá etiquetando a 2 personas y agregá ${participation.participant_code}`
                 : requirement.requirement_key === "share_story"
                   ? "Compartila en tu historia y menciona a @autoserviciosuper.ar."
                 : requirement.instructions;
@@ -269,7 +270,9 @@ export default async function Home() {
                   <div><strong>{requirement.title}</strong><small>{detail}</small><em className={`completion-status ${status.tone}`}>{status.label}</em></div>
                   {!done && (
                     <div className="requirement-actions">
-                      {requirement.action_url && <a href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>}
+                      {requirement.action_url && (requirement.requirement_key === "comment_and_tag"
+                        ? <CommentActionButton actionUrl={requirement.action_url} code={participation.participant_code} />
+                        : <a href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>)}
                       {automatic ? (
                         <span className="automatic-check">Se confirma automáticamente</span>
                       ) : (
