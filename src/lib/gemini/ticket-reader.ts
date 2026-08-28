@@ -38,9 +38,10 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
 
   try {
     const response = await fetch(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
       {
         method: "POST",
+        signal: AbortSignal.timeout(50_000),
         headers: {
           "content-type": "application/json",
           "x-goog-api-key": apiKey,
@@ -74,6 +75,7 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
     );
     if (!response.ok) {
       console.error("Ticket reader: Gemini API rejected the request", response.status, (await response.text()).slice(0, 500));
+      if ([429, 503, 524].includes(response.status)) throw new Error("TICKET_READER_BUSY");
       return emptyTicket;
     }
     const payload = await response.json() as { candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }> };
@@ -92,6 +94,9 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
       caeExpiresOn: date(parsed.caeExpiresOn),
     };
   } catch (error) {
+    if (error instanceof Error && (error.message === "TICKET_READER_BUSY" || error.name === "TimeoutError")) {
+      throw new Error("TICKET_READER_BUSY");
+    }
     console.error("Ticket reader: unexpected error", error instanceof Error ? error.message : "unknown");
     return emptyTicket;
   }

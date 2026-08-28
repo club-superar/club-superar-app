@@ -80,8 +80,8 @@ export function TicketForm() {
       <strong>{preparing ? "Preparando la foto…" : `Analizando ticket… ${elapsedSeconds} s`}</strong><br/>
       No salgas de esta pantalla. La lectura normalmente puede demorar entre 30 y 60 segundos.
     </div>}
-    {(clientError || state.error) && <p className="form-message error" role="alert">{clientError || state.error}</p>}
-    {state.success && <p className="form-message success" role="status">{state.success}</p>}
+    {!busy && (clientError || state.error) && <p className="form-message error" role="alert">{clientError || state.error}</p>}
+    {!busy && state.success && <p className="form-message success" role="status">{state.success}</p>}
     <button className="button primary" disabled={busy}>{preparing ? "Preparando foto…" : pending ? "Analizando ticket…" : "Enviar ticket"}</button>
   </form>;
 }
