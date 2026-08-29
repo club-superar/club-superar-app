@@ -39,7 +39,7 @@ export default async function TicketsPage() {
         <Link className="text-link" href="/como-funciona">Conocer cómo funciona el Club</Link>
       </section>}
       {settings.tickets_enabled && signedIn && <>
-        <section className="profile-card ticket-card"><p className="eyebrow cyan">PRUEBA INTERNA</p><h2>Escanear mi ticket</h2><p>Por ahora aceptamos Factura B. La imagen es privada y se elimina al aprobarla o rechazarla.</p><TicketForm /></section>
+        <section className="profile-card ticket-card"><h2>Escanear mi ticket</h2><p>Por ahora aceptamos Factura B. La imagen es privada y se elimina al aprobarla o rechazarla.</p><TicketForm /></section>
         <section className="profile-card"><p className="eyebrow cyan">MIS COMPRAS</p><h2>Historial de tickets</h2><div className="ticket-history">
           {(tickets ?? []).length === 0 && <p>Todavía no enviaste ningún ticket.</p>}
           {(tickets ?? []).map((ticket) => <article key={ticket.id}><div><strong>{statusLabels[ticket.status] ?? ticket.status}</strong><small>{new Date(ticket.created_at).toLocaleDateString("es-AR")}{ticket.total_amount ? ` · $${Number(ticket.total_amount).toLocaleString("es-AR")}` : ""}</small></div><b>{ticket.status === "approved" ? `+${ticket.points_awarded} puntos` : ticket.rejection_reason ?? "Pendiente"}</b></article>)}
