@@ -41,7 +41,7 @@ export async function readTicketWithGemini(bytes: Buffer, mimeType: string): Pro
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent",
       {
         method: "POST",
-        signal: AbortSignal.timeout(50_000),
+        signal: AbortSignal.timeout(75_000),
         headers: {
           "content-type": "application/json",
           "x-goog-api-key": apiKey,
