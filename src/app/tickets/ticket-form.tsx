@@ -72,6 +72,13 @@ export function TicketForm() {
   }
 
   const busy = preparing || pending;
+  if (state.success) {
+    return <div className="ticket-upload-form ticket-upload-complete">
+      <p className="form-message success" role="status">{state.success}</p>
+      <small>La foto ya fue enviada y quedó pendiente de revisión.</small>
+    </div>;
+  }
+
   return <form action={action} className="ticket-upload-form" onSubmit={handleSubmit}>
     <label htmlFor="ticket-photo">Foto completa de tu Factura B</label>
     <input id="ticket-photo" name="ticket" type="file" accept="image/*" capture="environment" required />
@@ -81,7 +88,6 @@ export function TicketForm() {
       No salgas de esta pantalla. La lectura normalmente puede demorar entre 30 y 75 segundos.
     </div>}
     {!busy && (clientError || state.error) && <p className="form-message error" role="alert">{clientError || state.error}</p>}
-    {!busy && state.success && <p className="form-message success" role="status">{state.success}</p>}
     <button className="button primary" disabled={busy}>{preparing ? "Preparando foto…" : pending ? "Analizando ticket…" : "Enviar ticket"}</button>
   </form>;
 }
