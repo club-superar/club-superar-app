@@ -78,7 +78,7 @@ export function TicketForm() {
     <small>Que se vean el CUIT, número, fecha, importe y CAE. La foto se optimiza automáticamente antes de enviarse.</small>
     {busy && <div className="form-message" role="status" aria-live="polite">
       <strong>{preparing ? "Preparando la foto…" : `Analizando ticket… ${elapsedSeconds} s`}</strong><br/>
-      No salgas de esta pantalla. La lectura normalmente puede demorar entre 30 y 60 segundos.
+      No salgas de esta pantalla. La lectura normalmente puede demorar entre 30 y 75 segundos.
     </div>}
     {!busy && (clientError || state.error) && <p className="form-message error" role="alert">{clientError || state.error}</p>}
     {!busy && state.success && <p className="form-message success" role="status">{state.success}</p>}
