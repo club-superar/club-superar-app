@@ -82,6 +82,7 @@ button { cursor: pointer; }
 .requirement button { padding: 9px 11px; border: 0; border-radius: 10px; background: var(--red); color: white; font-size: 11px; font-weight: 800; }
 .requirement-actions { display: grid; gap: 5px; justify-items: stretch; }
 .requirement-actions a { padding: 5px; color: var(--cyan); text-align: center; font-size: 10px; font-weight: 800; }
+.requirement-actions a.requirement-open-link { padding: 9px 11px; border-radius: 10px; background: var(--red); color: white; font-size: 11px; }
 .eligible-note { margin: 14px 0 0; padding: 13px; border: 1px solid #197177; border-radius: 13px; background: #071416; color: #b9d9db; font-size: 12px; line-height: 1.5; }
 .bonus { display: grid; grid-template-columns: 32px 1fr 34px; align-items: center; gap: 10px; margin-top: 14px; padding: 16px; border: 1px dashed #27595d; border-radius: 16px; background: #091315; }
 .bonus > span { font-size: 23px; }
