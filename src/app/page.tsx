@@ -272,7 +272,7 @@ export default async function Home() {
                     <div className="requirement-actions">
                       {requirement.action_url && (requirement.requirement_key === "comment_and_tag"
                         ? <CommentActionButton actionUrl={requirement.action_url} code={participation.participant_code} />
-                        : <a href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>)}
+                        : <a className="requirement-open-link" href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>)}
                       {automatic ? (
                         <span className="automatic-check">Se confirma automáticamente</span>
                       ) : (
