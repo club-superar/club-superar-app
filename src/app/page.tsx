@@ -7,6 +7,7 @@ import { declareRequirement } from "@/app/participation/actions";
 import { RefreshParticipationStatus } from "@/app/participation/refresh-status";
 import { CopyCodeButton } from "@/app/participation/copy-code-button";
 import { CommentActionButton } from "@/app/participation/comment-action-button";
+import { StoryActionButton } from "@/app/participation/story-action-button";
 import { ProvisionalClaimAlert, type ProvisionalClaim } from "@/app/participation/provisional-claim-alert";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 
@@ -272,6 +273,8 @@ export default async function Home() {
                     <div className="requirement-actions">
                       {requirement.action_url && (requirement.requirement_key === "comment_and_tag"
                         ? <CommentActionButton actionUrl={requirement.action_url} code={participation.participant_code} />
+                        : requirement.requirement_key === "share_story"
+                          ? <StoryActionButton actionUrl={requirement.action_url} />
                         : <a className="requirement-open-link" href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>)}
                       {automatic ? (
                         <span className="automatic-check">Se confirma automáticamente</span>
