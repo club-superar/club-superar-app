@@ -277,6 +277,27 @@ export async function freezeDraw(formData: FormData) {
   redirect("/admin?notice=frozen");
 }
 
+export async function grantManualExtraChance(formData: FormData) {
+  const actorId = await requireAdminUserId();
+  const participationId = Number(formData.get("participationId"));
+  const drawId = Number(formData.get("drawId"));
+  const reason = String(formData.get("reason") ?? "").trim();
+  if (!Number.isSafeInteger(participationId) || participationId <= 0) return;
+  if (!Number.isSafeInteger(drawId) || drawId <= 0) return;
+  if (reason.length < 3) throw new Error("Escribí el motivo de la chance extra.");
+
+  const admin = createAdminSupabaseClient();
+  const { error } = await admin.rpc("admin_grant_extra_chance", {
+    p_actor_id: actorId,
+    p_participation_id: participationId,
+    p_reason: reason,
+  });
+  if (error) throw new Error("No pudimos otorgar la chance extra.");
+  revalidatePath(`/admin/sorteos/${drawId}`);
+  revalidatePath("/");
+  revalidatePath("/perfil");
+}
+
 export async function deleteTestDraw(formData: FormData) {
   const actorId = await requireAdminUserId();
   const drawId = Number(formData.get("drawId"));
