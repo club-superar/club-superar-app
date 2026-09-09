@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { confirmWinner, disqualifyWinner, markWinnerUnderReview, rerollConfirmedWinner, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus, verifyProvisionalWinnerClaim } from "@/app/admin/actions";
+import { confirmWinner, disqualifyWinner, grantManualExtraChance, markWinnerUnderReview, rerollConfirmedWinner, reviewRequirement, selectProvisionalWinner, updateWinnerClaimStatus, verifyProvisionalWinnerClaim } from "@/app/admin/actions";
 import { DrawReveal } from "@/app/admin/sorteos/[id]/draw-reveal";
 import { EditDrawForm } from "@/app/admin/sorteos/[id]/edit-draw-form";
 import { WinnerCardGenerator } from "@/app/admin/sorteos/[id]/winner-card-generator";
 import { WinnerShareTools } from "@/app/admin/sorteos/[id]/winner-share-tools";
 import { ProvisionalShareTools } from "@/app/admin/sorteos/[id]/provisional-share-tools";
+import styles from "@/app/admin/sorteos/[id]/manual-extra-chance.module.css";
 import { requireAdminUserId } from "@/lib/auth/admin";
 import { createAdminSupabaseClient } from "@/lib/supabase/admin";
 
@@ -342,6 +343,22 @@ export default async function AdminDrawParticipantsPage({ params, searchParams }
                     </div>
                   ))}
               </div>
+              {draw.status === "open" && (
+                <div className={styles.control}>
+                  <div>
+                    <strong>Chances extra manuales</strong>
+                    <small>{item.extra_chances}/{draw.max_extra_chances} otorgadas</small>
+                  </div>
+                  {item.extra_chances < draw.max_extra_chances ? (
+                    <form action={grantManualExtraChance}>
+                      <input type="hidden" name="participationId" value={item.id} />
+                      <input type="hidden" name="drawId" value={draw.id} />
+                      <input name="reason" aria-label={`Motivo de chance extra para ${item.profiles.instagram_username}`} placeholder="Ej.: compartió otra historia" minLength={3} required />
+                      <button type="submit">Dar +1 chance extra</button>
+                    </form>
+                  ) : <span>Máximo alcanzado ✓</span>}
+                </div>
+              )}
             </article>
           ))}
         </div>
