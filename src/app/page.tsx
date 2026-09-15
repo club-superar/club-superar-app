@@ -83,7 +83,7 @@ function completionStatus(item: Completion) {
   if (item.state === "verified") return { label: "Completado", tone: "complete" };
   if (item.state === "rejected") return { label: "Revisión manual", tone: "review" };
   if (item.state === "declared") return automaticRequirements.has(item.draw_requirements.requirement_key)
-    ? { label: "Verificando", tone: "checking" }
+    ? { label: "Pendiente de revisión", tone: "checking" }
     : { label: "Completado", tone: "complete" };
   return automaticRequirements.has(item.draw_requirements.requirement_key)
     ? { label: "Pendiente automático", tone: "pending" }
@@ -276,12 +276,12 @@ export default async function Home() {
                         : requirement.requirement_key === "share_story"
                           ? <StoryActionButton actionUrl={requirement.action_url} />
                         : <a className="requirement-open-link" href={requirement.action_url} target="_blank" rel="noreferrer">Abrir</a>)}
-                      {automatic ? (
-                        <span className="automatic-check">Se confirma automáticamente</span>
+                      {automatic && item.state === "declared" ? (
+                        <span className="automatic-check">Administración revisará este paso</span>
                       ) : (
                         <form action={declareRequirement}>
                           <input type="hidden" name="completionId" value={item.id} />
-                          <button type="submit">Ya lo hice</button>
+                          <button type="submit">{automatic ? "Avisar que ya lo hice" : "Ya lo hice"}</button>
                         </form>
                       )}
                     </div>
@@ -308,7 +308,7 @@ export default async function Home() {
                 ))}
               </ul>
             )}
-            {participation.extra_chances < 2 && <p className="automatic-extra-note">Las chances extra aparecen solas cuando Instagram confirma una etiqueta adicional o una nueva mención en historia.</p>}
+            {participation.extra_chances < 2 && <p className="automatic-extra-note">Si cumplís una acción adicional, Administración puede comprobarla y sumar la chance manualmente.</p>}
           </div>
         </aside>
       )}
