@@ -45,9 +45,6 @@ export async function declareRequirement(formData: FormData) {
     p_completion_id: completionId,
   });
   if (error) {
-    if (error.message.includes("AUTOMATIC_VERIFICATION_REQUIRED")) {
-      throw new Error("Este paso se confirma automaticamente desde Instagram.");
-    }
     throw new Error("No pudimos guardar este paso.");
   }
   revalidatePath("/");
