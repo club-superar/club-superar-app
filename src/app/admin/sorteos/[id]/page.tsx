@@ -56,7 +56,7 @@ const attemptStatusLabels: Record<string, string> = {
 
 const stateLabels: Record<string, string> = {
   not_started: "Sin completar",
-  declared: "Declarado",
+  declared: "Pendiente de revisión",
   detected: "Detectado",
   verified: "Verificado",
   rejected: "Rechazado",
